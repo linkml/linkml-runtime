@@ -1,8 +1,8 @@
 import json
-from typing import Union, TextIO, Optional, Dict, Type
+from typing import Dict, Optional, TextIO, Type, Union
 
+import click
 from hbreader import FileInfo
-
 from linkml_runtime.loaders.loader_root import Loader
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
@@ -25,3 +25,35 @@ class JSONLoader(Loader):
             metadata.base_path = base_dir
         return self.load_source(source, loader, target_class,
                                 accept_header="application/ld+json, application/json, text/json", metadata=metadata)
+
+@click.group()
+def cli():
+    pass
+@cli.command('json_load')
+@click.option('-i', '--input', help='Data source that needs to be loaded.')
+@click.option('-t', '--target', help=' Target class')
+@click.option('b', '--base-dir', help='Base directory (optional)')
+@click.option('-m', '--metadata', help='Metadata (optional)')
+
+
+def load_click(input:str, target:str, base_dir:str, metadata:str) -> YAMLRoot:
+    """Loads data from source
+
+    Args:
+
+        input (str): Input data to load
+
+        target (str): Target Class
+
+        base_dir (str): Base directory
+
+        metadata (str): Metadata
+
+    Returns:
+
+        YAMLRoot
+    """
+    JSONLoader.load(source=input, target_class=target, base_dir=base_dir, metadata=metadata)
+
+if __name__ == '__main__':
+    cli()

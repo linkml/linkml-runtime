@@ -1,15 +1,14 @@
-from typing import Union, TextIO, Optional, Type
+from typing import Optional, TextIO, Type, Union
 
+import click
 from hbreader import FileInfo
-
 from linkml_runtime.loaders.loader_root import Loader
+from linkml_runtime.loaders.requests_ssl_patch import no_ssl_verification
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE
 from linkml_runtime.utils.yamlutils import YAMLRoot
 from pyld import jsonld
 from rdflib import Graph
 from rdflib_pyld_compat import pyld_jsonld_from_rdflib_graph
-
-from linkml_runtime.loaders.requests_ssl_patch import no_ssl_verification
 
 # TODO: figure out what mime types go here.  I think we can find the complete set in rdflib
 RDF_MIME_TYPES = "application/x-turtle;q=0.9, application/rdf+n3;q=0.8, application/rdf+xml;q=0.5, text/plain;q=0.1"
@@ -81,3 +80,35 @@ class RDFLoader(Loader):
         # TODO: Make the SSL option a settable parameter in the package itself
         with no_ssl_verification():
             return self.load_source(source, loader, target_class, accept_header=RDF_MIME_TYPES, metadata=metadata)
+
+@click.group()
+def cli():
+    pass
+@cli.command('rdf_load')
+@click.option('-i', '--input', help='Data source that needs to be loaded.')
+@click.option('-t', '--target', help=' Target class')
+@click.option('b', '--base-dir', help='Base directory (optional)')
+@click.option('-m', '--metadata', help='Metadata (optional)')
+
+
+def load_click(input:str, target:str, base_dir:str, metadata:str) -> YAMLRoot:
+    """Loads data from source
+
+    Args:
+
+        input (str): Input data to load
+
+        target (str): Target Class
+
+        base_dir (str): Base directory
+
+        metadata (str): Metadata
+
+    Returns:
+
+        YAMLRoot
+    """
+    RDFLoader.load(source=input, target_class=target, base_dir=base_dir, metadata=metadata)
+
+if __name__ == '__main__':
+    cli()
