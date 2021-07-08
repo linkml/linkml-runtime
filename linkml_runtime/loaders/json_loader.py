@@ -32,7 +32,7 @@ def cli():
 @cli.command('json_load')
 @click.option('-i', '--input', help='Data source that needs to be loaded.')
 @click.option('-t', '--target', help=' Target class')
-@click.option('b', '--base-dir', help='Base directory (optional)')
+@click.option('-b', '--base-dir', help='Base directory (optional)')
 @click.option('-m', '--metadata', help='Metadata (optional)')
 
 
