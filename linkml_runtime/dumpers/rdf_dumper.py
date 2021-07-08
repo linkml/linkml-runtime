@@ -1,15 +1,15 @@
 import json
 from typing import Optional
 
+import click
 from hbreader import hbread
+from linkml_runtime.dumpers.dumper_root import Dumper
+from linkml_runtime.utils.context_utils import (CONTEXT_TYPE,
+                                                CONTEXTS_PARAM_TYPE)
+from linkml_runtime.utils.yamlutils import YAMLRoot
 from pyld.jsonld import expand
 from rdflib import Graph
 from rdflib_pyld_compat import rdflib_graph_from_pyld_jsonld
-
-
-from linkml_runtime.dumpers.dumper_root import Dumper
-from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE, CONTEXT_TYPE
-from linkml_runtime.utils.yamlutils import YAMLRoot
 
 
 class RDFDumper(Dumper):
@@ -81,7 +81,77 @@ class RDFDumper(Dumper):
         Convert element into an RDF graph guided by the context(s) in contexts
         :param element: element to represent in RDF
         :param contexts: JSON-LD context(s) in the form of a file or URL, a json string or a json obj
-        :param fmt: rdf format
+        :param fmt: RDF format
         :return: rdflib Graph containing element
         """
         return self.as_rdf_graph(element, contexts).serialize(format=fmt).decode()
+
+@click.group()
+def cli():
+    pass
+
+@cli.command('as_rdf_graph')
+@click.option('-e', '--element', help='LinkML object to be emitted.')
+@click.option('-c', '--contexts', help='JSON-LD context(s)')
+@click.option('-n', '--namespaces', help='A file name, URL, JSON String, dict or JSON object that includes the set of namespaces to \
+        be bound to the return graph.  If absent, contexts get used')
+def as_rdf_graph_cli(element: YAMLRoot, contexts: CONTEXTS_PARAM_TYPE, namespaces: CONTEXT_TYPE = None) -> Graph:
+    """Convert element into an RDF graph guided by the context(s) in contexts. \n
+
+    Args: \n
+        element (YAMLRoot): Element to represent in RDF. \n
+        contexts (CONTEXTS_PARAM_TYPE): JSON-LD context(s). \n
+        namespaces (CONTEXT_TYPE, optional): A file name, URL, JSON String, dict or JSON object that includes the set of namespaces to
+        be bound to the return graph.  If absent, contexts get used. Defaults to None. \n
+
+    Returns: \n
+        Graph: rdflib Graph containing element. \n
+    """
+    RDFDumper.as_rdf_graph(element=element, contexts=contexts, namespaces=namespaces)
+
+
+@cli.command('rdf_dump')
+@click.option('-e', '--element', help='LinkML object to be serialized as YAML.')
+@click.option('-t', '--to-file', help='File to write to')
+@click.option('-c', '--contexts', help='JSON-LD context(s)')
+@click.option('-f', '--fmt', default= 'turtle', help='Rdf format')
+
+def dump_cli(element:YAMLRoot, to_file:str, fmt:str, contexts:CONTEXTS_PARAM_TYPE = None) -> None:
+    """Write element as rdf to to_file. \n
+
+    Args: \n
+        element (YAMLRoot): Element to represent in RDF. \n
+        to_file (str): File to write to. \n
+        fmt (str): RDF format \n
+        contexts (CONTEXTS_PARAM_TYPE, optional): JSON-LD context(s) in the form of: \n
+            * file name \n
+            * URL \n
+            * JSON String \n
+            * dict \n
+            * JSON Object \n
+            * A list containing elements of any type named above.  \n
+            Defaults to None. \n
+    """
+    RDFDumper.dump(element=element, to_file=to_file, contexts=contexts, fmt=fmt)
+
+@cli.command('rdf_dumps')
+@click.option('-e', '--element', help='LinkML object to be emitted.')
+@click.option('-c', '--contexts', help='JSON-LD context(s)')
+@click.option('-f', '--fmt', default= 'turtle', help='Rdf format')
+
+def dumps_cli(element:YAMLRoot, fmt:str, contexts:CONTEXTS_PARAM_TYPE = None) -> str:
+    """Convert element into an RDF graph guided by the context(s) in contexts. \n
+
+    Args: \n
+        element (YAMLRoot): Element to represent in RDF. \n
+        fmt (str): RDF format \n
+        contexts (CONTEXTS_PARAM_TYPE, optional): JSON-LD context(s) in the form of a file or URL, a json string or a json obj. \n
+        Defaults to None. \n
+
+    Returns: \n
+        str: RDFLib Graph containing element.
+    """
+    RDFDumper.dumps(element=element, contexts=contexts, fmt=fmt)
+
+if __name__ == '__main__':
+    cli()

@@ -1,7 +1,8 @@
 import json
 from typing import Dict
-from jsonasobj2 import items, JsonObj, as_dict
 
+import click
+from jsonasobj2 import JsonObj, as_dict, items
 from linkml_runtime.dumpers.dumper_root import Dumper
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE
 from linkml_runtime.utils.yamlutils import YAMLRoot, as_json_object
@@ -51,3 +52,52 @@ class JSONDumper(Dumper):
         """
         return {k: as_dict(v) if isinstance(v, JsonObj) else v
                 for k, v in items(obj) if not (v is None or v == [] or v == {})}
+
+@click.group()
+def cli():
+    pass
+@cli.command('json_dump')
+@click.option('-e', '--element', help='LinkML object to be serialized as YAML.')
+@click.option('-t', '--to-file', help='File to write to')
+@click.option('-c', '--contexts', help='JSON-LD context(s)')
+
+
+def dump_cli(element:YAMLRoot, to_file:str, contexts:CONTEXTS_PARAM_TYPE = None) -> None:
+    """Write element as json to to_file \n
+    Args: \n
+        element (YAMLRoot): LinkML object to be serialized as YAML \n
+        to_file (str): File to write to\n
+        contexts (CONTEXTS_PARAM_TYPE, optional): JSON-LD context(s) in the form of: \n
+            * file name \n
+            * URL \n
+            * JSON String \n
+            * dict \n
+            * JSON Object \n
+            * A list containing elements of any type named above. \n
+            Defaults to None. \n
+    """
+    JSONDumper.dump(element=element, to_file=to_file, contexts=contexts)
+
+@cli.command('json_dumps')
+@click.option('-e', '--element', help='LinkML object to be emitted.')
+@click.option('-c', '--contexts', help='JSON-LD context(s)')
+
+
+def dumps_cli(element:YAMLRoot, contexts:CONTEXTS_PARAM_TYPE = None) -> str:
+    """Return element as a JSON or a JSON-LD string \n
+    Args: \n
+        element (YAMLRoot): LinkML object to be emitted. \n
+        contexts (CONTEXTS_PARAM_TYPE, optional): JSON-LD context(s) in the form of: \n
+            * file name \n
+            * URL \n
+            * JSON String \n
+            * dict \n
+            * JSON Object \n
+            * A list containing elements of any type named above. \n
+    Returns: \n
+        JSON Object representing the element.
+    """
+    JSONDumper.dumps(element=element, contexts=contexts)
+
+if __name__ == '__main__':
+    cli()
