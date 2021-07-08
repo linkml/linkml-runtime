@@ -36,21 +36,14 @@ def cli():
 @click.option('-m', '--metadata', help='Metadata (optional)')
 
 
-def load_click(input:str, target:str, base_dir:str, metadata:str) -> YAMLRoot:
-    """Loads data from source
-
-    Args:
-
-        input (str): Input data to load
-
-        target (str): Target Class
-
-        base_dir (str): Base directory
-
-        metadata (str): Metadata
-
-    Returns:
-
+def load_cli(input:str, target:str, base_dir:str, metadata:str) -> YAMLRoot:
+    """Loads data from source \n
+    Args: \n
+        input (str): Input data to load \n
+        target (str): Target Class \n
+        base_dir (str): Base directory \n
+        metadata (str): Metadata \n
+    Returns: \n
         YAMLRoot
     """
     JSONLoader.load(source=input, target_class=target, base_dir=base_dir, metadata=metadata)
