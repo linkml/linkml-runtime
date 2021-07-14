@@ -136,7 +136,7 @@ def dump_cli(element:YAMLRoot, to_file:str, fmt:str, contexts:CONTEXTS_PARAM_TYP
 
 @cli.command('rdf_dumps')
 @click.option('-e', '--element', help='LinkML object to be emitted.')
-@click.option('-c', '--contexts', help='JSON-LD context(s)')
+@click.argument('contexts', required=True)
 @click.option('-f', '--fmt', default= 'turtle', help='Rdf format')
 
 def dumps_cli(element:YAMLRoot, fmt:str, contexts:CONTEXTS_PARAM_TYPE = None) -> str:
