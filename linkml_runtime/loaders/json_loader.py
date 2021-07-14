@@ -36,7 +36,7 @@ def cli():
 @click.option('-m', '--metadata', help='Metadata (optional)')
 
 
-def load_cli(input:str, target:str, base_dir:str, metadata:str) -> YAMLRoot:
+def load_cli(input:Union[str, dict, TextIO], target:YAMLRoot, base_dir:str, metadata:str) -> YAMLRoot:
     """Loads data from source \n
     Args: \n
         input (str): Input data to load \n
