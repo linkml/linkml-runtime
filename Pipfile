@@ -19,7 +19,7 @@ click = "*"
 prefixcommons = "*"
 shexjsg = "~=0.7"
 deprecated = "*"
-
+json-flattener = "*"
 
 [dev-packages]
 
