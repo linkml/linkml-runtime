@@ -4,3 +4,9 @@
 [![PyPi](https://img.shields.io/pypi/v/linkml-runtime.svg)](https://pypi.python.org/pypi/linkml)
 
 Runtime support for linkml generated models
+
+## Command Line
+
+```bash
+dataconvert -C SchemaDefinition -m ./examples/meta.py ../linkml-model/model/schema/meta.yaml -t yaml
+```
