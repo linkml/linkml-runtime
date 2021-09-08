@@ -13,8 +13,9 @@ from linkml_runtime.utils.formatutils import camelcase, underscore
 from linkml_runtime.utils.context_utils import parse_import_map
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.linkml_model.annotations import Annotation, Annotatable
+logger = logging.getLogger(__name__)
 
-MAPPING_TYPE = str  ## e.g. broad, exact, related, ...
+MAPPING_TYPE = str  # e.g. broad, exact, related, ...
 CACHE_SIZE = 1024
 
 
@@ -29,6 +30,7 @@ SLOT_NAME = Union[SlotDefinitionName, str]
 SUBSET_NAME = Union[SubsetDefinitionName, str]
 TYPE_NAME = Union[TypeDefinitionName, str]
 ENUM_NAME = Union[EnumDefinitionName, str]
+
 
 def _closure(f, x, reflexive=True, **kwargs):
     if reflexive:
@@ -47,6 +49,7 @@ def _closure(f, x, reflexive=True, **kwargs):
                 rv.append(v)
     return rv
 
+
 def load_schema_wrap(path: str, **kwargs):
     # import here to avoid circular imports
     from linkml_runtime.loaders.yaml_loader import YAMLLoader
@@ -55,6 +58,7 @@ def load_schema_wrap(path: str, **kwargs):
     schema = yaml_loader.load(path, target_class=SchemaDefinition, **kwargs)
     schema.source_file = path
     return schema
+
 
 @dataclass
 class SchemaUsage():
@@ -93,7 +97,6 @@ class SchemaView(object):
     modifications: int = 0
     uuid: str = None
 
-
     def __init__(self, schema: Union[str, SchemaDefinition],
                  importmap: Optional[Mapping[str, str]] = None):
         if isinstance(schema, str):
@@ -104,7 +107,7 @@ class SchemaView(object):
         self.uuid = str(uuid.uuid4())
 
     def __key(self):
-        return (self.schema.id, self.uuid, self.modifications)
+        return self.schema.id, self.uuid, self.modifications
 
     def __eq__(self, other):
         if isinstance(other, SchemaView):
@@ -123,7 +126,6 @@ class SchemaView(object):
             for cmap in self.schema.default_curi_maps:
                 namespaces.add_prefixmap(cmap, include_defaults=False)
         return namespaces
-
 
     def load_import(self, imp: str, from_schema: SchemaDefinition = None):
         if from_schema is None:
@@ -216,7 +218,7 @@ class SchemaView(object):
         return self._get_dict(SUBSETS, imports)
 
     @lru_cache()
-    def all_element(self, imports=True) -> Dict[ElementName, Element]:
+    def all_elements(self, imports=True) -> Dict[ElementName, Element]:
         """
         :param imports: include imports closure
         :return: all elements in schema view
@@ -529,8 +531,44 @@ class SchemaView(object):
                     return ns[pfx] + local_id
         return uri
 
+    @lru_cache(CACHE_SIZE)
+    def get_element_by_prefix(
+            self,
+            identifier: str
+    ) -> List[str]:
+        """
+        Get a Model element by prefix.
+
+        Parameters
+        ----------
+        identifier: str
+            The identifier as a CURIE
+
+        Returns
+        -------
+        Optional[str]
+                The model element corresponding to the given URI/CURIE as available via
+                the id_prefixes mapped to that element.
+
+        """
+        categories = []
+        if ":" in identifier:
+            id_components = identifier.split(":")
+            prefix = id_components[0]
+            elements = self.all_elements()
+            for category in elements:
+                element = self.get_element(category)
+                if hasattr(element, 'id_prefixes') and prefix in element.id_prefixes:
+                    categories.append(element.name)
+        if len(categories) == 0:
+            logger.warning("no element found for the given curie using id_prefixes attribute"
+                           ": %s, try get_mappings?", identifier)
+
+        return categories
+
     @lru_cache()
-    def get_mappings(self, element_name: ElementName = None, imports=True, expand=False) -> Dict[MAPPING_TYPE, List[URIorCURIE]]:
+    def get_mappings(self, element_name: ElementName = None, imports=True, expand=False) -> Dict[
+                     MAPPING_TYPE, List[URIorCURIE]]:
         """
         Get all mappings for a given element
 
@@ -566,12 +604,11 @@ class SchemaView(object):
         :return: index
         """
         ix = defaultdict(list)
-        for en in self.all_element(imports=imports):
+        for en in self.all_elements(imports=imports):
             for mapping_type, vs in self.get_mappings(en, imports=imports, expand=expand):
                 for v in vs:
                     ix[v].append((mapping_type, self.get_element(en, imports=imports)))
         return ix
-
 
     @lru_cache()
     def is_relationship(self, class_name: CLASS_NAME = None, imports=True) -> bool:
@@ -607,7 +644,6 @@ class SchemaView(object):
         """
         e = self.get_element(element_name, imports=imports)
         return {k: v.value for k, v in e.annotations.items()}
-
 
     @lru_cache()
     def class_slots(self, class_name: CLASS_NAME, imports=True, direct=False, attributes=True) -> List[SlotDefinitionName]:

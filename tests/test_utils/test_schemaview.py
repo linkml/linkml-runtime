@@ -16,6 +16,7 @@ SCHEMA_WITH_IMPORTS = os.path.join(INPUT_DIR, 'kitchen_sink.yaml')
 
 yaml_loader = YAMLLoader()
 
+
 class SchemaViewTestCase(unittest.TestCase):
 
     def test_schemaview(self):
@@ -25,15 +26,21 @@ class SchemaViewTestCase(unittest.TestCase):
         assert len(view.imports_closure()) == 1
         all_cls = view.all_class()
         logging.debug(f'n_cls = {len(all_cls)}')
-
-        e = view.get_element('is current')
         assert list(view.annotation_dict('is current').values()) == ['bar']
         logging.debug(view.annotation_dict('employed at'))
-        e = view.get_element('employed at')
-        logging.debug(e.annotations)
-        e = view.get_element('has employment history')
-        logging.debug(e.annotations)
-        #assert list(view.annotation_dict('employed at')[]
+        element = view.get_element('employed at')
+        logging.debug(element.annotations)
+        element = view.get_element('has employment history')
+        logging.debug(element.annotations)
+
+        # Test get_element_by_prefix - should this be its own method?
+        # Can schemaview be a pytest fixture?
+        elements = view.get_element_by_prefix("ORCID:1234")
+        assert "Person" in elements
+        elements = view.get_element_by_prefix("PMID:1234")
+        assert "Organization" in elements
+        elements = view.get_element_by_prefix("TEST:1234")
+        assert "anatomical entity" not in elements
 
         if True:
             # this section is mostly for debugging
@@ -53,7 +60,7 @@ class SchemaViewTestCase(unittest.TestCase):
                     induced_slot = view.induced_slot(sn, cn)
                     logging.debug(f'    INDUCED {sn}={induced_slot}')
 
-        logging.debug(f'ALL = {view.all_element().keys()}')
+        logging.debug(f'ALL = {view.all_elements().keys()}')
 
         # -- TEST ANCESTOR/DESCENDANTS FUNCTIONS --
 
@@ -159,8 +166,6 @@ class SchemaViewTestCase(unittest.TestCase):
         assert 'Person' not in view.all_class()
         assert 'Adult' in view.all_class()
 
-
-
     def test_caching(self):
         """
         Determine if cache is reset after modifications made to schema
@@ -219,11 +224,9 @@ class SchemaViewTestCase(unittest.TestCase):
         assert view.induced_slot('age in years', 'Person').minimum_value == 0
         assert view.induced_slot('age in years', 'Adult').minimum_value == 16
 
-
         assert view.get_class('agent').class_uri == 'prov:Agent'
         assert view.get_uri('agent') == 'prov:Agent'
         logging.debug(view.get_class('Company').class_uri)
-        #assert view.get_class('Company').class_uri == 'prov:Agent'
         assert view.get_uri('Company') == 'ks:Company'
         assert view.get_uri('Company', expand=True) == 'https://w3id.org/linkml/tests/kitchen_sink/Company'
         logging.debug(view.get_uri("TestClass"))
