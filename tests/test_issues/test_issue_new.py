@@ -11,6 +11,9 @@ inp_yaml = """
 companies:
   - id: 201
     name: 'Aperture Science'
+    value:
+      - value: 104.41
+      - value: 199.41
     ceo: 
       - id: 1001
         name: Cave Johnson

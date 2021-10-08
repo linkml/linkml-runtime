@@ -1,5 +1,5 @@
 # Auto generated from kitchen_sink.yaml by pythongen.py version: 0.9.0
-# Generation date: 2021-09-14 04:57
+# Generation date: 2021-10-07 21:01
 # Schema: kitchen_sink
 #
 # id: https://w3id.org/linkml/tests/kitchen_sink
@@ -492,6 +492,24 @@ class MarriageEvent(Event):
 
 
 @dataclass
+class CompanyValue(Event):
+    _inherited_slots: ClassVar[List[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = KS.CompanyValue
+    class_class_curie: ClassVar[str] = "ks:CompanyValue"
+    class_name: ClassVar[str] = "CompanyValue"
+    class_model_uri: ClassVar[URIRef] = KS.CompanyValue
+
+    value: Optional[int] = None
+
+    def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
+        if self.value is not None and not isinstance(self.value, int):
+            self.value = int(self.value)
+
+        super().__post_init__(**kwargs)
+
+
+@dataclass
 class Company(Organization):
     _inherited_slots: ClassVar[List[str]] = []
 
@@ -502,6 +520,7 @@ class Company(Organization):
 
     id: Union[str, CompanyId] = None
     ceo: Optional[Union[str, PersonId]] = None
+    value: Optional[Union[Union[dict, CompanyValue], List[Union[dict, CompanyValue]]]] = empty_list()
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
         if self._is_empty(self.id):
@@ -511,6 +530,10 @@ class Company(Organization):
 
         if self.ceo is not None and not isinstance(self.ceo, PersonId):
             self.ceo = PersonId(self.ceo)
+
+        if not isinstance(self.value, list):
+            self.value = [self.value] if self.value is not None else []
+        self.value = [v if isinstance(v, CompanyValue) else CompanyValue(**as_dict(v)) for v in self.value]
 
         super().__post_init__(**kwargs)
 
@@ -727,8 +750,14 @@ slots.agent_set = Slot(uri=CORE.agent_set, name="agent set", curie=CORE.curie('a
 slots.hasAliases__aliases = Slot(uri=KS.aliases, name="hasAliases__aliases", curie=KS.curie('aliases'),
                    model_uri=KS.hasAliases__aliases, domain=None, range=Optional[Union[str, List[str]]])
 
+slots.companyValue__value = Slot(uri=KS.value, name="companyValue__value", curie=KS.curie('value'),
+                   model_uri=KS.companyValue__value, domain=None, range=Optional[int])
+
 slots.company__ceo = Slot(uri=KS.ceo, name="company__ceo", curie=KS.curie('ceo'),
                    model_uri=KS.company__ceo, domain=None, range=Optional[Union[str, PersonId]])
+
+slots.company__value = Slot(uri=KS.value, name="company__value", curie=KS.curie('value'),
+                   model_uri=KS.company__value, domain=None, range=Optional[Union[Union[dict, CompanyValue], List[Union[dict, CompanyValue]]]])
 
 slots.dataset__persons = Slot(uri=KS.persons, name="dataset__persons", curie=KS.curie('persons'),
                    model_uri=KS.dataset__persons, domain=None, range=Optional[Union[Dict[Union[str, PersonId], Union[dict, Person]], List[Union[dict, Person]]]])
