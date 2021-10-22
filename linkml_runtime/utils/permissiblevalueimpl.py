@@ -85,7 +85,7 @@ class PermissibleValue(YAMLRoot):
             self.see_also = []
         if not isinstance(self.see_also, list):
             self.see_also = [self.see_also]
-        self.see_also = [v if isinstance(v, URIorCURIE) else URIorCURIE(v) for v in self.see_also]
+        self.see_also = [f'[{v}]({v})' if isinstance(v, URIorCURIE) else URIorCURIE(v) for v in self.see_also]
 
         if self.deprecated_element_has_exact_replacement is not None and not isinstance(self.deprecated_element_has_exact_replacement, URIorCURIE):
             self.deprecated_element_has_exact_replacement = URIorCURIE(self.deprecated_element_has_exact_replacement)
