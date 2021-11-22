@@ -224,7 +224,6 @@ class SchemaView(object):
                     d[aname] = a
         return d
 
-
     @deprecated("Use `all_enums` instead")
     @lru_cache()
     def all_enum(self, imports=True) -> Dict[EnumDefinitionName, EnumDefinition]:
@@ -241,7 +240,6 @@ class SchemaView(object):
         :return: all enums in schema view
         """
         return self._get_dict(ENUMS, imports)
-
 
     @deprecated("Use `all_types` instead")
     @lru_cache()
@@ -590,7 +588,6 @@ class SchemaView(object):
                 for c in self.all_slots(imports=imports)
                 if self.slot_children(c, mixins=mixins, imports=imports) == []]
 
-
     def get_element(self, element: Union[ElementName, Element], imports=True) -> Element:
         """
         Fetch an element by name
@@ -757,7 +754,6 @@ class SchemaView(object):
                     ix[v].append((mapping_type, self.get_element(en, imports=imports)))
         return ix
 
-
     @lru_cache()
     def is_relationship(self, class_name: CLASS_NAME = None, imports=True) -> bool:
         """
@@ -792,7 +788,6 @@ class SchemaView(object):
         """
         e = self.get_element(element_name, imports=imports)
         return {k: v.value for k, v in e.annotations.items()}
-
 
     @lru_cache()
     def class_slots(self, class_name: CLASS_NAME, imports=True, direct=False, attributes=True) -> List[SlotDefinitionName]:
@@ -834,7 +829,6 @@ class SchemaView(object):
         :return: dynamic slot constructed by inference
         """
         slot = self.get_slot(slot_name, imports, attributes=True)
-        cls = self.get_class(class_name, imports)
         islot = None
         if slot is not None:
             islot = deepcopy(slot)
@@ -1071,9 +1065,6 @@ class SchemaView(object):
         if new_name is not None:
             s2.name = new_name
         return s2
-
-
-
 
     def set_modified(self) -> None:
         self.modifications += 1
