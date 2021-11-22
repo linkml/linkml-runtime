@@ -23,22 +23,25 @@ class SchemaViewTestCase(unittest.TestCase):
         assert len(view.imports_closure()) == 1
         all_cls = view.all_classes()
         logging.debug(f'n_cls = {len(all_cls)}')
+        #
+        # assert list(view.annotation_dict('is current').values()) == ['bar']
+        # logging.debug(view.annotation_dict('employed at'))
+        # e = view.get_element('employed at')
+        # logging.debug(e.annotations)
+        # e = view.get_element('has employment history')
+        # logging.debug(e.annotations)
 
-        assert list(view.annotation_dict('is current').values()) == ['bar']
-        logging.debug(view.annotation_dict('employed at'))
-        e = view.get_element('employed at')
-        logging.debug(e.annotations)
-        e = view.get_element('has employment history')
-        logging.debug(e.annotations)
+        mapping = view.get_mapping_index()
+        assert mapping is not None
 
-        elements = view.get_elements_applicable_by_identifier("ORCID:1234")
-        assert "Person" in elements
-        elements = view.get_elements_applicable_by_identifier("PMID:1234")
-        assert "Organization" in elements
-        elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
-        assert "Organization" in elements
-        elements = view.get_elements_applicable_by_identifier("TEST:1234")
-        assert "anatomical entity" not in elements
+        # elements = view.get_elements_applicable_by_identifier("ORCID:1234")
+        # assert "Person" in elements
+        # elements = view.get_elements_applicable_by_identifier("PMID:1234")
+        # assert "Organization" in elements
+        # elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
+        # assert "Organization" in elements
+        # elements = view.get_elements_applicable_by_identifier("TEST:1234")
+        # assert "anatomical entity" not in elements
         assert list(view.annotation_dict(SlotDefinitionName('is current')).values()) == ['bar']
         logging.debug(view.annotation_dict(SlotDefinitionName('employed at')))
         element = view.get_element(SlotDefinitionName('employed at'))
@@ -47,7 +50,7 @@ class SchemaViewTestCase(unittest.TestCase):
         logging.debug(element.annotations)
 
         if True:
-            for sn, s in view.all_slot().items():
+            for sn, s in view.all_slots().items():
                 logging.info(f'SN = {sn} RANGE={s.range}')
             # this section is mostly for debugging
             for cn in all_cls.keys():
@@ -135,6 +138,7 @@ class SchemaViewTestCase(unittest.TestCase):
         a = view.get_class('activity')
         self.assertCountEqual(a.exact_mappings, ['prov:Activity'])
         logging.debug(view.get_mappings('activity', expand=True))
+        print(view.get_mappings('activity'))
         self.assertCountEqual(view.get_mappings('activity')['exact'], ['prov:Activity'])
         self.assertCountEqual(view.get_mappings('activity', expand=True)['exact'], ['http://www.w3.org/ns/prov#Activity'])
 

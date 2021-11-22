@@ -621,7 +621,6 @@ class SchemaView(object):
         :return: URI or CURIE as a string
         """
         e = self.get_element(element, imports=imports)
-        e_name = e.name
         if isinstance(e, ClassDefinition):
             uri = e.class_uri
             e_name = camelcase(e.name)
@@ -722,21 +721,30 @@ class SchemaView(object):
         :return: index keyed by mapping type
         """
         e = self.get_element(element_name, imports=imports)
-        m_dict = {
-            'self': [self.get_uri(element_name, imports=imports, expand=False)],
-            'native': [self.get_uri(element_name, imports=imports, expand=False, native=True)],
-            'exact': e.exact_mappings,
-            'narrow': e.narrow_mappings,
-            'broad': e.broad_mappings,
-            'related': e.related_mappings,
-            'close': e.close_mappings,
-            'undefined': e.mappings
-        }
+        print(e)
+        if isinstance(e, SlotDefinition) or isinstance(e, ClassDefinition) or isinstance(e, TypeDefinition):
+            m_dict = {
+                'self': [self.get_uri(element_name, imports=imports, expand=False)],
+                'native': [self.get_uri(element_name, imports=imports, expand=False, native=True)],
+                'exact': e.exact_mappings,
+                'narrow': e.narrow_mappings,
+                'broad': e.broad_mappings,
+                'related': e.related_mappings,
+                'close': e.close_mappings,
+                'undefined': e.mappings
+            }
+        else:
+            m_dict = {}
         if expand:
             for k, vs in m_dict.items():
                 m_dict[k] = [self.expand_curie(v) for v in vs]
 
         return m_dict
+
+    def get_category_by_mapping(self, imports=True) -> List[URIorCURIE]:
+        mapping_index = self.get_mapping_index()
+        categories = []
+        return categories
 
     def get_mapping_index(self, imports=True, expand=False) -> Dict[URIorCURIE, List[Tuple[MAPPING_TYPE, Element]]]:
         """
@@ -749,7 +757,7 @@ class SchemaView(object):
         """
         ix = defaultdict(list)
         for en in self.all_elements(imports=imports):
-            for mapping_type, vs in self.get_mappings(en, imports=imports, expand=expand):
+            for mapping_type, vs in self.get_mappings(en, imports=imports, expand=expand).items():
                 for v in vs:
                     ix[v].append((mapping_type, self.get_element(en, imports=imports)))
         return ix
