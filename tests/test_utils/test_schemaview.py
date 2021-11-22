@@ -52,6 +52,15 @@ class SchemaViewTestCase(unittest.TestCase):
         category_mapping = view.get_category_by_mapping("GO:0005198")
         assert category_mapping == ['activity']
 
+        s1 = view.get_slot('type')
+        assert s1.description == 'this is the description for the parent slot'
+
+        s2_induced = view.induced_slot("type", "FamilialRelationship")
+        assert s2_induced.description == 'this is a description of the FamilialRelationship not Relationship'
+
+        s2_induced = view.induced_slot("type", "Relationship")
+        assert s2_induced.description == 'this is the description for the parent slot'
+
         if True:
             for sn, s in view.all_slots().items():
                 logging.info(f'SN = {sn} RANGE={s.range}')

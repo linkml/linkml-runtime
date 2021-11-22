@@ -129,6 +129,8 @@ classes:
       - ended at time
       - related to
       - type
+    description: >-
+      this is the description for the parent class
 
   FamilialRelationship:
     is_a: Relationship
@@ -136,6 +138,8 @@ classes:
       type:
         range: FamilialRelationshipType
         required: true
+        description: >-
+          this is a description of the FamilialRelationship not Relationship
       related to:
         range: Person
         required: true
@@ -274,6 +278,8 @@ slots:
     range: Thing
   type:
     range: string
+    description: >-
+      this is the description for the parent slot
   street:
   city:
   has birth event:

@@ -841,13 +841,12 @@ class SchemaView(object):
         This makes use of schema slots, such as attributes, slot_usage. It also uses ancestor relationships
         to infer missing values
 
-        :param slot_name: slot to be queries
+        :param slot_name: slot to be queried
         :param class_name: class used as context
         :param imports: include imports closure
         :return: dynamic slot constructed by inference
         """
         slot = self.get_slot(slot_name, imports, attributes=True)
-        cls = self.get_class(class_name, imports)
         islot = None
         if slot is not None:
             islot = deepcopy(slot)

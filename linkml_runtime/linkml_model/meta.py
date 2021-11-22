@@ -1020,7 +1020,12 @@ class SlotDefinition(Definition):
     """
     the definition of a property or a slot
     """
-    _inherited_slots: ClassVar[List[str]] = ["domain", "multivalued", "inherited", "readonly", "ifabsent", "inlined", "inlined_as_list", "key", "identifier", "designates_type", "role", "range", "required", "recommended", "minimum_value", "maximum_value", "pattern", "equals_string", "equals_string_in", "equals_number", "equals_expression", "minimum_cardinality", "maximum_cardinality"]
+    _inherited_slots: ClassVar[List[str]] = ["domain", "multivalued", "inherited", "readonly", "ifabsent", "inlined",
+                                             "inlined_as_list", "key", "identifier", "designates_type", "role",
+                                             "range", "required", "recommended", "minimum_value", "maximum_value",
+                                             "pattern", "equals_string", "equals_string_in", "equals_number",
+                                             "equals_expression", "minimum_cardinality", "maximum_cardinality",
+                                             "description"]
 
     class_class_uri: ClassVar[URIRef] = LINKML.SlotDefinition
     class_class_curie: ClassVar[str] = "linkml:SlotDefinition"
