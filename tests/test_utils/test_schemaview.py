@@ -24,24 +24,24 @@ class SchemaViewTestCase(unittest.TestCase):
         all_cls = view.all_classes()
         logging.debug(f'n_cls = {len(all_cls)}')
         #
-        # assert list(view.annotation_dict('is current').values()) == ['bar']
-        # logging.debug(view.annotation_dict('employed at'))
-        # e = view.get_element('employed at')
-        # logging.debug(e.annotations)
-        # e = view.get_element('has employment history')
-        # logging.debug(e.annotations)
+        assert list(view.annotation_dict('is current').values()) == ['bar']
+        logging.debug(view.annotation_dict('employed at'))
+        e = view.get_element('employed at')
+        logging.debug(e.annotations)
+        e = view.get_element('has employment history')
+        logging.debug(e.annotations)
 
         mapping = view.get_mapping_index()
         assert mapping is not None
 
-        # elements = view.get_elements_applicable_by_identifier("ORCID:1234")
-        # assert "Person" in elements
-        # elements = view.get_elements_applicable_by_identifier("PMID:1234")
-        # assert "Organization" in elements
-        # elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
-        # assert "Organization" in elements
-        # elements = view.get_elements_applicable_by_identifier("TEST:1234")
-        # assert "anatomical entity" not in elements
+        elements = view.get_elements_applicable_by_identifier("ORCID:1234")
+        assert "Person" in elements
+        elements = view.get_elements_applicable_by_identifier("PMID:1234")
+        assert "Organization" in elements
+        elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
+        assert "Organization" in elements
+        elements = view.get_elements_applicable_by_identifier("TEST:1234")
+        assert "anatomical entity" not in elements
         assert list(view.annotation_dict(SlotDefinitionName('is current')).values()) == ['bar']
         logging.debug(view.annotation_dict(SlotDefinitionName('employed at')))
         element = view.get_element(SlotDefinitionName('employed at'))

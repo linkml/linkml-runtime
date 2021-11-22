@@ -721,7 +721,6 @@ class SchemaView(object):
         :return: index keyed by mapping type
         """
         e = self.get_element(element_name, imports=imports)
-        print(e)
         if isinstance(e, SlotDefinition) or isinstance(e, ClassDefinition) or isinstance(e, TypeDefinition):
             m_dict = {
                 'self': [self.get_uri(element_name, imports=imports, expand=False)],
