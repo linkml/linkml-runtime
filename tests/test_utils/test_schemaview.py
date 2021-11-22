@@ -138,7 +138,6 @@ class SchemaViewTestCase(unittest.TestCase):
         a = view.get_class('activity')
         self.assertCountEqual(a.exact_mappings, ['prov:Activity'])
         logging.debug(view.get_mappings('activity', expand=True))
-        print(view.get_mappings('activity'))
         self.assertCountEqual(view.get_mappings('activity')['exact'], ['prov:Activity'])
         self.assertCountEqual(view.get_mappings('activity', expand=True)['exact'], ['http://www.w3.org/ns/prov#Activity'])
 
