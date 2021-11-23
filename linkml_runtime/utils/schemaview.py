@@ -590,6 +590,30 @@ class SchemaView(object):
                 for c in self.all_slots(imports=imports)
                 if self.slot_children(c, mixins=mixins, imports=imports) == []]
 
+    def is_mixin(self, element_name: Union[ElementName, Element]) -> bool:
+        if isinstance(element_name, Element):
+            return element_name
+        else:
+            element = self.get_element(element_name)
+            is_mixin = element.mixin if isinstance(element, Definition) else False
+            return is_mixin
+
+    @lru_cache(CACHE_SIZE)
+    def inverse(self, name: Union[ElementName, Element]) -> str:
+        """
+        Parameters
+        ----------
+        name: str
+            The name or alias of an element
+
+        Returns
+        -------
+        bool
+            true if the element has an inverse
+        """
+        element = self.get_element(name)
+        inverse = element.inverse if isinstance(element, SlotDefinition) else "primary direction"
+        return inverse
 
     def get_element(self, element: Union[ElementName, Element], imports=True) -> Element:
         """
