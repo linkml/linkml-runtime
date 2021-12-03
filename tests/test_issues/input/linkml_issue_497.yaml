@@ -1,0 +1,80 @@
+id: https://example.com/test-inherited-ranges
+name: test-inherited-ranges
+title: test inherited ranges
+description: a simple schema for testing if the range for base class propogates to the inherited class
+
+prefixes:
+  dcterms: http://purl.org/dc/terms/
+  linkml: https://w3id.org/linkml/
+    
+imports:
+  - linkml:types
+
+classes:
+
+  named thing:
+    description: "a databased entity or concept/class"
+    abstract: true
+
+
+  biosample processing:
+    is_a: named thing
+    description: >-
+      A process that takes one or more biosamples as inputs and generates one or as outputs.
+      Examples of outputs include samples cultivated from another sample or data objects created by instruments runs.
+    slots:
+      - has input
+    slot_usage:
+      has input:
+        range: biosample
+
+
+  omics processing:
+    is_a: biosample processing
+    slots:
+      - has input
+      - has output
+    #slot_usage:
+    #  has input:
+    #    required: true
+
+  biosample:
+    is_a: named thing
+    description: >-
+      A material sample. It may be environmental (encompassing many organisms) or isolate or tissue.  
+      An environmental sample containing genetic material from multiple individuals is commonly referred to as a biosample.
+
+slots:
+
+  id:
+    identifier: true
+    multivalued: false
+    description: >-
+      A unique identifier for a thing.
+      Must be either a CURIE shorthand for a URI or a complete URI
+
+  name:
+    multivalued: false
+    range: string
+    description: >-
+      A human readable label for an entity
+
+  description:
+    range: string
+    multivalued: false
+    description: >-
+      a human-readable description of a thing
+
+  has input:
+    domain: named thing
+    range: named thing    
+    multivalued: true
+    description: >-
+      An input to a process.
+
+  has output:
+    domain: named thing
+    range: named thing
+    multivalued: true
+    description: >-
+      An output biosample to a processing step
