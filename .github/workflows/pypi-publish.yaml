@@ -37,8 +37,8 @@ jobs:
 
     - name: Update metadata
       uses: actions/checkout@v2
-        with:
-          ref: main
+      with:
+        ref: main
     - name: update it
       run: |
         cp ~/savedist/* .
