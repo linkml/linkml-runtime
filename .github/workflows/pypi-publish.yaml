@@ -26,6 +26,8 @@ jobs:
       run: |
         rm -fr dist
         python setup.py bdist_wheel sdist
+        mkdir ~/savedist
+        cp AUTHORS ChangeLog ~/savedist
 
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@v1.2.2
@@ -34,14 +36,19 @@ jobs:
         password: ${{ secrets.pypi_password }}
 
     - name: Update metadata
+      uses: actions/checkout@v2
+        with:
+          ref: main
+    - name: update it
       run: |
-          git add AUTHORS ChangeLog
-          if [[ ! -z $(git status -s AUTHORS ChangeLog) ]]
-          then
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git commit -m 'PBR AUTHORS and ChangeLog update' AUTHORS ChangeLog
-            git push
-          fi
+        cp ~/savedist/* .
+        git add AUTHORS ChangeLog
+        if [[ ! -z $(git status -s AUTHORS ChangeLog) ]]
+        then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m 'PBR AUTHORS and ChangeLog update' AUTHORS ChangeLog
+          git push
+        fi
 
 
