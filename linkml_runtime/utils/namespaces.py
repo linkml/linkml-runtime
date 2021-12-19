@@ -192,7 +192,9 @@ class Namespaces(CaseInsensitiveDict):
                     return k + ':' + suffix
             return self.join(str(prefix), suffix)
         elif prefix not in self:
-            raise ValueError(f"Unrecognized prefix: {prefix}")
+            # raise ValueError(f"Unrecognized prefix: {prefix}")
+            print(f"WARNING: Unrecognized prefix: {prefix}")
+            return ':' + suffix
         else:
             return prefix + ':' + suffix
 
