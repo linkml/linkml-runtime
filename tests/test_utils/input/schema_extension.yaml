@@ -1,0 +1,38 @@
+id: https://w3id.org/linkml/tests/schema_extension
+name: schema_extension
+description: |-
+  Tests extending the metamodel
+
+default_curi_maps:
+  - semweb_context
+imports:
+  - linkml:types
+  - meta  ## TODO - use version from web
+prefixes:
+  linkml: https://w3id.org/linkml/
+  schema_extensions: https://w3id.org/linkml/tests/schema_extension/
+default_prefix: schema_extensions
+default_range: string
+
+slots:
+  ext_info:
+
+classes:
+  ExtSchema:
+    is_a: schema_definition
+    slot_usage:
+      classes:
+        range: ExtClass
+      slots:
+        range: ExtSlot
+
+  ExtClass:
+    is_a: class_definition
+    slots:
+      - ext_info
+
+  ExtSlot:
+    is_a: slot_definition
+    slots:
+      - ext_info
+

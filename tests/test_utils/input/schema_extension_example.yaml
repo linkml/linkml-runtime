@@ -1,0 +1,24 @@
+id: https://w3id.org/linkml/tests/schema_extension_example
+name: schema_extension_example
+description: |-
+  Example schema conforming to schema extension
+
+default_curi_maps:
+  - semweb_context
+imports:
+  - linkml:types
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: https://w3id.org/linkml/tests/schema_extension_example/
+default_prefix: ex
+default_range: string
+
+classes:
+  MyClass:
+    ext_info: my ext info here
+    attributes:
+      - a
+      - b
+
+
+

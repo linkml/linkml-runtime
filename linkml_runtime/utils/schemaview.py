@@ -50,12 +50,14 @@ def _closure(f, x, reflexive=True, **kwargs):
     return rv
 
 
-def load_schema_wrap(path: str, **kwargs):
+def load_schema_wrap(path: str, schema_instantiates: Type[YAMLRoot] = SchemaDefinition, **kwargs):
     # import here to avoid circular imports
     from linkml_runtime.loaders.yaml_loader import YAMLLoader
     yaml_loader = YAMLLoader()
     schema: SchemaDefinition
-    schema = yaml_loader.load(path, target_class=SchemaDefinition, **kwargs)
+    if schema_instantiates is None:
+        schema_instantiates = SchemaDefinition
+    schema = yaml_loader.load(path, target_class=schema_instantiates, **kwargs)
     schema.source_file = path
     return schema
 
@@ -99,9 +101,10 @@ class SchemaView(object):
     uuid: str = None
 
     def __init__(self, schema: Union[str, SchemaDefinition],
+                 schema_instantiates = None,
                  importmap: Optional[Mapping[str, str]] = None):
         if isinstance(schema, str):
-            schema = load_schema_wrap(schema)
+            schema = load_schema_wrap(schema, schema_instantiates=schema_instantiates)
         self.schema = schema
         self.schema_map = {schema.name: schema}
         self.importmap = parse_import_map(importmap, self.base_dir) if self.importmap is not None else dict()
