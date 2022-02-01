@@ -35,8 +35,11 @@ class RDFLibDumper(Dumper):
         logging.debug(f'PREFIXMAP={prefix_map}')
         if prefix_map:
             for k, v in prefix_map.items():
-                schemaview.namespaces()[k] = v
-                g.namespace_manager.bind(k, URIRef(v))
+                if k == '@base':
+                    schemaview.namespaces()._base = v
+                else:
+                    schemaview.namespaces()[k] = v
+                    g.namespace_manager.bind(k, URIRef(v))
         self.inject_triples(element, schemaview, g)
         return g
 
