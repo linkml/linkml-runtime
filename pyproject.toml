@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "linkml_runtime"
-version = "0.0.0"
+version = "1.2.0rc2"
 description = "Runtime environment for LinkML, the Linked open data modeling language"
 authors = [
     "Chris Mungall <cjmungall@lbl.gov>",
@@ -43,7 +43,7 @@ python = "^3.7.1"
 click = "*"
 deprecated = "*"
 hbreader = "*"
-json-flattener = ">=0.1.7"
+json-flattener = ">=0.1.9"
 jsonasobj2 = "==1.*,>=1.0.0,>=1.0.4"
 jsonschema = ">=3.2.0"
 prefixcommons = "*"
@@ -54,7 +54,6 @@ rdflib-shim = ">=1.0.3"
 rdflib-jsonld = "==0.6.1"
 rdflib-pyldmod-compat = "*"
 requests = "*"
-shexjsg = "==0.*,>=0.7.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.2"
