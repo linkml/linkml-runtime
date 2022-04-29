@@ -32,3 +32,8 @@ class DataNotFoundError(ValueError):
     An error in which data cannot be found
     """
     pass
+
+# Get the dataclass_patch installed
+import dataclasses
+import linkml_runtime.utils.dataclass_patch as dcpatch
+dataclasses.dataclass = dcpatch.dataclass
