@@ -19,7 +19,7 @@ else:
         _frozen_get_del_attr, _add_slots, KW_ONLY, _hash_action
 
 
-    def dataclass(cls=None, /, *, init=True, repr=True, eq=True, order=False,
+    def dataclass(cls=None, init=True, repr=True, eq=True, order=False,
                   unsafe_hash=False, frozen=False, match_args=True,
                   kw_only=False, slots=False):
         """Returns the same class as was passed in, with dunder methods
