@@ -2,11 +2,35 @@ import sys
 import warnings
 
 # This patch is a temporary implementation of a proposed fix for https://github.com/python/cpython/issues/92052
-# It replaces the `dataclass` and `_process_cls` methods in the default library.  The only significant changes are
-# on lines 133 (more or less) and 142 - see the issue for the exact lines.
+# Its purpose is to differentiate the following scenarios:
 #
-# Once the issue has been fixed we can tighten up the test below to select only the versions where it hasn't been,
-# and then (perhaps) add a deprecated message to encourage folks to stop importing the patch period.
+#    Decorating a newly declared dataclass that potentially inherits from a previous dataclass
+#    Decorating a dataclass that has already been processed
+#
+# A handy side-effect of this patch is that the `dataclass` method becomes idempotent --
+#    dataclass(Foo) == dataclass(dataclass(Foo))
+#
+# The reason for doing this is that third party apps (e.g. pydantic) wish to add additional decoration and
+# (currently) are not able to differentiate:
+#
+#     @dataclass
+#     class Foo:
+#        j: int = 17
+#        k: List[int] = field(default_factory = list)
+#        l: int = 42
+#
+#     @mywrapper
+#     class Bar1(Foo):
+#         pass
+#
+# from:
+#
+#    Bar2 = mywrapper(Foo)
+#
+# The `is_direct_dataclass` method differentiates these two:
+#  where the Bar1 class would return False and the Foo class would return True
+#
+#  Note:  We haven't thoroughly worked through the dataclass parameters -- init, repr, etc.
 from typing import Callable, Any
 
 if sys.version_info < (3, 10):
@@ -45,6 +69,7 @@ else:
                 seen = set()
                 setattr(cls, _DECLARED_DATA_CLASSES, seen)
             elif id(cls) in seen:
+                # Fields have already been processed
                 return cls
             seen.add(id(cls))
             return dataclasses._process_class(cls, init, repr, eq, order, unsafe_hash,
