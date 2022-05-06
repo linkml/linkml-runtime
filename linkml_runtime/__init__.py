@@ -34,6 +34,5 @@ class DataNotFoundError(ValueError):
     pass
 
 # Get the dataclass_patch installed
-import dataclasses
 import linkml_runtime.utils.dataclass_patch as dcpatch
-dataclasses.dataclass = dcpatch.dataclass
+patch_installed = dcpatch.DC_PATCH_INSTALLED
