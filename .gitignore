@@ -140,3 +140,7 @@ Pipfile.lock
 
 # No Pycharm
 .idea/
+.DS_store
+
+
+

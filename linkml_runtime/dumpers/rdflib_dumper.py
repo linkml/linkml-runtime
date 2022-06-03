@@ -9,6 +9,7 @@ from rdflib.namespace import RDF
 
 from linkml_runtime.dumpers.dumper_root import Dumper
 from linkml_runtime.utils.schemaview import SchemaView, ElementName, PermissibleValue, PermissibleValueText
+from linkml_runtime.linkml_model.meta import SchemaDefinition, TypeDefinition, ClassDefinition, Annotation
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
 
@@ -36,7 +37,12 @@ class RDFLibDumper(Dumper):
         if prefix_map:
             for k, v in prefix_map.items():
                 schemaview.namespaces()[k] = v
-                g.namespace_manager.bind(k, URIRef(v))
+                g.bind(k, URIRef(v))
+            for prefix in schemaview.namespaces():
+                g.bind(prefix, URIRef(schemaview.namespaces()[prefix]))
+        else:
+            for prefix in schemaview.namespaces():
+                g.bind(prefix, URIRef(schemaview.namespaces()[prefix]))
         self.inject_triples(element, schemaview, g)
         return g
 
