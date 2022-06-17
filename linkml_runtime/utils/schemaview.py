@@ -185,7 +185,7 @@ class SchemaView(object):
 
 
     @lru_cache()
-    def all_schema(self, imports: True) -> List[SchemaDefinition]:
+    def all_schema(self, imports: bool = True) -> List[SchemaDefinition]:
         """
         :param imports: include imports closure
         :return: all schemas
