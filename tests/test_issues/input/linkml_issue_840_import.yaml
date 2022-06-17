@@ -1,0 +1,7 @@
+id: https://w3id.org/linkml-runtime/issue-840-import
+name: issue-840-import
+description: >-
+  Schema name different from file name
+
+slots:
+  foo:

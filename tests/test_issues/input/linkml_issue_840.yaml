@@ -1,0 +1,9 @@
+id: https://w3id.org/linkml-runtime/issue-840
+name: issue-840
+description: >-
+  Schema that has a single import
+imports:
+- issue_840_import
+
+classes:
+  foo bar:
