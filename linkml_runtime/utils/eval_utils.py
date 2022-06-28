@@ -8,12 +8,14 @@ import ast
 import operator as op
 
 # supported operators
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, Dict
 
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
              ast.USub: op.neg}
 compare_operators = {ast.Eq: op.eq, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
+
+BINDINGS = Dict[str, Any]
 
 def eval_conditional(*conds: List[Tuple[bool, Any]]) -> Any:
     """
@@ -91,11 +93,20 @@ def eval_expr(expr: str, **kwargs) -> Any:
             return None
 
 
+def _eval_comprehension(comprehension, bindings: BINDINGS) -> Tuple[str, List[Any]]:
+    vals = []
+    tgt = comprehension.target.id
+    for iter_val in eval_(comprehension.iter, bindings):
+        if comprehension.ifs:
+            if any(not eval_(if_expr, {**bindings, tgt: iter_val}) for if_expr in comprehension.ifs):
+                continue
+        vals.append(iter_val)
+    return tgt, vals
 
 
-
-
-def eval_(node, bindings={}):
+def eval_(node: ast.AST, bindings: BINDINGS = None):
+    if bindings is None:
+        bindings = {}
     if isinstance(node, ast.Num):
         return node.n
     elif isinstance(node, ast.Str):
@@ -109,6 +120,7 @@ def eval_(node, bindings={}):
         # can be removed when python 3.7 is no longer supported
         return node.value
     elif isinstance(node, ast.Name):
+        # e.g. Name(id='a', ctx=Load())
         return bindings.get(node.id)
     elif isinstance(node, ast.Subscript):
         if isinstance(node.slice, ast.Index):
@@ -139,6 +151,11 @@ def eval_(node, bindings={}):
         return _get(v, node.attr)
     elif isinstance(node, ast.List):
         return [eval_(x, bindings) for x in node.elts]
+    elif isinstance(node, ast.ListComp):
+        for comprehension in node.generators:
+            tgt, arr = _eval_comprehension(comprehension, bindings)
+            bindings = {**bindings, tgt: arr}
+        return [eval_(node.elt, {**bindings, tgt: x}) for x in arr]
     elif isinstance(node, ast.Set):
         # sets are not part of the language; we use {x} as notation for x
         if len(node.elts) != 1:
@@ -190,4 +207,4 @@ def eval_(node, bindings={}):
                     return func(*args)
         raise NotImplementedError(f'Call {node.func} not implemented. node = {node}')
     else:
-        raise TypeError(node)
+        raise TypeError(f"AST type {type(node)} not supported")

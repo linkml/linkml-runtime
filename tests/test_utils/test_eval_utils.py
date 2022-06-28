@@ -91,6 +91,12 @@ class EvalUtilsTestCase(unittest.TestCase):
         x = eval_expr('strlen(c.person_index.name)', c=c)
         self.assertEqual(x, [1, 2])
         #self.assertEqual('x', eval_expr('"x" if True else "y"'))
+        x = eval_expr("[x+1 for x in [1,2,3]]")
+        self.assertEqual(x, [2, 3, 4])
+        x = eval_expr("[x+1 for x in [1,2,3,4] if x > 2]")
+        self.assertEqual(x, [4, 5])
+        x = eval_expr("[x+1 for x in [1,2,3,3+1] if x > 2]")
+        self.assertEqual(x, [4, 5])
 
     def test_no_eval_prohibited(self):
         """
