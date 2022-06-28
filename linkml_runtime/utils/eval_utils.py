@@ -114,6 +114,11 @@ def eval_(node: ast.AST, bindings: BINDINGS = None):
             return node.s
         else:
             return node.value
+    elif isinstance(node, ast.ListComp):
+        if len(node.generators) != 1:
+            raise ValueError(f"List comprehensions cannot have more than one level of nesting")
+        tgt, arr = _eval_comprehension(node.generators[0], bindings)
+        return [eval_(node.elt, {**bindings, tgt: x}) for x in arr]
     elif isinstance(node, ast.Constant):
         return node.value
     elif isinstance(node, ast.NameConstant):
@@ -151,11 +156,6 @@ def eval_(node: ast.AST, bindings: BINDINGS = None):
         return _get(v, node.attr)
     elif isinstance(node, ast.List):
         return [eval_(x, bindings) for x in node.elts]
-    elif isinstance(node, ast.ListComp):
-        for comprehension in node.generators:
-            tgt, arr = _eval_comprehension(comprehension, bindings)
-            bindings = {**bindings, tgt: arr}
-        return [eval_(node.elt, {**bindings, tgt: x}) for x in arr]
     elif isinstance(node, ast.Set):
         # sets are not part of the language; we use {x} as notation for x
         if len(node.elts) != 1:

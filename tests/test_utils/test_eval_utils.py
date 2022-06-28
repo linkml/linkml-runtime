@@ -97,6 +97,8 @@ class EvalUtilsTestCase(unittest.TestCase):
         self.assertEqual(x, [4, 5])
         x = eval_expr("[x+1 for x in [1,2,3,3+1] if x > 2]")
         self.assertEqual(x, [4, 5])
+        x = eval_expr("[x+1 for x in l if x > 2]", l=[1, 2, 3, 4, 5])
+        self.assertEqual(x, [4, 5, 6])
 
     def test_no_eval_prohibited(self):
         """
