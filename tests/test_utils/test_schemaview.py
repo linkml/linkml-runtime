@@ -541,6 +541,16 @@ class SchemaViewTestCase(unittest.TestCase):
 
         self.assertListEqual(actual_result, expected_result)
 
+    def test_class_siblings(self):
+        sv = SchemaView(SCHEMA_WITH_IMPORTS)
+
+        TEST_CLASS = "Person"
+
+        actual_result = sv.class_siblings(TEST_CLASS)
+        expected_result = {'HasAliases': ['Organization', 'Place'], 'Thing': ['Organization']}
+
+        self.assertDictEqual(actual_result, expected_result)
+
     def test_materialize_patterns(self):
         sv = SchemaView(os.path.join(INPUT_DIR, "pattern-example.yaml"))
 

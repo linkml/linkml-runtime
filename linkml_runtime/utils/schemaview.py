@@ -1,4 +1,5 @@
 import os
+from ssl import DefaultVerifyPaths
 import uuid
 import logging
 import collections
@@ -1314,6 +1315,23 @@ class SchemaView(object):
                         slots_list.append(c_name)
 
         return list(dict.fromkeys(slots_list))
+
+    def class_siblings(self, class_name: CLASS_NAME) -> Dict[ClassDefinitionName, List[ClassDefinitionName]]:
+        """Siblings, i.e., classes at the same level in the inheritance tree.
+
+        :param class_name: input class
+        :return: dictionary of parent class and siblings
+        """
+        sibling_dict = defaultdict(list)
+        parents = self.class_parents(class_name)
+
+        for parent in parents:
+            siblings = self.class_children(parent)
+            if class_name in siblings: siblings.remove(class_name)
+
+            sibling_dict[parent] = self.class_children(parent)
+
+        return dict(sibling_dict)
 
     @lru_cache()
     def usage_index(self) -> Dict[ElementName, List[SchemaUsage]]:
