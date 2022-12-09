@@ -2,6 +2,7 @@
 # Generation date: 2022-12-09T13:58:38
 # Schema: meta
 #
+#
 # id: https://w3id.org/linkml/meta
 # description: The metamodel for schemas defined using the Linked Data Modeling Language framework. For more
 #              information on LinkML: * [linkml.io](https://linkml.io) main website *
