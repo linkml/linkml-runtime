@@ -1,7 +1,6 @@
 # Auto generated from meta.yaml by pythongen.py version: 0.9.0
-# Generation date: 2022-12-09T13:58:38
+# Generation date: 2022-12-09T14:57:09
 # Schema: meta
-#
 #
 # id: https://w3id.org/linkml/meta
 # description: The metamodel for schemas defined using the Linked Data Modeling Language framework. For more
@@ -25,7 +24,6 @@ import re
 from jsonasobj2 import JsonObj, as_dict
 from typing import Optional, List, Union, Dict, ClassVar, Any
 from dataclasses import dataclass
-from linkml_runtime.linkml_model.meta import EnumDefinition, PermissibleValue, PvFormulaOptions
 
 from linkml_runtime.utils.slot import Slot
 from linkml_runtime.utils.metamodelcore import empty_list, empty_dict, bnode
@@ -35,10 +33,10 @@ from linkml_runtime.utils.formatutils import camelcase, underscore, sfx
 from linkml_runtime.utils.enumerations import EnumDefinitionImpl
 from rdflib import Namespace, URIRef
 from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.linkml_model.annotations import Annotation, AnnotationTag
-from linkml_runtime.linkml_model.extensions import Extension, ExtensionTag
-from linkml_runtime.linkml_model.types import Boolean, Datetime, Integer, Ncname, String, Uri, Uriorcurie
-from linkml_runtime.linkml_model.units import UnitOfMeasure
+from .annotations import Annotation, AnnotationTag
+from .extensions import Extension, ExtensionTag
+from .types import Boolean, Datetime, Integer, Ncname, String, Uri, Uriorcurie
+from .units import UnitOfMeasure
 from linkml_runtime.utils.metamodelcore import Bool, NCName, URI, URIorCURIE, XSDDateTime
 
 metamodel_version = "1.7.0"
@@ -48,7 +46,6 @@ version = "2.0.0"
 dataclasses._init_fn = dataclasses_init_fn_with_kwargs
 
 # Namespaces
-IAO = CurieNamespace('IAO', 'http://purl.obolibrary.org/obo/IAO_')
 NCIT = CurieNamespace('NCIT', 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 OIO = CurieNamespace('OIO', 'http://www.geneontology.org/formats/oboInOwl#')
 BIBO = CurieNamespace('bibo', 'http://purl.org/ontology/bibo/')

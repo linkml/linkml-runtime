@@ -1,6 +1,6 @@
 {
   "name": "meta",
-  "description": "The metamodel for schemas defined using the Linked Data Modeling Language framework.\n\nFor more information on LinkML, see [linkml.io](https://linkml.io)\n\nCore metaclasses:\n\n* [SchemaDefinition](https://w3id.org/linkml/SchemaDefinition)\n* [ClassDefinition](https://w3id.org/linkml/ClassDefinition)\n* [SlotDefinition](https://w3id.org/linkml/SlotDefinition)\n* [TypeDefinition](https://w3id.org/linkml/TypeDefinition)\n\nEvery LinkML model instantiates SchemaDefinition, all classes in\nthe model instantiate ClassDefinition, and so on\n\nNote that the LinkML metamodel instantiates itself.\n\nFor a non-normative introduction to LinkML schemas, see the tutorial\nand schema guide on [linkml.io/linkml].\n\nFor canonical reference documentation on any metamodel construct,\nrefer to the official URI for each construct, e.g.\n[https://w3id.org/linkml/is_a](https://w3id.org/linkml/is_a)",
+  "description": "The metamodel for schemas defined using the Linked Data Modeling Language framework.\n\nFor more information on LinkML:\n\n* [linkml.io](https://linkml.io) main website\n* [specification](https://linkml.io/linkml-model/docs/specification/)\n\nLinkML is self-describing. Every LinkML schema consists of elements\nthat instantiate classes in this metamodel.\n\nCore metaclasses:\n\n* [SchemaDefinition](https://w3id.org/linkml/SchemaDefinition)\n* [ClassDefinition](https://w3id.org/linkml/ClassDefinition)\n* [SlotDefinition](https://w3id.org/linkml/SlotDefinition)\n* [TypeDefinition](https://w3id.org/linkml/TypeDefinition)\n\nThere are many subsets of *profiles* of the metamodel, for different purposes:\n\n* [MinimalSubset](https://w3id.org/linkml/MinimalSubset)\n* [BasicSubset](https://w3id.org/linkml/BasicSubset)\n* [BasicSubset](https://w3id.org/linkml/BasicSubset)\n\nFor canonical reference documentation on any metamodel construct,\nrefer to the official URI for each construct, e.g.\n[https://w3id.org/linkml/is_a](https://w3id.org/linkml/is_a)",
   "title": "LinkML Schema Metamodel",
   "id": "https://w3id.org/linkml/meta",
   "version": "2.0.0",
@@ -87,7 +87,8 @@
     "dcterms",
     "OIO",
     "owl",
-    "pav"
+    "pav",
+    "IAO"
   ],
   "default_curi_maps": [
     "semweb_context"
@@ -96,37 +97,55 @@
   "default_range": "string",
   "subsets": [
     {
-      "name": "owl",
-      "definition_uri": "https://w3id.org/linkml/Owl",
-      "description": "Set of slots that appear in the OWL representation of a model",
+      "name": "MinimalSubset",
+      "definition_uri": "https://w3id.org/linkml/MinimalSubset",
+      "description": "The absolute minimal set of elements necessary for defining any schema.\n\nschemas conforming to the minimal subset consist of classes, with all slots\ninlined as attributes. There are no enums.",
+      "title": "minimal subset",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 0,
       "@type": "SubsetDefinition"
     },
     {
-      "name": "minimal",
-      "definition_uri": "https://w3id.org/linkml/Minimal",
-      "description": "Minimal set of slots for defining a model",
+      "name": "BasicSubset",
+      "definition_uri": "https://w3id.org/linkml/BasicSubset",
+      "description": "An extension of MinimalSubset that avoids advanced constructs and can be implemented by a broad variety of tools.\n\nThis subset roughly corresponds to the union of most standard constructs used in relational datamodel modeling,\nobject oriented modeling, and simple JSON-style modeling, while avoiding more advanced constructs from these languages.\n\nIt is often possible to translate from a more expressive schema to a BasicSubset schema, through a schema derivation\nprocess",
+      "title": "basic subset",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 1,
       "@type": "SubsetDefinition"
     },
     {
-      "name": "basic",
-      "definition_uri": "https://w3id.org/linkml/Basic",
-      "description": "An extension of minimal that is a basic subset that can be implemented by a broad variety of tools",
+      "name": "SpecificationSubset",
+      "definition_uri": "https://w3id.org/linkml/SpecificationSubset",
+      "description": "A subset that includes all the metamodel elements that form part of the normative LinkML specification.\n\nThe complete LinkML specification can be found at [linkml:specification](https://w3id.org/linkml/specification)",
+      "title": "specification subset",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 2,
       "@type": "SubsetDefinition"
     },
     {
-      "name": "relational_model",
-      "definition_uri": "https://w3id.org/linkml/RelationalModel",
-      "description": "The set of constructs that have an equivalent in the classic relational mode as defined by Codd",
+      "name": "RelationalModelProfile",
+      "definition_uri": "https://w3id.org/linkml/RelationalModelProfile",
+      "description": "A profile that includes all the metamodel elements whose semantics can be expressed using the classic Relational Model.\nThe Relational Model excludes collections (multivalued slots) as first class entities. Instead, these must be\nmapped to backreferences\n\nThe classic Relational Model excludes inheritance and polymorphism -- these must be rolled down to\nconcrete classes or otherwise transformed.",
+      "title": "relational model profile",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 3,
       "@type": "SubsetDefinition"
     },
     {
-      "name": "object_oriented",
-      "definition_uri": "https://w3id.org/linkml/ObjectOriented",
-      "description": "The set of constructs that have an equivalent in a minimal object oriented metamodel",
+      "name": "ObjectOrientedProfile",
+      "definition_uri": "https://w3id.org/linkml/ObjectOrientedProfile",
+      "description": "A profile that includes all the metamodel elements whose semantics can be expressed using a minimal\nimplementation of the object oriented metamodel as employed by languages such as Java and Python, or\nin modeling frameworks like UML",
+      "title": "object oriented profile",
+      "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 4,
+      "@type": "SubsetDefinition"
+    },
+    {
+      "name": "OwlProfile",
+      "definition_uri": "https://w3id.org/linkml/OwlProfile",
+      "description": "A profile that includes all the metamodel elements whose semantics can be expressed in OWL",
+      "title": "owl profile",
       "from_schema": "https://w3id.org/linkml/meta",
       "@type": "SubsetDefinition"
     }
@@ -198,7 +217,7 @@
       "definition_uri": "https://w3id.org/linkml/Time",
       "description": "A time object represents a (local) time of day, independent of any particular day",
       "notes": [
-        "URI is dateTime because OWL reasoners don't work with straight date or time"
+        "URI is dateTime because OWL reasoners do not work with straight date or time"
       ],
       "from_schema": "https://w3id.org/linkml/types",
       "imported_from": "linkml:types",
@@ -308,9 +327,11 @@
       "definition_uri": "https://w3id.org/linkml/PvFormulaOptions",
       "description": "The formula used to generate the set of permissible values from the code_set values",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 1,
       "permissible_values": [
         {
           "text": "CODE",
@@ -335,6 +356,7 @@
       "definition_uri": "https://w3id.org/linkml/PresenceEnum",
       "description": "enumeration of conditions by which a slot value should be set",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "permissible_values": [
         {
           "text": "UNCOMMITTED"
@@ -352,6 +374,7 @@
       "definition_uri": "https://w3id.org/linkml/RelationalRoleEnum",
       "description": "enumeration of roles a slot on a relationship class can play",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 3,
       "permissible_values": [
         {
           "text": "SUBJECT",
@@ -382,6 +405,7 @@
       "name": "alias_predicate_enum",
       "definition_uri": "https://w3id.org/linkml/AliasPredicateEnum",
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 5,
       "permissible_values": [
         {
           "text": "EXACT_SYNONYM",
@@ -408,11 +432,12 @@
       "definition_uri": "https://w3id.org/linkml/name",
       "description": "the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.",
       "in_subset": [
-        "owl",
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "OwlProfile",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -428,6 +453,7 @@
       "exact_mappings": [
         "http://schema.org/name"
       ],
+      "rank": 1,
       "domain": "Element",
       "slot_uri": "http://www.w3.org/2000/01/rdf-schema#label",
       "identifier": true,
@@ -444,8 +470,7 @@
       "definition_uri": "https://w3id.org/linkml/title",
       "description": "the official title of the element",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -454,6 +479,7 @@
       "mappings": [
         "http://purl.org/dc/terms/title"
       ],
+      "rank": 3,
       "domain": "Element",
       "slot_uri": "http://purl.org/dc/terms/title",
       "owner": "title",
@@ -468,8 +494,7 @@
       "definition_uri": "https://w3id.org/linkml/conforms_to",
       "description": "An established standard to which the element conforms.",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -489,7 +514,7 @@
       "definition_uri": "https://w3id.org/linkml/categories",
       "description": "controlled terms used to categorize an element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -511,7 +536,7 @@
       "definition_uri": "https://w3id.org/linkml/keywords",
       "description": "Keywords or tags used to describe the element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -556,7 +581,8 @@
         "If identifiers are treated as URIs, then the URI string must start with the expanded for of the prefix (_should_ start if the list is open)"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -578,7 +604,7 @@
       "definition_uri": "https://w3id.org/linkml/description",
       "description": "a description of the element's purpose and use",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -591,6 +617,7 @@
         "http://purl.org/dc/terms/description",
         "http://schema.org/description"
       ],
+      "rank": 5,
       "domain": "Element",
       "slot_uri": "http://www.w3.org/2004/02/skos/core#definition",
       "owner": "description",
@@ -623,8 +650,9 @@
     {
       "name": "aliases",
       "definition_uri": "https://w3id.org/linkml/aliases",
+      "description": "Alaternate names for the element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -654,7 +682,7 @@
       "definition_uri": "https://w3id.org/linkml/deprecated",
       "description": "Description of why and when this element will no longer be used",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
@@ -674,7 +702,7 @@
       "definition_uri": "https://w3id.org/linkml/todos",
       "description": "Outstanding issue that needs resolution",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Element",
@@ -692,8 +720,7 @@
       "definition_uri": "https://w3id.org/linkml/notes",
       "description": "editorial notes about an element intended for internal consumption",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -714,8 +741,7 @@
       "definition_uri": "https://w3id.org/linkml/comments",
       "description": "notes and comments about an element intended for external consumption",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -739,7 +765,7 @@
       "definition_uri": "https://w3id.org/linkml/in_subset",
       "description": "used to indicate membership of a term in a defined subset of terms used for a particular domain or application (e.g. the translator_minimal subset holding the minimal set of predicates used in a translator knowledge graph)",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -761,6 +787,9 @@
       "description": "id of the schema that defined the element",
       "notes": [
         "A stronger model would be range schema_definition, but this doesn't address the import model"
+      ],
+      "in_subset": [
+        "SpecificationSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -796,8 +825,7 @@
       "definition_uri": "https://w3id.org/linkml/see_also",
       "description": "a reference",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -818,7 +846,7 @@
       "definition_uri": "https://w3id.org/linkml/owned_by",
       "description": "agent that owns or is the steward of the element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -839,7 +867,7 @@
       "definition_uri": "https://w3id.org/linkml/created_by",
       "description": "agent that created the element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -859,7 +887,7 @@
       "definition_uri": "https://w3id.org/linkml/created_on",
       "description": "time at which the element was created",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -879,7 +907,7 @@
       "definition_uri": "https://w3id.org/linkml/last_updated_on",
       "description": "time at which the element was last updated",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -899,7 +927,7 @@
       "definition_uri": "https://w3id.org/linkml/modified_by",
       "description": "agent that modified the element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -925,7 +953,7 @@
         }
       ],
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -1014,7 +1042,7 @@
         "The described resource may be derived from the related resource in whole or in part"
       ],
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -1038,14 +1066,34 @@
       "@type": "SlotDefinition"
     },
     {
-      "name": "is_a",
-      "definition_uri": "https://w3id.org/linkml/is_a",
-      "description": "specifies single-inheritance between classes or slots. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
+      "name": "publisher",
+      "definition_uri": "https://w3id.org/linkml/publisher",
+      "description": "An entity responsible for making the resource available",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "mappings": [
+        "http://purl.org/dc/terms/publisher"
+      ],
+      "domain": "Element",
+      "slot_uri": "http://purl.org/dc/terms/publisher",
+      "owner": "publisher",
+      "range": "uriorcurie",
+      "@type": "SlotDefinition"
+    },
+    {
+      "name": "is_a",
+      "definition_uri": "https://w3id.org/linkml/is_a",
+      "description": "A primary parent class or slot from which inheritable metaslots are propagated from. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
+      "in_subset": [
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
+      ],
+      "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "abstract": true,
       "domain": "Definition",
       "slot_uri": "https://w3id.org/linkml/is_a",
@@ -1060,10 +1108,11 @@
     {
       "name": "abstract",
       "definition_uri": "https://w3id.org/linkml/abstract",
-      "description": "an abstract class is a high level class or slot that is typically used to group common slots together and cannot be directly instantiated.",
+      "description": "Indicates the class or slot cannot be directly instantiated and is intended for grouping and specifying core inherited metaslots",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Definition",
@@ -1078,10 +1127,11 @@
     {
       "name": "mixin",
       "definition_uri": "https://w3id.org/linkml/mixin",
-      "description": "this slot or class can only be used as a mixin.",
+      "description": "Indicates the class or slot is intended to be inherited from without being an is_a parent. mixins should not be inherited from using is_a, except by other mixins.",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -1102,13 +1152,15 @@
     {
       "name": "mixins",
       "definition_uri": "https://w3id.org/linkml/mixins",
-      "description": "List of definitions to be mixed in. Targets may be any definition of the same type",
+      "description": "A collection of secondary parent classes or slots from which inheritable metaslots are propagated from.",
       "comments": [
         "mixins act in the same way as parents (is_a). They allow a model to have a primary strict hierachy, while keeping the benefits of multiple inheritance"
       ],
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -1117,6 +1169,7 @@
       "aliases": [
         "traits"
       ],
+      "rank": 13,
       "domain": "Definition",
       "slot_uri": "https://w3id.org/linkml/mixins",
       "multivalued": true,
@@ -1165,7 +1218,8 @@
         "this should be able to connect to an existing code set from TCCM"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
@@ -1185,7 +1239,7 @@
         "we assume that version identifiers lexically sort in temporal order. Recommend semver when possible"
       ],
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
@@ -1205,7 +1259,7 @@
         "enum_expression cannot have both a code_set_tag and a code_set_version"
       ],
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
@@ -1226,7 +1280,8 @@
         "code_set must be supplied for this to be valid"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
@@ -1243,7 +1298,8 @@
       "definition_uri": "https://w3id.org/linkml/permissible_values",
       "description": "A list of possible values for a slot range",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
@@ -1260,9 +1316,10 @@
     {
       "name": "enum_uri",
       "definition_uri": "https://w3id.org/linkml/enum_uri",
-      "description": "URI of the enum in an RDF environment",
+      "description": "URI of the enum that provides a semantic interpretation of the element in a linked data context. The URI may come from any namespace and may be shared between schemas",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -1282,6 +1339,9 @@
       "name": "include",
       "definition_uri": "https://w3id.org/linkml/include",
       "description": "An enum expression that yields a list of permissible values that are to be included, after subtracting the minus set",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/include",
@@ -1298,6 +1358,9 @@
       "name": "minus",
       "definition_uri": "https://w3id.org/linkml/minus",
       "description": "An enum expression that yields a list of permissible values that are to be subtracted from the enum",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/minus",
@@ -1317,6 +1380,9 @@
       "comments": [
         "All permissible values for all inherited enums are copied to form the initial seed set"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/inherits",
@@ -1332,6 +1398,9 @@
       "name": "matches",
       "definition_uri": "https://w3id.org/linkml/matches",
       "description": "Specifies a match query that is used to calculate the list of permissible values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/matches",
@@ -1347,6 +1416,9 @@
       "name": "identifier_pattern",
       "definition_uri": "https://w3id.org/linkml/identifier_pattern",
       "description": "A regular expression that is used to obtain a set of identifiers from a source_ontology to construct a set of permissible values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "MatchQuery",
       "slot_uri": "https://w3id.org/linkml/identifier_pattern",
@@ -1361,6 +1433,9 @@
       "name": "concepts",
       "definition_uri": "https://w3id.org/linkml/concepts",
       "description": "A list of identifiers that are used to construct a set of permissible values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/concepts",
@@ -1376,6 +1451,9 @@
       "name": "reachable_from",
       "definition_uri": "https://w3id.org/linkml/reachable_from",
       "description": "Specifies a query for obtaining a list of permissible values based on graph reachability",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "EnumExpression",
       "slot_uri": "https://w3id.org/linkml/reachable_from",
@@ -1391,6 +1469,9 @@
       "name": "source_ontology",
       "definition_uri": "https://w3id.org/linkml/source_ontology",
       "description": "An ontology or vocabulary or terminology that is used in a query to obtain a set of permissible values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "terminology",
@@ -1409,6 +1490,9 @@
       "name": "is_direct",
       "definition_uri": "https://w3id.org/linkml/is_direct",
       "description": "True if the reachability query should only include directly related nodes, if False then include also transitively connected",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "non-transitive"
@@ -1426,6 +1510,9 @@
       "name": "traverse_up",
       "definition_uri": "https://w3id.org/linkml/traverse_up",
       "description": "True if the direction of the reachability query is reversed and ancestors are retrieved",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "ancestors"
@@ -1443,6 +1530,9 @@
       "name": "include_self",
       "definition_uri": "https://w3id.org/linkml/include_self",
       "description": "True if the query is reflexive",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "reflexive"
@@ -1460,6 +1550,9 @@
       "name": "relationship_types",
       "definition_uri": "https://w3id.org/linkml/relationship_types",
       "description": "A list of relationship types (properties) that are used in a reachability query",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "predicates",
@@ -1479,6 +1572,9 @@
       "name": "source_nodes",
       "definition_uri": "https://w3id.org/linkml/source_nodes",
       "description": "A list of nodes that are used in the reachability query",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "ReachabilityQuery",
       "slot_uri": "https://w3id.org/linkml/source_nodes",
@@ -1494,12 +1590,17 @@
       "name": "text",
       "definition_uri": "https://w3id.org/linkml/text",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "value"
       ],
+      "close_mappings": [
+        "http://www.w3.org/2004/02/skos/core#notation"
+      ],
+      "rank": 21,
       "domain": "PermissibleValue",
       "slot_uri": "https://w3id.org/linkml/text",
       "identifier": true,
@@ -1519,7 +1620,8 @@
         "we may want to change the range of this (and other) elements in the model to an entitydescription type construct"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -1528,6 +1630,7 @@
       "aliases": [
         "PV meaning"
       ],
+      "rank": 23,
       "domain": "PermissibleValue",
       "slot_uri": "https://w3id.org/linkml/meaning",
       "owner": "PermissibleValue",
@@ -1542,10 +1645,13 @@
       "definition_uri": "https://w3id.org/linkml/id",
       "description": "The official schema URI",
       "in_subset": [
-        "minimal",
-        "basic"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 0,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/id",
       "owner": "SchemaDefinition",
@@ -1576,8 +1682,7 @@
       "definition_uri": "https://w3id.org/linkml/version",
       "description": "particular version of schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -1600,9 +1705,12 @@
       "definition_uri": "https://w3id.org/linkml/imports",
       "description": "other schemas that are included in this schema",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 21,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/imports",
       "multivalued": true,
@@ -1631,13 +1739,13 @@
       "definition_uri": "https://w3id.org/linkml/license",
       "description": "license for the schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
         "http://purl.org/dc/terms/license"
       ],
+      "rank": 31,
       "domain": "SchemaDefinition",
       "slot_uri": "http://purl.org/dc/terms/license",
       "owner": "SchemaDefinition",
@@ -1652,7 +1760,7 @@
       "definition_uri": "https://w3id.org/linkml/default_curi_maps",
       "description": "ordered list of prefixcommon biocontexts to be fetched to resolve id prefixes and inline prefix variables",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1670,10 +1778,12 @@
       "definition_uri": "https://w3id.org/linkml/default_prefix",
       "description": "default and base prefix -- used for ':' identifiers, @base and @vocab",
       "in_subset": [
-        "minimal",
-        "basic"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/default_prefix",
       "ifabsent": "default_ns",
@@ -1692,10 +1802,12 @@
         "restricted to type definitions for the time being.  Could be broadened if required"
       ],
       "in_subset": [
-        "minimal",
-        "basic"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 13,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/default_range",
       "owner": "SchemaDefinition",
@@ -1708,14 +1820,16 @@
     {
       "name": "subsets",
       "definition_uri": "https://w3id.org/linkml/subsets",
-      "description": "list of subsets referenced in this model",
+      "description": "An index to the collection of all subset definitions in the schema",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "http://www.geneontology.org/formats/oboInOwl#hasSubset"
       ],
+      "rank": 8,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/subsets",
       "multivalued": true,
@@ -1730,12 +1844,14 @@
     {
       "name": "types",
       "definition_uri": "https://w3id.org/linkml/types",
-      "description": "data types used in the model",
+      "description": "An index to the collection of all type definitions in the schema",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 6,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/types",
       "multivalued": true,
@@ -1750,12 +1866,15 @@
     {
       "name": "enums",
       "definition_uri": "https://w3id.org/linkml/enums",
-      "description": "enumerated ranges",
+      "description": "An index to the collection of all enum definitions in the schema",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 5,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/enums",
       "multivalued": true,
@@ -1770,11 +1889,14 @@
     {
       "name": "slot_definitions",
       "definition_uri": "https://w3id.org/linkml/slot_definitions",
-      "description": "slot definitions",
+      "description": "An index to the collection of all slot definitions in the schema",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 4,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/slots",
       "multivalued": true,
@@ -1790,14 +1912,17 @@
     {
       "name": "classes",
       "definition_uri": "https://w3id.org/linkml/classes",
-      "description": "class definitions",
+      "description": "An index to the collection of all class definitions in the schema",
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 3,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/classes",
       "multivalued": true,
@@ -1814,8 +1939,7 @@
       "definition_uri": "https://w3id.org/linkml/metamodel_version",
       "description": "Version of the metamodel used to load the schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1833,8 +1957,7 @@
       "definition_uri": "https://w3id.org/linkml/source_file",
       "description": "name, uri or description of the source of the schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1852,8 +1975,7 @@
       "definition_uri": "https://w3id.org/linkml/source_file_date",
       "description": "modification date of the source of the schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1871,8 +1993,7 @@
       "definition_uri": "https://w3id.org/linkml/source_file_size",
       "description": "size in bytes of the source of the schema",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1890,8 +2011,7 @@
       "definition_uri": "https://w3id.org/linkml/generation_date",
       "description": "date and time that the schema was loaded/generated",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SchemaDefinition",
@@ -1907,14 +2027,16 @@
     {
       "name": "slots",
       "definition_uri": "https://w3id.org/linkml/slots",
-      "description": "list of slot names that are applicable to a class",
+      "description": "collection of slot names that are applicable to a class",
       "comments": [
         "This defines the set of slots that are allowed to be used for a given class. The final list of slots for a class is the combination of the parent (is a) slots, mixins slots, apply to slots minus the slot usage entries. Formally,"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 19,
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/slots",
       "multivalued": true,
@@ -1928,14 +2050,16 @@
     {
       "name": "slot_usage",
       "definition_uri": "https://w3id.org/linkml/slot_usage",
-      "description": "the redefinition of a slot in the context of the containing class definition.",
+      "description": "the refinement of a slot in the context of the containing class definition.",
       "comments": [
         "Many slots may be re-used across different classes, but the meaning of the slot may be refined by context. For example, a generic association model may use slots subject/predicate/object with generic semantics and minimal constraints. When this is subclasses, e.g. to disease-phenotype associations then slot usage may specify both local naming (e.g. subject=disease) and local constraints"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 23,
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/slot_usage",
       "multivalued": true,
@@ -1951,6 +2075,9 @@
       "name": "enum_range",
       "definition_uri": "https://w3id.org/linkml/enum_range",
       "description": "An inlined enumeration",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slot_uri": "https://w3id.org/linkml/enum_range",
       "owner": "SlotExpression",
@@ -1967,6 +2094,9 @@
       "description": "A range that is described as a boolean expression combining existing ranges",
       "comments": [
         "one use for this is being able to describe a range using any_of expressions, for example to combine two enums"
+      ],
+      "in_subset": [
+        "SpecificationSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotExpression",
@@ -1996,10 +2126,14 @@
       "name": "any_of",
       "definition_uri": "https://w3id.org/linkml/any_of",
       "description": "holds if at least one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/or"
       ],
+      "rank": 101,
       "is_a": "boolean_slot",
       "slot_uri": "https://w3id.org/linkml/any_of",
       "multivalued": true,
@@ -2018,10 +2152,14 @@
       "name": "exactly_one_of",
       "definition_uri": "https://w3id.org/linkml/exactly_one_of",
       "description": "holds if only one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/xone"
       ],
+      "rank": 103,
       "is_a": "boolean_slot",
       "slot_uri": "https://w3id.org/linkml/exactly_one_of",
       "multivalued": true,
@@ -2040,10 +2178,14 @@
       "name": "none_of",
       "definition_uri": "https://w3id.org/linkml/none_of",
       "description": "holds if none of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/not"
       ],
+      "rank": 105,
       "is_a": "boolean_slot",
       "slot_uri": "https://w3id.org/linkml/none_of",
       "multivalued": true,
@@ -2062,10 +2204,14 @@
       "name": "all_of",
       "definition_uri": "https://w3id.org/linkml/all_of",
       "description": "holds if all of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/and"
       ],
+      "rank": 107,
       "is_a": "boolean_slot",
       "slot_uri": "https://w3id.org/linkml/all_of",
       "multivalued": true,
@@ -2084,6 +2230,9 @@
       "name": "preconditions",
       "definition_uri": "https://w3id.org/linkml/preconditions",
       "description": "an expression that must hold in order for the rule to be applicable to an instance",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "if",
@@ -2096,6 +2245,7 @@
       "close_mappings": [
         "http://www.w3.org/2003/11/swrl#body"
       ],
+      "rank": 111,
       "slot_uri": "https://w3id.org/shacl/condition",
       "owner": "ClassRule",
       "domain_of": [
@@ -2109,6 +2259,9 @@
       "name": "postconditions",
       "definition_uri": "https://w3id.org/linkml/postconditions",
       "description": "an expression that must hold for an instance of the class, if the preconditions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "then",
@@ -2118,6 +2271,7 @@
       "close_mappings": [
         "http://www.w3.org/2003/11/swrl#body"
       ],
+      "rank": 113,
       "slot_uri": "https://w3id.org/linkml/postconditions",
       "owner": "ClassRule",
       "domain_of": [
@@ -2131,10 +2285,14 @@
       "name": "elseconditions",
       "definition_uri": "https://w3id.org/linkml/elseconditions",
       "description": "an expression that must hold for an instance of the class, if the preconditions no not hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "else"
       ],
+      "rank": 115,
       "slot_uri": "https://w3id.org/linkml/elseconditions",
       "owner": "ClassRule",
       "domain_of": [
@@ -2148,6 +2306,9 @@
       "name": "bidirectional",
       "definition_uri": "https://w3id.org/linkml/bidirectional",
       "description": "in addition to preconditions entailing postconditions, the postconditions entail the preconditions",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "iff",
@@ -2165,6 +2326,9 @@
       "name": "open_world",
       "definition_uri": "https://w3id.org/linkml/open_world",
       "description": "if true, the the postconditions may be omitted in instance data, but it is valid for an inference engine to add these",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slot_uri": "https://w3id.org/linkml/open_world",
       "owner": "ClassRule",
@@ -2182,7 +2346,8 @@
         "the rank of an element does not affect the semantics"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -2194,8 +2359,10 @@
         "https://w3id.org/shacl/order"
       ],
       "exact_mappings": [
-        "http://qudt.org/schema/qudt/order"
+        "http://qudt.org/schema/qudt/order",
+        "http://purl.org/linked-data/cube#order"
       ],
+      "rank": 51,
       "slot_uri": "https://w3id.org/shacl/order",
       "owner": "ClassRule",
       "domain_of": [
@@ -2225,6 +2392,9 @@
       "name": "rules",
       "definition_uri": "https://w3id.org/linkml/rules",
       "description": "the collection of rules that apply to all members of this class",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
         "https://w3id.org/shacl/rule"
@@ -2244,6 +2414,9 @@
       "name": "classification_rules",
       "definition_uri": "https://w3id.org/linkml/classification_rules",
       "description": "the collection of classification rules that apply to all members of this class",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/classification_rules",
@@ -2260,6 +2433,9 @@
       "name": "slot_conditions",
       "definition_uri": "https://w3id.org/linkml/slot_conditions",
       "description": "expresses constraints on a group of slots for a class expression",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "ClassExpression",
       "slot_uri": "https://w3id.org/linkml/slot_conditions",
@@ -2280,12 +2456,15 @@
         "attributes are an alternative way of defining new slots.  An attribute adds a slot to the global space in the form <class_name>__<slot_name> (lower case, double underscores).  Attributes can be specialized via slot_usage."
       ],
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 29,
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/attributes",
       "multivalued": true,
@@ -2300,14 +2479,16 @@
     {
       "name": "class_uri",
       "definition_uri": "https://w3id.org/linkml/class_uri",
-      "description": "URI of the class in an RDF environment",
+      "description": "URI of the class that provides a semantic interpretation of the element in a linked data context. The URI may come from any namespace and may be shared between schemas",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "public ID"
       ],
+      "rank": 2,
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/class_uri",
       "ifabsent": "class_curie",
@@ -2359,6 +2540,10 @@
       "notes": [
         "this only applies in the OWL generation"
       ],
+      "in_subset": [
+        "SpecificationSubset",
+        "OwlProfile"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Element",
       "slot_uri": "https://w3id.org/linkml/union_of",
@@ -2380,9 +2565,11 @@
         "each schema should have at most one tree root"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 31,
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/tree_root",
       "owner": "ClassDefinition",
@@ -2395,10 +2582,11 @@
     {
       "name": "unique_keys",
       "definition_uri": "https://w3id.org/linkml/unique_keys",
-      "description": "Set of unique keys for this slot",
+      "description": "A collection of unique keys for this class. Unique keys may be singular or compound.",
       "in_subset": [
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
@@ -2420,8 +2608,9 @@
       "definition_uri": "https://w3id.org/linkml/unique_key_name",
       "description": "name of the unique key",
       "in_subset": [
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "UniqueKey",
@@ -2440,8 +2629,9 @@
       "definition_uri": "https://w3id.org/linkml/unique_key_slots",
       "description": "list of slot names that form a key",
       "in_subset": [
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "UniqueKey",
@@ -2474,6 +2664,9 @@
       "name": "domain",
       "definition_uri": "https://w3id.org/linkml/domain",
       "description": "defines the type of the subject of the slot.  Given the following slot definition\n  S1:\n    domain: C1\n    range:  C2\nthe declaration\n  X:\n    S1: Y\n\nimplicitly asserts that X is an instance of C1\n",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/domain",
@@ -2493,10 +2686,11 @@
         "range is underspecified, as not all elements can appear as the range of a slot."
       ],
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -2518,12 +2712,14 @@
       "definition_uri": "https://w3id.org/linkml/slot_uri",
       "description": "predicate of this slot for semantic web application",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "public ID"
       ],
+      "rank": 2,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/slot_uri",
       "ifabsent": "slot_curie",
@@ -2539,11 +2735,13 @@
       "definition_uri": "https://w3id.org/linkml/multivalued",
       "description": "true means that slot can have more than one value",
       "in_subset": [
-        "minimal",
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 7,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/multivalued",
       "inherited": true,
@@ -2560,6 +2758,9 @@
       "description": "true means that the *value* of a slot is inherited by subclasses",
       "comments": [
         "Inherited applies to slot values.  Parent *slots* are always inherited by subclasses"
+      ],
+      "in_subset": [
+        "SpecificationSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
@@ -2591,6 +2792,9 @@
       "name": "ifabsent",
       "definition_uri": "https://w3id.org/linkml/ifabsent",
       "description": "function that provides a default value for the slot.  Possible values for this slot are defined in\nlinkml_runtime.utils.ifabsent_functions.default_library:\n  * [Tt]rue -- boolean True\n  * [Ff]alse -- boolean False\n  * int(value) -- integer value\n  * str(value) -- string value\n  * default_range -- schema default range\n  * bnode -- blank node identifier\n  * slot_uri -- URI for the slot\n  * class_curie -- CURIE for the containing class\n  * class_uri -- URI for the containing class",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
         "https://w3id.org/shacl/defaultValue"
@@ -2609,6 +2813,9 @@
       "name": "implicit_prefix",
       "definition_uri": "https://w3id.org/linkml/implicit_prefix",
       "description": "Causes the slot value to be interpreted as a uriorcurie after prefixing with this string",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotExpression",
       "slot_uri": "https://w3id.org/linkml/implicit_prefix",
@@ -2656,6 +2863,9 @@
       "slot_uri": "https://w3id.org/linkml/value_presence",
       "inherited": true,
       "owner": "value_presence",
+      "domain_of": [
+        "SlotExpression"
+      ],
       "range": "presence_enum",
       "@type": "SlotDefinition"
     },
@@ -2663,9 +2873,11 @@
       "name": "equals_string",
       "definition_uri": "https://w3id.org/linkml/equals_string",
       "description": "the slot must have range string and the value of the slot must equal the specified value",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
-      "status": "testing",
       "slot_uri": "https://w3id.org/linkml/equals_string",
       "inherited": true,
       "owner": "SlotExpression",
@@ -2703,12 +2915,14 @@
       "comments": [
         "for example, a 'length' slot may have an equals_expression with value '(end-start)+1'"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
         "https://github.com/linkml/linkml/issues/75"
       ],
       "is_a": "list_value_specification_constant",
-      "status": "unstable",
       "slot_uri": "https://w3id.org/linkml/equals_expression",
       "inherited": true,
       "owner": "SlotExpression",
@@ -2722,6 +2936,9 @@
       "name": "minimum_cardinality",
       "definition_uri": "https://w3id.org/linkml/minimum_cardinality",
       "description": "the minimum number of entries for a multivalued slot",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
@@ -2738,6 +2955,9 @@
       "name": "maximum_cardinality",
       "definition_uri": "https://w3id.org/linkml/maximum_cardinality",
       "description": "the maximum number of entries for a multivalued slot",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
@@ -2754,6 +2974,9 @@
       "name": "equals_string_in",
       "definition_uri": "https://w3id.org/linkml/equals_string_in",
       "description": "the slot must have range string and the value of the slot must equal one of the specified values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
@@ -2772,6 +2995,9 @@
       "name": "equals_number_in",
       "definition_uri": "https://w3id.org/linkml/equals_number_in",
       "description": "the slot must have range number and the value of the slot must equal one of the specified values",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
@@ -2784,7 +3010,10 @@
     {
       "name": "has_member",
       "definition_uri": "https://w3id.org/linkml/has_member",
-      "description": "the values of the slot is multivalued with at least one member satisfying the condition",
+      "description": "the value of the slot is multivalued with at least one member satisfying the condition",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
@@ -2800,17 +3029,19 @@
     {
       "name": "all_members",
       "definition_uri": "https://w3id.org/linkml/all_members",
-      "description": "the value of the multiavlued slot is a list where all elements conform to the specified values.\nthis defines a dynamic class with named slots according to matching constraints\n\nE.g to state that all members of a list are between 1 and 10\n```\nall_members:\n  x:\n    range: integer\n    minimum_value: 10\n    maximum_value: 10\n```",
+      "description": "the value of the slot is multivalued with all members satisfying the condition",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "list_value_specification_constant",
       "status": "testing",
       "slot_uri": "https://w3id.org/linkml/all_members",
-      "multivalued": true,
       "owner": "SlotExpression",
       "domain_of": [
         "SlotExpression"
       ],
-      "range": "SlotDefinition",
+      "range": "AnonymousSlotExpression",
       "inlined": true,
       "@type": "SlotDefinition"
     },
@@ -2819,7 +3050,7 @@
       "definition_uri": "https://w3id.org/linkml/singular_name",
       "description": "a name that is used in the singular form",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -2839,12 +3070,14 @@
       "definition_uri": "https://w3id.org/linkml/required",
       "description": "true means that the slot must be present in the loaded definition",
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 8,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/required",
       "inherited": true,
@@ -2864,12 +3097,14 @@
         "If a slot is recommended, and it is not populated, applications must not treat this as an error. Applications may use this to inform the user of missing data"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
         "https://github.com/linkml/linkml/issues/177"
       ],
+      "rank": 9,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/recommended",
       "inherited": true,
@@ -2887,6 +3122,9 @@
       "comments": [
         "By default all slots are applicable. The main use case for this slot is as an override in a subclass"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/inapplicable",
@@ -2903,9 +3141,11 @@
         "classes without keys or identifiers are necessarily inlined as lists"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 25,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/inlined",
       "inherited": true,
@@ -2925,9 +3165,11 @@
         "A keyed or identified class with one additional slot can be input in a third form, a dictionary whose key\nis the key or identifier and whose value is the one additional element.  This form is still stored according\nto the inlined_as_list setting."
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 27,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/inlined_as_list",
       "inherited": true,
@@ -2944,6 +3186,9 @@
       "description": "If True, then the order of elements of a multivalued slot is guaranteed to be preserved. If False, the order may still be preserved but this is not guaranteed",
       "comments": [
         "should only be used with multivalued slots"
+      ],
+      "in_subset": [
+        "SpecificationSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
@@ -2963,6 +3208,9 @@
       "comments": [
         "should only be used with multivalued slots"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/list_elements_unique",
@@ -2978,6 +3226,9 @@
       "name": "shared",
       "definition_uri": "https://w3id.org/linkml/shared",
       "description": "If True, then the relationship between the slot domain and range is many to one or many to many",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "inverse functional",
@@ -3005,8 +3256,9 @@
         "a key slot is automatically required.  Keys cannot be optional"
       ],
       "in_subset": [
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
@@ -3030,9 +3282,10 @@
         "identifiers and keys are mutually exclusive.  A given domain cannot have both"
       ],
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -3044,6 +3297,7 @@
         "UID",
         "code"
       ],
+      "rank": 5,
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/identifier",
       "inherited": true,
@@ -3058,6 +3312,9 @@
       "name": "designates_type",
       "definition_uri": "https://w3id.org/linkml/designates_type",
       "description": "True means that the key slot(s) is used to determine the instantiation (types) relation between objects and a ClassDefinition",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "type designator"
@@ -3076,10 +3333,14 @@
       "name": "alias",
       "definition_uri": "https://w3id.org/linkml/alias",
       "description": "the name used for a slot in the context of its owning class.  If present, this is used instead of the actual slot name.",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
         "http://www.w3.org/2004/02/skos/core#prefLabel"
       ],
+      "rank": 6,
       "domain": "SlotDefinition",
       "slot_uri": "http://www.w3.org/2004/02/skos/core#prefLabel",
       "owner": "SlotDefinition",
@@ -3180,6 +3441,9 @@
       "name": "disjoint_with",
       "definition_uri": "https://w3id.org/linkml/disjoint_with",
       "description": "Two classes are disjoint if they have no instances in common, two slots are disjoint if they can never hold between the same two instances",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Definition",
       "slot_uri": "https://w3id.org/linkml/disjoint_with",
@@ -3223,6 +3487,9 @@
       "name": "symmetric",
       "definition_uri": "https://w3id.org/linkml/symmetric",
       "description": "If s is symmetric, and i.s=v, then v.s=i",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
         "http://www.w3.org/2002/07/owl#SymmetricProperty"
@@ -3243,6 +3510,9 @@
       "description": "If s is antisymmetric, and i.s=v where i is different from v, v.s cannot have value i",
       "comments": [
         "asymmetry is the combination of antisymmetry and irreflexivity"
+      ],
+      "in_subset": [
+        "SpecificationSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
@@ -3265,6 +3535,9 @@
       "comments": [
         "it is rare for a property to be reflexive, this characteristic is added for completeness, consider instead locally_reflexive"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
         "http://www.w3.org/2002/07/owl#ReflexiveProperty"
@@ -3283,6 +3556,9 @@
       "name": "irreflexive",
       "definition_uri": "https://w3id.org/linkml/irreflexive",
       "description": "If s is irreflexive, then there exists no i such i.s=i",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
         "http://www.w3.org/2002/07/owl#IrreflexiveProperty"
@@ -3300,7 +3576,10 @@
     {
       "name": "locally_reflexive",
       "definition_uri": "https://w3id.org/linkml/locally_reflexive",
-      "description": "If s is locally_reflexive, then i.s=i for all instances i where s if a class slot for the type of i",
+      "description": "If s is locally_reflexive, then i.s=i for all instances i where s is a class slot for the type of i",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "relational_logical_characteristic",
       "domain": "SlotDefinition",
@@ -3316,6 +3595,9 @@
       "name": "transitive",
       "definition_uri": "https://w3id.org/linkml/transitive",
       "description": "If s is transitive, and i.s=z, and s.s=j, then i.s=j",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
         "http://www.w3.org/2002/07/owl#TransitiveProperty"
@@ -3337,6 +3619,9 @@
       "comments": [
         "{'Example': 'ancestor_of is the transitive_form_of parent_of'}"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slot_uri": "https://w3id.org/linkml/transitive_form_of",
       "owner": "SlotDefinition",
@@ -3350,6 +3635,9 @@
       "name": "reflexive_transitive_form_of",
       "definition_uri": "https://w3id.org/linkml/reflexive_transitive_form_of",
       "description": "transitive_form_of including the reflexive case",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "transitive_form_of",
       "slot_uri": "https://w3id.org/linkml/reflexive_transitive_form_of",
@@ -3364,6 +3652,9 @@
       "name": "inverse",
       "definition_uri": "https://w3id.org/linkml/inverse",
       "description": "indicates that any instance of d s r implies that there is also an instance of r s' d",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
         "http://www.w3.org/2002/07/owl#inverseOf"
@@ -3380,7 +3671,7 @@
     {
       "name": "is_class_field",
       "definition_uri": "https://w3id.org/linkml/is_class_field",
-      "description": "indicates that any instance, i,  the domain of this slot will include an assert of i s range",
+      "description": "indicates that for any instance, i, the domain of this slot will include an assertion of i s range",
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/is_class_field",
@@ -3394,7 +3685,10 @@
     {
       "name": "role",
       "definition_uri": "https://w3id.org/linkml/role",
-      "description": "the role played by the slot range",
+      "description": "a textual descriptor that indicates the role played by the slot range",
+      "comments": [
+        "the primary use case for this slot is to provide a textual descriptor of a generic slot name when used in the context of a more specific class"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/role",
@@ -3411,7 +3705,8 @@
       "definition_uri": "https://w3id.org/linkml/minimum_value",
       "description": "for slots with ranges of type number, the value must be equal to or higher than this",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -3433,7 +3728,8 @@
       "definition_uri": "https://w3id.org/linkml/maximum_value",
       "description": "for slots with ranges of type number, the value must be equal to or lowe than this",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -3454,6 +3750,9 @@
       "name": "interpolated",
       "definition_uri": "https://w3id.org/linkml/interpolated",
       "description": "if true then the pattern is first string interpolated",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "PatternExpression",
       "slot_uri": "https://w3id.org/linkml/interpolated",
@@ -3468,6 +3767,9 @@
       "name": "partial_match",
       "definition_uri": "https://w3id.org/linkml/partial_match",
       "description": "if true then the pattern must match the whole string, as if enclosed in ^...$",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "PatternExpression",
       "slot_uri": "https://w3id.org/linkml/partial_match",
@@ -3483,9 +3785,11 @@
       "definition_uri": "https://w3id.org/linkml/pattern",
       "description": "the string value of the slot must conform to this regular expression expressed in the string",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 35,
       "domain": "Definition",
       "slot_uri": "https://w3id.org/linkml/pattern",
       "inherited": true,
@@ -3501,6 +3805,9 @@
       "name": "syntax",
       "definition_uri": "https://w3id.org/linkml/syntax",
       "description": "the string value of the slot must conform to this regular expression expressed in the string. May be interpolated.",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "PatternExpression",
       "slot_uri": "https://w3id.org/linkml/syntax",
@@ -3516,6 +3823,9 @@
       "name": "structured_pattern",
       "definition_uri": "https://w3id.org/linkml/structured_pattern",
       "description": "the string value of the slot must conform to the regular expression in the pattern expression",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Definition",
       "slot_uri": "https://w3id.org/linkml/structured_pattern",
@@ -3533,6 +3843,9 @@
       "name": "string_serialization",
       "definition_uri": "https://w3id.org/linkml/string_serialization",
       "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
         "https://github.com/linkml/issues/128"
@@ -3556,9 +3869,11 @@
         "type definitions without a typeof slot are referred to as a \"root type\""
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 7,
       "domain": "TypeDefinition",
       "slot_uri": "https://w3id.org/linkml/typeof",
       "owner": "TypeDefinition",
@@ -3577,9 +3892,11 @@
         "the base is inherited by child types but may be overriden.  Base compatibility is not checked."
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 8,
       "domain": "TypeDefinition",
       "slot_uri": "https://w3id.org/linkml/base",
       "inherited": true,
@@ -3599,9 +3916,11 @@
         "every root type must have a type uri"
       ],
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 2,
       "domain": "TypeDefinition",
       "slot_uri": "https://w3id.org/linkml/uri",
       "inherited": true,
@@ -3618,9 +3937,11 @@
       "definition_uri": "https://w3id.org/linkml/repr",
       "description": "the name of the python object that implements this type definition",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 10,
       "domain": "TypeDefinition",
       "slot_uri": "https://w3id.org/linkml/repr",
       "inherited": true,
@@ -3636,7 +3957,7 @@
       "definition_uri": "https://w3id.org/linkml/alt_description_text",
       "description": "text of an attributed description",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "AltDescription",
@@ -3655,7 +3976,7 @@
       "definition_uri": "https://w3id.org/linkml/alt_description_source",
       "description": "the source of an attributed description",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "AltDescription",
@@ -3673,8 +3994,9 @@
     {
       "name": "alt_descriptions",
       "definition_uri": "https://w3id.org/linkml/alt_descriptions",
+      "description": "A sourced alternative description for an element",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -3696,7 +4018,7 @@
       "definition_uri": "https://w3id.org/linkml/value",
       "description": "example value",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -3716,7 +4038,7 @@
       "definition_uri": "https://w3id.org/linkml/value_description",
       "description": "description of what the value is doing",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Example",
@@ -3734,8 +4056,7 @@
       "definition_uri": "https://w3id.org/linkml/examples",
       "description": "example usages of an element",
       "in_subset": [
-        "owl",
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
@@ -3758,11 +4079,16 @@
       "definition_uri": "https://w3id.org/linkml/prefix_prefix",
       "description": "the nsname (sans ':' for a given prefix)",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "mappings": [
+        "https://w3id.org/shacl/prefix"
+      ],
+      "rank": 1,
       "domain": "Prefix",
-      "slot_uri": "https://w3id.org/linkml/prefix_prefix",
+      "slot_uri": "https://w3id.org/shacl/prefix",
       "key": true,
       "owner": "Prefix",
       "domain_of": [
@@ -3777,11 +4103,16 @@
       "definition_uri": "https://w3id.org/linkml/prefix_reference",
       "description": "A URI associated with a given prefix",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "mappings": [
+        "https://w3id.org/shacl/namespace"
+      ],
+      "rank": 2,
       "domain": "Prefix",
-      "slot_uri": "https://w3id.org/linkml/prefix_reference",
+      "slot_uri": "https://w3id.org/shacl/namespace",
       "owner": "Prefix",
       "domain_of": [
         "Prefix"
@@ -3795,11 +4126,16 @@
       "definition_uri": "https://w3id.org/linkml/prefixes",
       "description": "prefix / URI definitions to be added to the context beyond those fetched from prefixcommons in id prefixes",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "mappings": [
+        "https://w3id.org/shacl/declare"
+      ],
+      "rank": 10,
       "domain": "SchemaDefinition",
-      "slot_uri": "https://w3id.org/linkml/prefixes",
+      "slot_uri": "https://w3id.org/shacl/declare",
       "multivalued": true,
       "owner": "SchemaDefinition",
       "domain_of": [
@@ -3813,6 +4149,9 @@
       "name": "setting_key",
       "definition_uri": "https://w3id.org/linkml/setting_key",
       "description": "the variable name for a setting",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Setting",
       "slot_uri": "https://w3id.org/linkml/setting_key",
@@ -3829,6 +4168,9 @@
       "name": "setting_value",
       "definition_uri": "https://w3id.org/linkml/setting_value",
       "description": "The value assigned for a setting",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "domain": "Setting",
       "slot_uri": "https://w3id.org/linkml/setting_value",
@@ -3847,7 +4189,11 @@
       "comments": [
         "global variables are used in string interpolation"
       ],
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 20,
       "domain": "SchemaDefinition",
       "slot_uri": "https://w3id.org/linkml/settings",
       "multivalued": true,
@@ -3955,7 +4301,8 @@
       "definition_uri": "https://w3id.org/linkml/slot_group",
       "description": "allows for grouping of related slots into a grouping slot that serves the role of a group",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -3985,7 +4332,8 @@
       "definition_uri": "https://w3id.org/linkml/is_grouping_slot",
       "description": "true if this slot is a grouping slot",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "close_mappings": [
@@ -4442,13 +4790,14 @@
     {
       "name": "schema_definition_name",
       "definition_uri": "https://w3id.org/linkml/name",
-      "description": "the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.",
+      "description": "a unique name for the schema that is both human-readable and consists of only characters from the NCName set",
       "in_subset": [
-        "owl",
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "OwlProfile",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -4464,6 +4813,7 @@
       "exact_mappings": [
         "http://schema.org/name"
       ],
+      "rank": 1,
       "is_a": "name",
       "domain": "SchemaDefinition",
       "slot_uri": "http://www.w3.org/2000/01/rdf-schema#label",
@@ -4483,10 +4833,14 @@
       "name": "type_expression_any_of",
       "definition_uri": "https://w3id.org/linkml/any_of",
       "description": "holds if at least one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/or"
       ],
+      "rank": 101,
       "is_a": "any_of",
       "domain": "TypeExpression",
       "slot_uri": "https://w3id.org/linkml/any_of",
@@ -4506,10 +4860,14 @@
       "name": "type_expression_all_of",
       "definition_uri": "https://w3id.org/linkml/all_of",
       "description": "holds if all of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/and"
       ],
+      "rank": 107,
       "is_a": "all_of",
       "domain": "TypeExpression",
       "slot_uri": "https://w3id.org/linkml/all_of",
@@ -4529,10 +4887,14 @@
       "name": "type_expression_exactly_one_of",
       "definition_uri": "https://w3id.org/linkml/exactly_one_of",
       "description": "holds if only one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/xone"
       ],
+      "rank": 103,
       "is_a": "exactly_one_of",
       "domain": "TypeExpression",
       "slot_uri": "https://w3id.org/linkml/exactly_one_of",
@@ -4552,10 +4914,14 @@
       "name": "type_expression_none_of",
       "definition_uri": "https://w3id.org/linkml/none_of",
       "description": "holds if none of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/not"
       ],
+      "rank": 105,
       "is_a": "none_of",
       "domain": "TypeExpression",
       "slot_uri": "https://w3id.org/linkml/none_of",
@@ -4577,6 +4943,10 @@
       "description": "indicates that the domain element consists exactly of the members of the element in the range.",
       "notes": [
         "this only applies in the OWL generation"
+      ],
+      "in_subset": [
+        "SpecificationSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "union_of",
@@ -4605,7 +4975,7 @@
         }
       ],
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
@@ -4649,10 +5019,14 @@
       "name": "path_expression_any_of",
       "definition_uri": "https://w3id.org/linkml/any_of",
       "description": "holds if at least one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/or"
       ],
+      "rank": 101,
       "is_a": "any_of",
       "domain": "PathExpression",
       "slot_uri": "https://w3id.org/linkml/any_of",
@@ -4672,10 +5046,14 @@
       "name": "path_expression_exactly_one_of",
       "definition_uri": "https://w3id.org/linkml/exactly_one_of",
       "description": "holds if only one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/xone"
       ],
+      "rank": 103,
       "is_a": "exactly_one_of",
       "domain": "PathExpression",
       "slot_uri": "https://w3id.org/linkml/exactly_one_of",
@@ -4695,10 +5073,14 @@
       "name": "path_expression_none_of",
       "definition_uri": "https://w3id.org/linkml/none_of",
       "description": "holds if none of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/not"
       ],
+      "rank": 105,
       "is_a": "none_of",
       "domain": "PathExpression",
       "slot_uri": "https://w3id.org/linkml/none_of",
@@ -4718,10 +5100,14 @@
       "name": "path_expression_all_of",
       "definition_uri": "https://w3id.org/linkml/all_of",
       "description": "holds if all of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/and"
       ],
+      "rank": 107,
       "is_a": "all_of",
       "domain": "PathExpression",
       "slot_uri": "https://w3id.org/linkml/all_of",
@@ -4741,10 +5127,14 @@
       "name": "slot_expression_any_of",
       "definition_uri": "https://w3id.org/linkml/any_of",
       "description": "holds if at least one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/or"
       ],
+      "rank": 101,
       "is_a": "any_of",
       "domain": "SlotExpression",
       "slot_uri": "https://w3id.org/linkml/any_of",
@@ -4764,10 +5154,14 @@
       "name": "slot_expression_all_of",
       "definition_uri": "https://w3id.org/linkml/all_of",
       "description": "holds if all of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/and"
       ],
+      "rank": 107,
       "is_a": "all_of",
       "domain": "SlotExpression",
       "slot_uri": "https://w3id.org/linkml/all_of",
@@ -4787,10 +5181,14 @@
       "name": "slot_expression_exactly_one_of",
       "definition_uri": "https://w3id.org/linkml/exactly_one_of",
       "description": "holds if only one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/xone"
       ],
+      "rank": 103,
       "is_a": "exactly_one_of",
       "domain": "SlotExpression",
       "slot_uri": "https://w3id.org/linkml/exactly_one_of",
@@ -4810,10 +5208,14 @@
       "name": "slot_expression_none_of",
       "definition_uri": "https://w3id.org/linkml/none_of",
       "description": "holds if none of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/not"
       ],
+      "rank": 105,
       "is_a": "none_of",
       "domain": "SlotExpression",
       "slot_uri": "https://w3id.org/linkml/none_of",
@@ -4832,12 +5234,15 @@
     {
       "name": "slot_definition_is_a",
       "definition_uri": "https://w3id.org/linkml/is_a",
-      "description": "specifies single-inheritance between classes or slots. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
+      "description": "A primary parent slot from which inheritable metaslots are propagated",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "is_a": "is_a",
       "abstract": true,
       "domain": "SlotDefinition",
@@ -4855,13 +5260,15 @@
     {
       "name": "slot_definition_mixins",
       "definition_uri": "https://w3id.org/linkml/mixins",
-      "description": "List of definitions to be mixed in. Targets may be any definition of the same type",
+      "description": "A collection of secondary parent mixin slots from which inheritable metaslots are propagated",
       "comments": [
         "mixins act in the same way as parents (is_a). They allow a model to have a primary strict hierachy, while keeping the benefits of multiple inheritance"
       ],
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -4870,6 +5277,7 @@
       "aliases": [
         "traits"
       ],
+      "rank": 13,
       "is_a": "mixins",
       "domain": "SlotDefinition",
       "slot_uri": "https://w3id.org/linkml/mixins",
@@ -4907,6 +5315,9 @@
       "name": "slot_definition_disjoint_with",
       "definition_uri": "https://w3id.org/linkml/disjoint_with",
       "description": "Two classes are disjoint if they have no instances in common, two slots are disjoint if they can never hold between the same two instances",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "disjoint_with",
       "domain": "SlotDefinition",
@@ -4929,6 +5340,10 @@
       "notes": [
         "this only applies in the OWL generation"
       ],
+      "in_subset": [
+        "SpecificationSubset",
+        "OwlProfile"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "union_of",
       "domain": "SlotDefinition",
@@ -4941,17 +5356,21 @@
       ],
       "is_usage_slot": true,
       "usage_slot_name": "union_of",
-      "range": "TypeDefinition",
+      "range": "SlotDefinition",
       "@type": "SlotDefinition"
     },
     {
       "name": "class_expression_any_of",
       "definition_uri": "https://w3id.org/linkml/any_of",
       "description": "holds if at least one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/or"
       ],
+      "rank": 101,
       "is_a": "any_of",
       "domain": "ClassExpression",
       "slot_uri": "https://w3id.org/linkml/any_of",
@@ -4971,10 +5390,14 @@
       "name": "class_expression_all_of",
       "definition_uri": "https://w3id.org/linkml/all_of",
       "description": "holds if all of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/and"
       ],
+      "rank": 107,
       "is_a": "all_of",
       "domain": "ClassExpression",
       "slot_uri": "https://w3id.org/linkml/all_of",
@@ -4994,10 +5417,14 @@
       "name": "class_expression_exactly_one_of",
       "definition_uri": "https://w3id.org/linkml/exactly_one_of",
       "description": "holds if only one of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/xone"
       ],
+      "rank": 103,
       "is_a": "exactly_one_of",
       "domain": "ClassExpression",
       "slot_uri": "https://w3id.org/linkml/exactly_one_of",
@@ -5017,10 +5444,14 @@
       "name": "class_expression_none_of",
       "definition_uri": "https://w3id.org/linkml/none_of",
       "description": "holds if none of the expressions hold",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "exact_mappings": [
         "https://w3id.org/shacl/not"
       ],
+      "rank": 105,
       "is_a": "none_of",
       "domain": "ClassExpression",
       "slot_uri": "https://w3id.org/linkml/none_of",
@@ -5039,12 +5470,15 @@
     {
       "name": "class_definition_is_a",
       "definition_uri": "https://w3id.org/linkml/is_a",
-      "description": "specifies single-inheritance between classes or slots. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
+      "description": "A primary parent class from which inheritable metaslots are propagated",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "is_a": "is_a",
       "abstract": true,
       "domain": "ClassDefinition",
@@ -5062,13 +5496,15 @@
     {
       "name": "class_definition_mixins",
       "definition_uri": "https://w3id.org/linkml/mixins",
-      "description": "List of definitions to be mixed in. Targets may be any definition of the same type",
+      "description": "A collection of secondary parent mixin classes from which inheritable metaslots are propagated",
       "comments": [
         "mixins act in the same way as parents (is_a). They allow a model to have a primary strict hierachy, while keeping the benefits of multiple inheritance"
       ],
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -5077,6 +5513,7 @@
       "aliases": [
         "traits"
       ],
+      "rank": 13,
       "is_a": "mixins",
       "domain": "ClassDefinition",
       "slot_uri": "https://w3id.org/linkml/mixins",
@@ -5114,6 +5551,9 @@
       "name": "class_definition_rules",
       "definition_uri": "https://w3id.org/linkml/rules",
       "description": "the collection of rules that apply to all members of this class",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mappings": [
         "https://w3id.org/shacl/rule"
@@ -5137,6 +5577,9 @@
       "name": "class_definition_disjoint_with",
       "definition_uri": "https://w3id.org/linkml/disjoint_with",
       "description": "Two classes are disjoint if they have no instances in common, two slots are disjoint if they can never hold between the same two instances",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "disjoint_with",
       "domain": "ClassDefinition",
@@ -5159,6 +5602,10 @@
       "notes": [
         "this only applies in the OWL generation"
       ],
+      "in_subset": [
+        "SpecificationSubset",
+        "OwlProfile"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "is_a": "union_of",
       "domain": "ClassDefinition",
@@ -5177,12 +5624,15 @@
     {
       "name": "permissible_value_is_a",
       "definition_uri": "https://w3id.org/linkml/is_a",
-      "description": "specifies single-inheritance between classes or slots. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
+      "description": "A primary parent class or slot from which inheritable metaslots are propagated from. While multiple inheritance is not allowed, mixins can be provided effectively providing the same thing. The semantics are the same when translated to formalisms that allow MI (e.g. RDFS/OWL). When translating to a SI framework (e.g. java classes, python classes) then is a is used. When translating a framework without polymorphism (e.g. json-schema, solr document schema) then is a and mixins are recursively unfolded",
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 11,
       "is_a": "is_a",
       "abstract": true,
       "domain": "PermissibleValue",
@@ -5200,13 +5650,15 @@
     {
       "name": "permissible_value_mixins",
       "definition_uri": "https://w3id.org/linkml/mixins",
-      "description": "List of definitions to be mixed in. Targets may be any definition of the same type",
+      "description": "A collection of secondary parent classes or slots from which inheritable metaslots are propagated from.",
       "comments": [
         "mixins act in the same way as parents (is_a). They allow a model to have a primary strict hierachy, while keeping the benefits of multiple inheritance"
       ],
       "in_subset": [
-        "basic",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -5215,6 +5667,7 @@
       "aliases": [
         "traits"
       ],
+      "rank": 13,
       "is_a": "mixins",
       "domain": "PermissibleValue",
       "slot_uri": "https://w3id.org/linkml/mixins",
@@ -5262,7 +5715,7 @@
       "definition_uri": "https://w3id.org/linkml/CommonMetadata",
       "description": "Generic metadata shared across definitions",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "mixin": true,
@@ -5302,7 +5755,7 @@
       "definition_uri": "https://w3id.org/linkml/Element",
       "description": "a named element in the model",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -5361,10 +5814,12 @@
       "definition_uri": "https://w3id.org/linkml/SchemaDefinition",
       "description": "a collection of subset, type, slot and class definitions",
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -5373,6 +5828,10 @@
       "aliases": [
         "data dictionary"
       ],
+      "close_mappings": [
+        "qb:ComponentSet"
+      ],
+      "rank": 1,
       "is_a": "Element",
       "slots": [
         "id_prefixes",
@@ -5490,11 +5949,14 @@
     {
       "name": "TypeDefinition",
       "definition_uri": "https://w3id.org/linkml/TypeDefinition",
-      "description": "A data type definition.",
+      "description": "an element that whose instances are atomic scalar values that can be mapped to primitive types",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 4,
       "is_a": "Element",
       "mixins": [
         "TypeExpression"
@@ -5558,11 +6020,13 @@
     {
       "name": "SubsetDefinition",
       "definition_uri": "https://w3id.org/linkml/SubsetDefinition",
-      "description": "the name and description of a subset",
+      "description": "an element that can be used to group other metamodel elements",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 6,
       "is_a": "Element",
       "slots": [
         "name",
@@ -5605,9 +6069,9 @@
     {
       "name": "Definition",
       "definition_uri": "https://w3id.org/linkml/Definition",
-      "description": "base class for definitions",
+      "description": "abstract base class for core metaclasses",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "see_also": [
@@ -5716,11 +6180,13 @@
     {
       "name": "EnumDefinition",
       "definition_uri": "https://w3id.org/linkml/EnumDefinition",
-      "description": "List of values that constrain the range of a slot",
+      "description": "an element whose instances must be drawn from a specified set of permissible values",
       "in_subset": [
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -5730,11 +6196,13 @@
         "Terminology Value Set"
       ],
       "exact_mappings": [
+        "qb:HierarchicalCodeList",
         "NCIT:C113497"
       ],
       "close_mappings": [
-        "qb:HierarchicalCodeList"
+        "skos:ConceptScheme"
       ],
+      "rank": 5,
       "is_a": "Definition",
       "mixins": [
         "EnumExpression"
@@ -5805,6 +6273,9 @@
       "name": "MatchQuery",
       "definition_uri": "https://w3id.org/linkml/MatchQuery",
       "description": "A query that is used on an enum expression to dynamically obtain a set of permissivle values via a query that matches on properties of the external concepts",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slots": [
         "identifier_pattern",
@@ -5818,6 +6289,9 @@
       "name": "ReachabilityQuery",
       "definition_uri": "https://w3id.org/linkml/ReachabilityQuery",
       "description": "A query that is used on an enum expression to dynamically obtain a set of permissible values via walking from a set of source nodes to a set of descendants or ancestors over a set of relationship types",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slots": [
         "source_ontology",
@@ -6013,6 +6487,7 @@
         "structured_pattern",
         "unit",
         "implicit_prefix",
+        "value_presence",
         "equals_string",
         "equals_string_in",
         "equals_number",
@@ -6080,6 +6555,7 @@
         "structured_pattern",
         "unit",
         "implicit_prefix",
+        "value_presence",
         "equals_string",
         "equals_string_in",
         "equals_number",
@@ -6100,9 +6576,12 @@
     {
       "name": "SlotDefinition",
       "definition_uri": "https://w3id.org/linkml/SlotDefinition",
-      "description": "the definition of a property or a slot",
+      "description": "an element that describes how instances are related to other instances",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -6114,8 +6593,10 @@
         "variable"
       ],
       "close_mappings": [
-        "rdf:Property"
+        "rdf:Property",
+        "qb:ComponentProperty"
       ],
+      "rank": 3,
       "is_a": "Definition",
       "mixins": [
         "SlotExpression"
@@ -6215,6 +6696,7 @@
         "structured_pattern",
         "unit",
         "implicit_prefix",
+        "value_presence",
         "equals_string",
         "equals_string_in",
         "equals_number",
@@ -6301,12 +6783,14 @@
     {
       "name": "ClassDefinition",
       "definition_uri": "https://w3id.org/linkml/ClassDefinition",
-      "description": "the definition of a class or interface",
+      "description": "an element whose instances are complex objects that may have slot-value assignments",
       "in_subset": [
-        "minimal",
-        "basic",
-        "relational_model",
-        "object_oriented"
+        "SpecificationSubset",
+        "MinimalSubset",
+        "BasicSubset",
+        "RelationalModelProfile",
+        "ObjectOrientedProfile",
+        "OwlProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
@@ -6319,6 +6803,7 @@
       "close_mappings": [
         "owl:Class"
       ],
+      "rank": 2,
       "is_a": "Definition",
       "mixins": [
         "ClassExpression"
@@ -6408,6 +6893,9 @@
       "name": "ClassRule",
       "definition_uri": "https://w3id.org/linkml/ClassRule",
       "description": "A rule that applies to instances of a class",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "if rule"
@@ -6559,6 +7047,9 @@
       "name": "Setting",
       "definition_uri": "https://w3id.org/linkml/Setting",
       "description": "assignment of a key to a value",
+      "in_subset": [
+        "SpecificationSubset"
+      ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slots": [
         "setting_key",
@@ -6573,9 +7064,11 @@
       "definition_uri": "https://w3id.org/linkml/Prefix",
       "description": "prefix URI tuple",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 12,
       "slots": [
         "prefix_prefix",
         "prefix_reference"
@@ -6602,7 +7095,7 @@
       "definition_uri": "https://w3id.org/linkml/Example",
       "description": "usage example and description",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slots": [
@@ -6618,7 +7111,7 @@
       "definition_uri": "https://w3id.org/linkml/AltDescription",
       "description": "an attributed description",
       "in_subset": [
-        "basic"
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "slots": [
@@ -6634,12 +7127,17 @@
       "definition_uri": "https://w3id.org/linkml/PermissibleValue",
       "description": "a permissible value, accompanied by intended text and an optional mapping to a concept URI",
       "in_subset": [
-        "basic"
+        "SpecificationSubset",
+        "BasicSubset"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
       "aliases": [
         "PV"
       ],
+      "close_mappings": [
+        "skos:Concept"
+      ],
+      "rank": 16,
       "mixins": [
         "Extensible",
         "Annotatable",
@@ -6688,10 +7186,12 @@
       "definition_uri": "https://w3id.org/linkml/UniqueKey",
       "description": "a collection of slots whose values uniquely identify an instance of a class",
       "in_subset": [
-        "basic",
-        "relational_model"
+        "SpecificationSubset",
+        "BasicSubset",
+        "RelationalModelProfile"
       ],
       "from_schema": "https://w3id.org/linkml/meta",
+      "rank": 20,
       "mixins": [
         "Extensible",
         "Annotatable",
@@ -6861,11 +7361,12 @@
   ],
   "metamodel_version": "1.7.0",
   "source_file": "meta.yaml",
-  "source_file_date": "2022-07-14T00:55:10",
-  "source_file_size": 71464,
-  "generation_date": "2022-07-14T00:56:03",
+  "source_file_date": "2022-12-09T14:24:35",
+  "source_file_size": 81549,
+  "generation_date": "2022-12-09T14:56:40",
   "@type": "SchemaDefinition",
   "@context": [
+    "target/jsonld/meta.context.jsonld",
     "https://w3id.org/linkml/types.context.jsonld",
     "https://w3id.org/linkml/mappings.context.jsonld",
     "https://w3id.org/linkml/extensions.context.jsonld",
@@ -6876,4 +7377,3 @@
     }
   ]
 }
-
