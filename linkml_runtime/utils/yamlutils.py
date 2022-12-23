@@ -93,6 +93,15 @@ class YAMLRoot(JsonObj):
         # TODO: Deprecate this function and migrate the python generator over to the stand alone is_empty
         return is_empty(v)
 
+    def _normalize_assignment(self, data: Any, target_class: Type) -> None:
+        # NOTE: the code below should align with loader.load_source in loader_root.py
+        if isinstance(data, (list, type(None))):
+            return target_class(data)
+        elif isinstance(data, (dict, JsonObj)):
+            return target_class(**as_dict(data))
+        else:
+            raise ValueError(f'Unexpected type {data}')
+
     def _normalize_inlined_as_list(self, slot_name: str, slot_type: Type, key_name: str, keyed: bool) -> None:
         self._normalize_inlined(slot_name, slot_type, key_name, keyed, True)
 

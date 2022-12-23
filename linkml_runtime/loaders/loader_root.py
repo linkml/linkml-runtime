@@ -59,13 +59,12 @@ class Loader(ABC):
         else:
             data = source
         data_as_dict = loader(data, metadata)
+        # Note:  There is an equivalent bit of code in yamlutils that should match this
         if data_as_dict:
             if isinstance(data_as_dict, list):
-                return [target_class(**as_dict(x)) for x in data_as_dict]
-            elif isinstance(data_as_dict, dict):
-                return target_class(**data_as_dict)
-            elif isinstance(data_as_dict, JsonObj):
-                return [target_class(**as_dict(x)) for x in data_as_dict]
+                return target_class(data_as_dict)
+            elif isinstance(data_as_dict, (dict, JsonObj)):
+                return target_class(**as_dict(data_as_dict))
             else:
                 raise ValueError(f'Unexpected type {data_as_dict}')
         else:

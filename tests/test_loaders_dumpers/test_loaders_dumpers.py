@@ -74,11 +74,11 @@ class LoadersDumpersTestCase(unittest.TestCase):
         person_dicts = data['persons']
         tuples = [(yaml_loader, yaml.dump(person_dicts)), (json_loader, json.dumps(person_dicts, default=str))]
         for loader, person_list_str in tuples:
-            persons = loader.loads_any(person_list_str, target_class=Person)
-            assert isinstance(persons, list)
-            assert isinstance(persons[0], Person)
-            [p1] = [p for p in persons if p.id == 'P:001']
-            [p2] = [p for p in persons if p.id == 'P:002']
+            container = loader.loads_any(person_list_str, target_class=Container)
+            assert isinstance(container.persons, list)
+            assert isinstance(container.persons[0], Person)
+            [p1] = [p for p in container.persons if p.id == 'P:001']
+            [p2] = [p for p in container.persons if p.id == 'P:002']
             self.assertEqual(p1.name, 'fred bloggs')
             self.assertEqual(p2.name, 'joe schmö')
             self.assertEqual(p1.age_in_years, 33)
