@@ -4,7 +4,7 @@ from typing import Union, Any, List, Optional, Type, Callable, Dict
 
 import yaml
 from deprecated.classic import deprecated
-from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
+from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items, is_dict
 import jsonasobj2
 from rdflib import Graph
 from yaml.constructor import ConstructorError
@@ -163,16 +163,14 @@ class YAMLRoot(JsonObj):
                 else:
                     order_up(key, raw_obj)
 
-        # TODO: Make an external function extract a root JSON list
-        if isinstance(raw_slot, JsonObj):
-            raw_slot = raw_slot._hide_list()
-
-        if isinstance(raw_slot, list):
+        if jsonasobj2.is_list(raw_slot):
+            if isinstance(raw_slot, JsonObj):
+                raw_slot = raw_slot._hide_list()
             # We have a list of entries
             for list_entry in raw_slot:
                 if isinstance(list_entry, slot_type):
                     order_up(list_entry[key_name], list_entry)
-                elif isinstance(list_entry, (dict, JsonObj)):
+                elif jsonasobj2.is_dict(list_entry):
                     # list_entry is either a key:dict, key_name:value or **kwargs
                     if len(list_entry) == 1:
                         # key:dict or key_name:key
@@ -204,18 +202,23 @@ class YAMLRoot(JsonObj):
                 # Vanilla dictionary - {key: v11, s12: v12, ...}
                 order_up(raw_slot[key_name], slot_type(**as_dict(raw_slot)))
             else:
-                # We have either {key1: {obj1}, key2: {obj2}...} or {key1:, key2:, ...}
+                # We have either {key1: {obj1}, key2: {obj2}...} or {key1:, key2:, ...} or {key1: [obj, ...]}
                 for k, v in items(raw_slot):
                     if v is None:
+                        # {key1:, key2:, ...}
                         v = dict()
                     if isinstance(v, slot_type):
+                        # Already loaded - just construct it
                         order_up(k, v)
-                    elif isinstance(v, (dict, JsonObj)):
+                    elif jsonasobj2.is_dict(v):
+                        # {key1: {obj1}, key2: {obj2}
                         form_1({k: v})
-                    elif not isinstance(v, list):
-                        order_up(k, slot_type(*[k, v]))
+                    elif jsonasobj2.is_list(v):
+                        # {key1: [obj1, ...]}
+                        order_up(k, slot_type(k, v))
                     else:
-                        raise ValueError(f"Unrecognized entry: {loc(k)}: {str(v)}")
+                        order_up(k, slot_type(*[k, v]))
+
         self[slot_name] = cooked_slot
 
     def _normalize_inlined_slot(self, slot_name: str, slot_type: Type, key_name: Optional[str],
