@@ -23,7 +23,7 @@ from linkml_runtime.utils.dataclass_extensions_376 import dataclasses_init_fn_wi
 from linkml_runtime.utils.formatutils import camelcase, underscore, sfx
 from linkml_runtime.utils.enumerations import EnumDefinitionImpl
 from rdflib import Namespace, URIRef, DC
-from linkml_runtime.utils.curienamespace import CurieNamespace
+from linkml_runtime.utils.curienamespace import CurieNamespace, CurieNamespaceCatalog
 from linkml_runtime.utils.metamodelcore import Bool, Decimal, ElementIdentifier, NCName, NodeIdentifier, URI, URIorCURIE, XSDDate, XSDDateTime, XSDTime
 
 metamodel_version = "1.7.0"
@@ -37,7 +37,7 @@ LINKML = CurieNamespace('linkml', 'https://w3id.org/linkml/')
 SHEX = CurieNamespace('shex', 'http://www.w3.org/ns/shex#')
 XSD = CurieNamespace('xsd', 'http://www.w3.org/2001/XMLSchema#')
 DEFAULT_ = CurieNamespace('', 'http://example.org/')
-
+namespaceCatalog = CurieNamespaceCatalog.create(LINKML, SHEX, XSD, DEFAULT_)
 
 # Types
 class String(str):
