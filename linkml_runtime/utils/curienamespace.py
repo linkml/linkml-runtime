@@ -5,13 +5,21 @@ from rdflib import Namespace, URIRef
 from curies import Converter, Record
 
 class CurieNamespaceCatalog(object):
-    catalog: Dict[str, "CurieNamespace"]
+    """
+    A CurieNamespaceCatalog is a catalog of CurieNamespace objects
+    its main purpose is to convert between uri's and curies for the namespaces in the catalog
+    """
     def __init__(self) -> None:
         self.namespaces = []
         self._converter: Optional[Converter] = None
 
     @property
     def converter(self):
+        """
+        return a curies.Converter that knows all namespaces. 
+        When multiple namespaces have the same prefix, they are added as uri synonyms to the converter.
+        When there are two prefixes leading to the same uri, they are added as prefix synonyms to the converter.
+        """
         if not self._converter:
             self._converter = self._buildConverter()
         return self._converter
@@ -43,28 +51,48 @@ class CurieNamespaceCatalog(object):
 
 
 
-    def to_curie(self, uri: Union[str, URIRef]) -> str:
+    def to_curie(self, uri: Union[str, URIRef]) -> Optional[str]:
+        """
+        Compress a URI to a CURIE, if possible.
+
+        :param uri:
+            A string representing a valid uniform resource identifier (URI)
+        :returns:
+            A compact URI if this converter could find an appropriate URI prefix, otherwise None.
+        
+        """
+        if isinstance(uri, URIRef):
+            uri = str(uri)
         return self.converter.compress(uri)
 
     def to_uri(self, curie: str) -> Optional[URIRef]:
+        """
+        Expand a CURIE to a URI, if possible.
+
+        :param curie:
+            A string representing a compact URI
+        :returns:
+            A URIRef if this converter contains a URI prefix for the prefix in this CURIE, otherwise None
+        """
         expanded = self.converter.expand(curie)
         return None if expanded is None else URIRef(expanded) 
     
     def add_namespace(self,ns: "CurieNamespace"):
+        """
+        Adds a new namespace to the catalog.
+        """
         self.namespaces.append(ns)
         self._converter = None
     
     @classmethod
     def create(cls, *namespaces: List["CurieNamespace"]):
+        """
+        creates a new catalog from the given namespaces
+        """
         cat = CurieNamespaceCatalog()
         [cat.add_namespace(x) for x in namespaces]
         return cat
 
-    def clear(self):
-        self.catalog = dict()
-    
-    def as_dict(self):
-        return self.catalog.copy()
 
 
 class CurieNamespace(Namespace):
