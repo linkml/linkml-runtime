@@ -113,9 +113,6 @@ class SchemaView(object):
 
     This class utilizes caching for efficient lookup operations.
 
-    TODO: decide how to use this in conjunction with the existing schemaloader, which injects
-    into the schema rather than providing dynamic methods.
-
     See:
      - https://github.com/linkml/linkml/issues/59
      - https://github.com/linkml/linkml/discussions/144
@@ -934,7 +931,10 @@ class SchemaView(object):
                 logging.warning(f'from_schema not populated for element {e.name}')
                 schema = self.schema_map[self.in_schema(e.name)]
             pfx = schema.default_prefix
-            uri = f'{pfx}:{e_name}'
+            if pfx in self.namespaces():
+                uri = f'{pfx}:{e_name}'
+            else:
+                uri = f'{pfx}{e_name}'
         if expand:
             return self.expand_curie(uri)
         else:
@@ -942,7 +942,8 @@ class SchemaView(object):
 
     def expand_curie(self, uri: str) -> str:
         """
-        Expands a URI or CURIE to a full URI
+        Expands a URI or CURIE to a full URI.
+
         :param uri:
         :return: URI as a string
         """
