@@ -96,6 +96,12 @@ classes:
     slot_usage:
       age in years:
         minimum_value: 16
+    structured_aliases:
+      dad:
+        predicate: EXACT_SYNONYM
+      mom:
+        predicate: EXACT_SYNONYM
+
 
   Organization:
     is_a: Thing
@@ -170,6 +176,7 @@ classes:
     attributes:
       ceo:
         range: Person
+    rank: 3
 
   Dataset:
     attributes:
@@ -203,6 +210,7 @@ classes:
       - prov:Activity
     narrow_mappings:
       - GO:0005198
+    rank: 2
 
   agent:
     description: "a provence-generating agent"
@@ -211,6 +219,9 @@ classes:
         - acted on behalf of
         - was informed by
     class_uri: prov:Agent
+    rank: 1
+
+  EmptyClass:
 
 slots:
   employed at:
@@ -224,7 +235,7 @@ slots:
         value: ["v1", "v2", "v3"]
       - tag: "ks:a3"
         value: 'a3.1'
-      - tag: "ks:a3"
+      - tag: "ks:a3_2"
         value: 'v3.2'
   is current:
     range: boolean
@@ -241,6 +252,7 @@ slots:
   employment history of:
     inverse: has employment history
     domain: EmploymentEvent
+
   has marriage history:
     range: MarriageEvent
     multivalued: true
@@ -266,6 +278,8 @@ slots:
   addresses:
     range: Address
     multivalued: True
+  dog addresses:
+    is_a: addresses
   age in years:
     range: integer
     minimum_value: 0
@@ -284,15 +298,20 @@ slots:
 
   id:
     identifier: true
+    rank: 1
+    aliases: ['identifier']
 
   name:
     required: false
+    rank: 2
 
   description:
+    rank: 3
 
   started at time:
     slot_uri: prov:startedAtTime
     range: date
+    rank: 1
 
   ended at time:
     slot_uri: prov:endedAtTime
@@ -337,3 +356,18 @@ enums:
       PARENT_OF:
       CHILD_OF:
   DiagnosisType:
+  OtherEnum:
+    permissible_values:
+      a:
+      b:
+  Animals:
+    is_a: OtherEnum
+    permissible_values:
+      CAT:
+      LION:
+        is_a: CAT
+      ANGRY_LION:
+        is_a: LION
+      BIRD:
+      EAGLE:
+        is_a: BIRD

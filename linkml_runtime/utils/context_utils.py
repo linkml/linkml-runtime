@@ -1,7 +1,7 @@
 import json
 import os
 from io import TextIOWrapper
-from typing import Optional, Union, List, Any, Dict
+from typing import Optional, Union, List, Any, Dict, Callable
 
 import yaml
 from jsonasobj2 import JsonObj, loads
@@ -50,6 +50,32 @@ def merge_contexts(contexts: CONTEXTS_PARAM_TYPE = None, base: Optional[Any] = N
         JsonObj(**{"@context": context_list[0] if len(context_list) == 1 else context_list})
 
 
+def map_import(importmap: Dict[str, str], namespaces: Callable[[None], "Namespaces"], imp: Any) -> str:
+    """
+    lookup an import in an importmap.
+
+    An importmap is a dictionary that maps CURIEs or URIs to file paths.
+
+    :param importmap:
+    :param namespaces:
+    :param imp:
+    :return:
+    """
+    sname = str(imp)
+    if ':' in sname:
+        # the importmap may contain mappings for prefixes
+        prefix, lname = sname.split(':', 1)
+        prefix += ':'
+        expanded_prefix = importmap.get(prefix, prefix)
+        if expanded_prefix.startswith("http"):
+            sname = expanded_prefix + lname
+        else:
+            sname = os.path.join(expanded_prefix, lname)
+    sname = importmap.get(sname, sname)  # Import map may use CURIE
+    sname = str(namespaces().uri_for(sname)) if ':' in sname else sname
+    return importmap.get(sname, sname)  # It may also use URI or other forms
+
+
 def parse_import_map(map_: Optional[Union[str, Dict[str, str], TextIOWrapper]],
                      base: Optional[str] = None) -> Dict[str, str]:
     """
@@ -68,7 +94,7 @@ def parse_import_map(map_: Optional[Union[str, Dict[str, str], TextIOWrapper]],
     elif map_.strip().startswith('{'):
         rval = json.loads(map_)
     elif '\n' in map_ or '\r' in map_ or ' ' in map_:
-        rval = yaml.load(map_)
+        rval = yaml.safe_load(map_)
     else:
         with open(map_) as ml:
             return parse_import_map(ml.read(), os.path.dirname(map_))
@@ -77,9 +103,7 @@ def parse_import_map(map_: Optional[Union[str, Dict[str, str], TextIOWrapper]],
         outmap = dict()
         for k, v in rval.items():
             if ':' not in v:
-                v = os.path.join(base, v)
-                if ':/' not in v:
-                    v = os.path.abspath(v)
+                v = os.path.join(os.path.abspath(base), v)
             outmap[k] = v
         rval = outmap
     return rval

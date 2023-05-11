@@ -1,13 +1,15 @@
 import logging
+import urllib
 from abc import abstractmethod
 from typing import Optional, Any, Dict
 
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, XSD
 from rdflib.term import Node, BNode, Literal
 from rdflib.namespace import RDF
 
 
 from linkml_runtime.dumpers.dumper_root import Dumper
+from linkml_runtime.linkml_model import SlotDefinition
 from linkml_runtime.utils.schemaview import SchemaView, ElementName, PermissibleValue, PermissibleValueText
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
@@ -40,6 +42,19 @@ class RDFLibDumper(Dumper):
                 else:
                     schemaview.namespaces()[k] = v
                     g.namespace_manager.bind(k, URIRef(v))
+            for prefix in schemaview.namespaces():
+                g.bind(prefix, URIRef(schemaview.namespaces()[prefix]))
+        else:
+            for prefix in schemaview.namespaces():
+                g.bind(prefix, URIRef(schemaview.namespaces()[prefix]))
+        # user can pass in base in prefixmap using '_base'. This gets set
+        # in namespaces as a plain dict assignment - explicitly call the setter
+        # to set the underlying "@base"
+        if "_base" in schemaview.namespaces():
+            schemaview.namespaces()._base = schemaview.namespaces()["_base"]
+            g.base = schemaview.namespaces()._base
+        if schemaview.namespaces()._base:
+            g.base = schemaview.namespaces()._base
         self.inject_triples(element, schemaview, g)
         return g
 
@@ -76,20 +91,23 @@ class RDFLibDumper(Dumper):
                 elif dt_uri == 'xsd:string':
                     return Literal(element)
                 else:
+                    if "xsd" not in namespaces:
+                        namespaces["xsd"] = XSD
                     return Literal(element, datatype=namespaces.uri_for(dt_uri))
             else:
                 logging.warning(f'No datatype specified for : {t.name}, using plain Literal')
                 return Literal(element)
         element_vars = {k: v for k, v in vars(element).items() if not k.startswith('_')}
         if len(element_vars) == 0:
-            return URIRef(schemaview.expand_curie(str(element)))
+            id_slot = schemaview.get_identifier_slot(target_type)
+            return self._as_uri(element, id_slot, schemaview)
+            #return URIRef(schemaview.expand_curie(str(element)))
         element_type = type(element)
         cn = element_type.class_name
         id_slot = schemaview.get_identifier_slot(cn)
         if id_slot is not None:
             element_id = getattr(element, id_slot.name)
-            logging.debug(f'ELEMENT_ID={element_id} // {id_slot.name}')
-            element_uri = namespaces.uri_for(element_id)
+            element_uri = self._as_uri(element_id, id_slot, schemaview)
         else:
             element_uri = BNode()
         type_added = False
@@ -146,5 +164,11 @@ class RDFLibDumper(Dumper):
         :return: serialization of rdflib Graph containing element
         """
         return self.as_rdf_graph(element, schemaview, prefix_map=prefix_map).\
-            serialize(format=fmt).decode()
+            serialize(format=fmt)
+
+    def _as_uri(self, element_id: str, id_slot: Optional[SlotDefinition], schemaview: SchemaView) -> URIRef:
+        if id_slot and schemaview.is_slot_percent_encoded(id_slot):
+            return URIRef(urllib.parse.quote(element_id))
+        else:
+            return schemaview.namespaces().uri_for(element_id)
 

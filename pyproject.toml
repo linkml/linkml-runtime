@@ -1,12 +1,13 @@
 [tool.poetry]
-name = "linkml_runtime"
+name = "linkml-runtime"
 version = "0.0.0"
 description = "Runtime environment for LinkML, the Linked open data modeling language"
 authors = [
     "Chris Mungall <cjmungall@lbl.gov>",
     "Harold Solbrig <solbrig@jhu.edu>",
     "Sierra Moxon <smoxon@lbl.gov>",
-    "Bill Duncan <wdduncan@lbl.gov>"
+    "Bill Duncan <wdduncan@gmail.com>",
+    "Harshad Hegde <hhegde@lbl.gov>"
 ]
 
 readme = "README.md"
@@ -36,29 +37,27 @@ packages = [
 
 [tool.poetry.scripts]
 comparefiles = "linkml_runtime.utils.comparefiles:cli"
+linkml-normalize = "linkml_runtime.processing.referencevalidator:cli"
 
 [tool.poetry.dependencies]
-python = "^3.7.1"
+python = "^3.7.6"
 
 click = "*"
 deprecated = "*"
 hbreader = "*"
-json-flattener = ">=0.1.7"
+json-flattener = ">=0.1.9"
 jsonasobj2 = "==1.*,>=1.0.0,>=1.0.4"
 jsonschema = ">=3.2.0"
-prefixcommons = "*"
-pyldmod = "*"
-pyyaml = "==5.*,>=5.1.0"
-rdflib = ">=5.0.0"
-rdflib-shim = ">=1.0.3"
-rdflib-jsonld = "==0.6.1"
-rdflib-pyldmod-compat = "*"
+prefixcommons = ">=0.1.12"
+pyyaml = "*"
+rdflib = ">=6.0.0"
 requests = "*"
-shexjsg = "==0.*,>=0.7.0"
+prefixmaps = ">=0.1.4"
+curies = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "^6.2"
-importlib-metadata = {version = "^1.0", python = "<3.8"}
+importlib-metadata = {version = "^4.12.0", python = "<3.8"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

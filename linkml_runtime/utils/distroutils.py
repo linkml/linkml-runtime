@@ -1,3 +1,6 @@
+"""
+Packaging for working with LinkML distributions
+"""
 import logging
 import pkgutil
 from pathlib import PurePath
@@ -14,9 +17,16 @@ def get_default_paths(file_type: str) -> List[PurePath]:
     """
     paths = []
     rel_dirs = []
+    # TODO: introspect this information
+    srcp = PurePath('src')
     if file_type == 'yaml':
         rel_dirs = [PurePath('model') /'schema',
-                    PurePath('schema')
+                    PurePath('schema'),
+                    PurePath('linkml'),
+                    srcp / 'linkml',
+                    srcp / 'model',
+                    srcp / 'model' / 'schema',
+                    srcp / 'schema',
                     ]
     elif file_type == 'schema.json':
         rel_dirs = [PurePath('jsonschema')]
@@ -29,7 +39,9 @@ def get_default_paths(file_type: str) -> List[PurePath]:
         rel_dirs = []
     for rel_dir in rel_dirs:
         paths.append(rel_dir)
+    # YAML files may be in the same directory as the python
     paths.append(PurePath('.'))
+    logging.debug(f"Paths to search: {paths}")
     return paths
 
 def get_packaged_file_as_str(package: str, file_type: str, rel_paths: List[PurePath]=[], encoding="utf-8") -> str:
@@ -50,9 +62,10 @@ def get_packaged_file_as_str(package: str, file_type: str, rel_paths: List[PureP
         try:
             full_path = path / f'{package_name}.{suffix}'
             data = pkgutil.get_data(package, str(full_path))
-            break
+            if data:
+                break
         except FileNotFoundError:
-            logging.debug(f'{full_path} not found')
+            logging.debug(f'candidate {path} not found')
     if not data:
         raise FileNotFoundError(f'package: {package} file: {file_type}')
     return data.decode(encoding)

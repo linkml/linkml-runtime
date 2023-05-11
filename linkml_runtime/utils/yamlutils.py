@@ -6,7 +6,7 @@ import yaml
 from deprecated.classic import deprecated
 from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
 import jsonasobj2
-from rdflib import Graph
+from rdflib import Graph, URIRef
 from yaml.constructor import ConstructorError
 
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE, merge_contexts
@@ -161,7 +161,9 @@ class YAMLRoot(JsonObj):
         if isinstance(raw_slot, list):
             # We have a list of entries
             for list_entry in raw_slot:
-                if isinstance(list_entry, (dict, JsonObj)):
+                if isinstance(list_entry, slot_type):
+                    order_up(list_entry[key_name], list_entry)
+                elif isinstance(list_entry, (dict, JsonObj)):
                     # list_entry is either a key:dict, key_name:value or **kwargs
                     if len(list_entry) == 1:
                         # key:dict or key_name:key
@@ -188,7 +190,8 @@ class YAMLRoot(JsonObj):
                     order_up(list_entry, slot_type(**{key_name: list_entry}))
         else:
             # We have a dictionary
-            if key_name in raw_slot and not isinstance(raw_slot[key_name], (list, dict, JsonObj)):
+            if key_name in raw_slot and raw_slot[key_name] is not None \
+                    and not isinstance(raw_slot[key_name], (list, dict, JsonObj)):
                 # Vanilla dictionary - {key: v11, s12: v12, ...}
                 order_up(raw_slot[key_name], slot_type(**as_dict(raw_slot)))
             else:
@@ -196,7 +199,9 @@ class YAMLRoot(JsonObj):
                 for k, v in items(raw_slot):
                     if v is None:
                         v = dict()
-                    if isinstance(v, (dict, JsonObj)):
+                    if isinstance(v, slot_type):
+                        order_up(k, v)
+                    elif isinstance(v, (dict, JsonObj)):
                         form_1({k: v})
                     elif not isinstance(v, list):
                         order_up(k, slot_type(*[k, v]))
@@ -237,6 +242,28 @@ class YAMLRoot(JsonObj):
                 if len(dict_slot) == 1 and not isinstance(dict_slot[0], (list, dict)):
                     self[slot_name] = dict_slot[0]
             self._normalize_inlined_as_dict(slot_name, slot_type, key_name, keyed)
+
+    @classmethod
+    def _class_for(cls, attribute: str, uri_or_curie: Union[str, URIRef]) -> Optional[Type["YAMLRoot"]]:
+        """ Locate self or descendant class that has attribute == uri_or_curie """
+        if getattr(cls, attribute, None) == uri_or_curie:
+            return cls
+        for subclass in cls.__subclasses__():
+            match = subclass._class_for(attribute, uri_or_curie)
+            if match:
+                return match
+        return None
+
+    @classmethod
+    def _class_for_uri(cls: Type["YAMLRoot"], uri: str, use_model_uri: bool = False) -> Optional[Type["YAMLRoot"]]:
+        """
+        Return the self or descendant of self having with a matching class uri
+        """
+        return cls._class_for('class_model_uri' if use_model_uri else 'class_class_uri', URIRef(uri))
+
+    @classmethod
+    def _class_for_curie(cls: Type["YAMLRoot"], curie: str) -> Optional[Type["YAMLRoot"]]:
+        return cls._class_for('class_class_curie', curie)
 
     # ==================
     # Error intercepts
