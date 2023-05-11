@@ -29,6 +29,7 @@ prefixes:
   ks: https://w3id.org/linkml/tests/kitchen_sink/
   RO: http://purl.obolibrary.org/obo/RO_
   BFO: http://purl.obolibrary.org/obo/BFO_
+  tax: http://example.org/tax/
 default_prefix: ks
 default_range: string
 see_also:
@@ -230,6 +231,10 @@ slots:
   city:
   has birth event:
     range: BirthEvent
+  height_in_m:
+    range: float
+    unit:
+      ucum_code: m
 
 
 
@@ -242,3 +247,25 @@ enums:
       PARENT_OF:
       CHILD_OF:
   DiagnosisType:
+  OrganismType:
+    permissible_values:
+      MAMMAL:
+        meaning: tax:02
+      HUMAN:
+        is_a: MAMMAL
+  HCAExample:
+    see_also:
+      - https://github.com/linkml/linkml/issues/274
+    include:
+      - reachable_from:
+          source_ontology: bioregistry:go
+          source_nodes:
+            - GO:0007049
+            - GO:0022403
+          include_self: false
+          relationship_types:
+            - rdfs:subClassOf
+    minus:
+      concepts:
+        - LOINC:5932-9
+
