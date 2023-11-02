@@ -1443,21 +1443,21 @@ class SchemaView(object):
         :param include_induced: supplement all direct slots with induced slots, defaults to False
         :return: list of slots, either direct, or both direct and induced
         """
-        direct_slots_list = []  # list of classes with direct slots
-        induced_slots_list = []  # list of classes with induced slots
+        direct_classes_list = []  # list of classes associated with slot directly
+        induced_classes_list = []  # list of classes associated with slot indirectly
 
         for c_name, c in self.all_classes().items():
             if slot.name in c.slots:
-                direct_slots_list.append(c_name)
+                direct_classes_list.append(c_name)
             elif include_induced:
                 for ind_slot in self.class_induced_slots(c_name):
                     if ind_slot.name == slot.name:
-                        induced_slots_list.append(c_name)
+                        induced_classes_list.append(c_name)
 
         if include_induced:
-            return list(set(direct_slots_list + induced_slots_list))
+            return list(set(direct_classes_list + induced_classes_list))
         else:
-            return list(set(direct_slots_list))
+            return list(set(direct_classes_list))
 
     @lru_cache()
     def get_slots_by_enum(self, enum_name: ENUM_NAME = None) -> List[SlotDefinition]:
