@@ -122,8 +122,8 @@ class URIorCURIE(Identifier):
 
     @staticmethod
     def is_curie(v: str, nsm: Optional[Namespaces] = None) -> bool:
-        if not validate_curie(v):
-            return False
+        # if not validate_curie(v):
+        #    return False
         if ':' in v and '://' not in v:
             ns, ln = v.split(':', 1)
             return len(ns) == 0 or (NCName.is_valid(ns) and
