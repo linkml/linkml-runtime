@@ -53,6 +53,9 @@ class MetamodelCoreTest(unittest.TestCase):
         URIorCURIE("1abc:def")
         URIorCURIE("1:def")
         self.assertFalse(URIorCURIE.is_valid(123))
+        self.assertTrue(URIorCURIE.is_curie("abc:123"))
+        self.assertTrue(URIorCURIE.is_curie("abc.prop:123"))
+        self.assertTrue(URIorCURIE.is_curie("abc_prop:123"))
         URIorCURIE.is_curie("abc:123")
         self.assertFalse(URIorCURIE.is_curie("http://example.org/path"))
 
