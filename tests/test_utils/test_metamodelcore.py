@@ -73,6 +73,7 @@ class MetamodelCoreTest(unittest.TestCase):
         self.assertTrue(Curie.is_valid("type"))
         self.assertEqual(":type", Curie(":type"))
         self.assertTrue(Curie.is_valid(":type"))
+        self.assertTrue(Curie.is_valid("_abc:123"))
         self.assertTrue(Curie.is_valid("WIKIDATA_PROPERTY:P854"))
         self.assertTrue(Curie.is_valid("WIKIDATA.PROPERTY:P854"))
         self.assertTrue(Curie.is_valid("CL:0000001"))
