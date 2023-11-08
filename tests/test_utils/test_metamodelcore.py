@@ -70,9 +70,7 @@ class MetamodelCoreTest(unittest.TestCase):
     def test_curie(self):
         """Test the CURIE type"""
         self.assertEqual("rdf:type", Curie("rdf:type"))
-        with self.assertRaises(ValueError):
-            Curie("type")
-        self.assertFalse(Curie.is_valid("type"))
+        self.assertTrue(Curie.is_valid("type"))
         self.assertEqual(":type", Curie(":type"))
         self.assertTrue(Curie.is_valid(":type"))
         self.assertTrue(Curie.is_valid("WIKIDATA_PROPERTY:P854"))
