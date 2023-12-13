@@ -18,6 +18,7 @@ class NamespacesTestCase(unittest.TestCase):
         ns['l1'] = "http://example.org/subset/"
         ns['l2'] = "http://example.org/subset/test/"
         ns['l3'] = "http://example.org/subset/t"
+        ns['u1'] = "urn:example:"
         # This is now a warning instead of a value error
         # with self.assertRaises(ValueError):
         #     ns['OIO'] = URIRef("http://www.geneontology.org/formats/another")
@@ -59,6 +60,9 @@ class NamespacesTestCase(unittest.TestCase):
         self.assertEqual('l1:foo', ns.curie_for("http://example.org/subset/foo"))
         self.assertEqual('l2:foo', ns.curie_for("http://example.org/subset/test/foo"))
         self.assertEqual('l3:able/foo', ns.curie_for("http://example.org/subset/table/foo"))
+        self.assertEqual('u1:foo', ns.curie_for("urn:example:foo"))
+        with self.assertRaises(ValueError):
+            ns.curie_for("1abc\junk")
         #no comment in skos?
         #self.assertEqual(SKOS.comment, ns.uri_for("skos:comment"))
         self.assertEqual(URIRef('http://example.org/dc/table'), ns.uri_for("dc:table"))
@@ -91,6 +95,10 @@ class NamespacesTestCase(unittest.TestCase):
         prefixmap_merged.add_prefixmap('bioregistry')
         self.assertGreater(len(prefixmap_merged), 3860)
 
+        test_NCIT_curie = 'NCIT:C25300'
+        test_NCIT_uri = URIRef('http://purl.obolibrary.org/obo/NCIT_C25300')
+        self.assertEqual(prefixmap_merged.curie_for(test_NCIT_uri), test_NCIT_curie)
+        self.assertEqual(prefixmap_merged.uri_for(test_NCIT_curie), test_NCIT_uri)
 
 if __name__ == '__main__':
     unittest.main()
