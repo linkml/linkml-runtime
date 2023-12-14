@@ -8,6 +8,7 @@ from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
 import jsonasobj2
 from rdflib import Graph, URIRef
 from yaml.constructor import ConstructorError
+import logging
 
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE, merge_contexts
 from linkml_runtime.utils.formatutils import is_empty
@@ -113,6 +114,14 @@ class YAMLRoot(JsonObj):
         @param keyed: True means each identifier must be unique
         @param is_list: True means inlined as list
         """
+        log_msg = "Normalizing "
+        if self.class_name != "schema_definition":
+            log_msg += "  "
+        log_msg += f"{self.class_name}"
+        if hasattr(self, "name"):
+            log_msg += f"[{self.name}]"
+        log_msg += f".{slot_name}"
+        logging.debug(log_msg)
         raw_slot: Union[list, dict, JsonObj] = self[slot_name]
         if raw_slot is None:
             raw_slot = []
