@@ -167,19 +167,17 @@ class Curie(URIorCURIE):
 
     @classmethod
     def ns_ln(cls, v: str) -> Optional[Tuple[str, str]]:
-        # See if this is indeed a valid CURIE, ie, it can be split by a colon
+        if not validate_curie(v):
+            return None
+        # assume the presence of a colon and try to split the CURIE
         curie_split = v.split(':', 1)
         if len(curie_split) == 1:
-            # there is no ':' character in the string, ie, it is not a valid CURIE
-            return None
+            # there is no ':' character in the string, it's only a reference
+            return '', v
         else:
             prefix = curie_split[0].lower()
-            if not NCName.is_valid(prefix):
-                return None
             reference = curie_split[1]
-            if not cls.term_name.match(reference):
-                return None
-        return prefix, reference
+            return prefix, reference
 
     @classmethod
     def is_valid(cls, v: str) -> bool:
