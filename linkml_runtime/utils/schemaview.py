@@ -1542,18 +1542,13 @@ class SchemaView(object):
         :return: list of slots, either direct, or both direct and induced
         """
         classes_set = set()  # use set to avoid duplicates
-        all_classes = self.all_classes()
-
-        for c_name, c in all_classes.items():
-            if slot.name in c.slots:
-                classes_set.add(c_name)
-
-        if include_induced:
-            for c_name in all_classes:
-                induced_slot_names = [
-                    ind_slot.name for ind_slot in self.class_induced_slots(c_name)
-                ]
-                if slot.name in induced_slot_names:
+        for c_name, c in self.all_classes().items():
+            if include_induced:
+                for c_slot in self.class_slots(c_name):
+                    if slot.name == c_slot:
+                        classes_set.add(c_name)
+            else:
+                if slot.name in c.slots:
                     classes_set.add(c_name)
 
         return list(classes_set)
