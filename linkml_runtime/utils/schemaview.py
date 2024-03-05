@@ -1547,9 +1547,11 @@ class SchemaView(object):
                 for c_slot in self.class_slots(c_name):
                     if slot.name == c_slot:
                         classes_set.add(c_name)
+                        break
             else:
                 if slot.name in c.slots:
                     classes_set.add(c_name)
+                    break
 
         return list(classes_set)
 
