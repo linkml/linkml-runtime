@@ -1,6 +1,6 @@
 import os
 from io import StringIO
-from typing import Union, TextIO, Optional, Dict, Type, List
+from typing import Union, TextIO, Optional, Dict, Type, List, Iterator, Any
 
 import yaml
 from hbreader import FileInfo
@@ -51,3 +51,19 @@ class YAMLLoader(Loader):
         @return: instance of taarget_class
         """
         return self.load_any(source, target_class, metadata=metadata)
+
+    def iter_instances(self) -> Iterator[Any]:
+        """Lazily yield instances from YAML source.
+
+        If the root of the document is an array, yield each element of the array. Otherwise,
+        yield the root element itself. Repeat for each document in the YAML file.
+
+        :return: Iterator over data instances
+        :rtype: Iterator[Any]
+        """
+        with open(self.source) as source_file:
+            for document in yaml.safe_load_all(source_file):
+                if isinstance(document, list):
+                    yield from document
+                else:
+                    yield document

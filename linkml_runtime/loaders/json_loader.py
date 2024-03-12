@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Union, TextIO, Optional, Dict, Type, List
+from typing import Iterator, Union, TextIO, Optional, Dict, Type, List
 
 from hbreader import FileInfo
 
@@ -34,3 +34,18 @@ class JSONLoader(Loader):
                 logging.warning(f"Warning: input type mismatch. Expected: {target_class.__name__}, Actual: {typ}")
 
         return self._construct_target_class(data_as_dict, target_class)
+
+    def iter_instances(self) -> Iterator[Any]:
+        """Lazily yield instance from JSON source.
+
+        If the root of the JSON is an array, yield each element of the array. Otherwise,
+        yield the root element itself.
+
+        :return: Iterator over data instances
+        :rtype: Iterator[Any]
+        """
+        data = self.load_as_dict(self.source)
+        if isinstance(data, list):
+            yield from data
+        else:
+            yield data

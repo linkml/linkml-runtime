@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TextIO, Union, Optional, Callable, Dict, Type, Any, List
+from typing import Iterator, TextIO, Union, Optional, Callable, Dict, Type, Any, List
 
 from pydantic import BaseModel
 from hbreader import FileInfo, hbread
@@ -9,6 +9,10 @@ from linkml_runtime.utils.yamlutils import YAMLRoot
 
 
 class Loader(ABC):
+
+    def __init__(self, source: Union[str, dict, TextIO] = None):
+        self.source = source
+        super().__init__()
 
     @staticmethod
     def json_clean(inp: Any) -> Any:
@@ -113,6 +117,16 @@ class Loader(ABC):
         :return: instance of taarget_class
         """
         return self.load(source, target_class, metadata=metadata)
+
+    @abstractmethod
+    def iter_instances(self) -> Iterator[Any]:
+        """Lazily load data instances from the source
+
+        :return: Iterator over data instances
+        :rtype: Iterator[Any]
+        """
+        pass
+
 
     def _construct_target_class(self, 
                                 data_as_dict: Union[dict, List[dict]],
