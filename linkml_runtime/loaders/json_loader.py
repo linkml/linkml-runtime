@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Iterator, Union, TextIO, Optional, Dict, Type, List
+from typing import Any, Iterator, Union, TextIO, Optional, Dict, Type, List
 
 from hbreader import FileInfo
 
