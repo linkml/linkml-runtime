@@ -148,7 +148,6 @@ class ReferenceValidatorTestCase(unittest.TestCase):
 
         Sets up a document object that each test will contribute to.
         """
-        print("Setting up class...")
         doc = MarkdownDocument()
         doc.h1("Validation Suite")
         doc.text("This document describes the validation suite for the LinkML model.")
@@ -1154,8 +1153,6 @@ class ReferenceValidatorTestCase(unittest.TestCase):
         """
         obj = yaml.load(s, DupCheckYamlLoader)
         report = validator.validate(obj)
-        for r in report.results_excluding_normalized():
-            print(yaml_dumper.dumps(r))
         self.assertEqual(1, len(report.results_excluding_normalized()))
         r = report.results_excluding_normalized()[0]
         self.assertEqual(3, r.source_line_number)
@@ -1188,8 +1185,6 @@ class ReferenceValidatorTestCase(unittest.TestCase):
         report = Report()
         schema_norm = validator.normalize(schema_dict, target=sdc.name, report=report)
         self.assertEqual(dict, type(schema_norm["prefixes"]))
-        for r in report.results_excluding_normalized():
-            print(yaml_dumper.dumps(r))
         self.assertEqual(len(report.errors()), 0)
         # for r in report.repaired():
         #    print(r)
