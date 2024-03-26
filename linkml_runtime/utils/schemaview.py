@@ -6,7 +6,7 @@ from functools import lru_cache
 from copy import copy, deepcopy
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Mapping, Tuple
+from typing import Mapping, Tuple, TypeVar
 import warnings
 
 from linkml_runtime.utils.namespaces import Namespaces
@@ -14,6 +14,7 @@ from deprecated.classic import deprecated
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
+from linkml_runtime.exceptions import OrderingError
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -33,11 +34,23 @@ SUBSET_NAME = Union[SubsetDefinitionName, str]
 TYPE_NAME = Union[TypeDefinitionName, str]
 ENUM_NAME = Union[EnumDefinitionName, str]
 
+ElementType = TypeVar("ElementType", bound=Element)
+ElementNameType = TypeVar("ElementNameType", bound=Union[ElementName,str])
+DefinitionType = TypeVar("DefinitionType", bound=Definition)
+DefinitionNameType = TypeVar("DefinitionNameType", bound=Union[DefinitionName,str])
+ElementDict = Dict[ElementNameType, ElementType]
+DefDict = Dict[DefinitionNameType, DefinitionType]
+
 
 class OrderedBy(Enum):
     RANK = "rank"
     LEXICAL = "lexical"
     PRESERVE = "preserve"
+    INHERITANCE = "inheritance"
+    """
+    Order according to inheritance such that if C is a child of P then C appears after P
+    """
+
 
 
 def _closure(f, x, reflexive=True, depth_first=True, **kwargs):
@@ -155,7 +168,7 @@ class SchemaView(object):
     def __hash__(self):
         return hash(self.__key())
 
-    @lru_cache()
+    @lru_cache(None)
     def namespaces(self) -> Namespaces:
         namespaces = Namespaces()
         for s in self.schema_map.values():
@@ -207,7 +220,7 @@ class SchemaView(object):
         schema = load_schema_wrap(sname + '.yaml', base_dir=base_dir)
         return schema
 
-    @lru_cache()
+    @lru_cache(None)
     def imports_closure(self, imports: bool = True, traverse: Optional[bool] = None, inject_metadata=True) -> List[SchemaDefinitionName]:
         """
         Return all imports
@@ -287,7 +300,7 @@ class SchemaView(object):
                         a.from_schema = s.id
         return closure
 
-    @lru_cache()
+    @lru_cache(None)
     def all_schema(self, imports: bool = True) -> List[SchemaDefinition]:
         """
         :param imports: include imports closure
@@ -297,7 +310,7 @@ class SchemaView(object):
         return [m[sn] for sn in self.imports_closure(imports)]
 
     @deprecated("Use `all_classes` instead")
-    @lru_cache()
+    @lru_cache(None)
     def all_class(self, imports=True) -> Dict[ClassDefinitionName, ClassDefinition]:
         """
         :param imports: include imports closure
@@ -305,7 +318,22 @@ class SchemaView(object):
         """
         return self._get_dict(CLASSES, imports)
 
-    def _order_lexically(self, elements: dict):
+    def ordered(self, elements: ElementDict, ordered_by: Optional[OrderedBy] = None) -> ElementDict:
+        """
+        Order a dictionary of elements with some ordering method in :class:`.OrderedBy`
+        """
+        if ordered_by in (OrderedBy.LEXICAL, OrderedBy.LEXICAL.value):
+            return self._order_lexically(elements)
+        elif ordered_by in (OrderedBy.RANK, OrderedBy.RANK.value):
+            return self._order_rank(elements)
+        elif ordered_by in (OrderedBy.INHERITANCE, OrderedBy.INHERITANCE.value):
+            return self._order_inheritance(elements)
+        elif ordered_by is None or ordered_by in (OrderedBy.PRESERVE, OrderedBy.PRESERVE.value):
+            return elements
+        else:
+            raise ValueError(f"ordered_by must be in OrderedBy or None, got {ordered_by}")
+
+    def _order_lexically(self, elements: ElementDict) -> ElementDict:
         """
         :param element: slots or class type to order
         :param imports
@@ -320,7 +348,7 @@ class SchemaView(object):
             ordered_elements[self.get_element(name).name] = self.get_element(name)
         return ordered_elements
 
-    def _order_rank(self, elements: dict):
+    def _order_rank(self, elements: ElementDict) -> ElementDict:
         """
         :param elements: slots or classes to order
         :return: all classes or slots sorted by their rank in schema view
@@ -342,7 +370,33 @@ class SchemaView(object):
         rank_ordered_elements.update(unranked_map)
         return rank_ordered_elements
 
-    @lru_cache()
+    def _order_inheritance(self, elements: DefDict) -> DefDict:
+        """
+        sort classes such that if C is a child of P then C appears after P in the list
+        """
+        clist = list(elements.values())
+        slist = []  # sorted
+        can_add = False
+        while len(clist) > 0:
+            for i in range(len(clist)):
+                candidate = clist[i]
+                can_add = False
+                if candidate.is_a is None:
+                    can_add = True
+                else:
+                    if candidate.is_a in [p.name for p in slist]:
+                        can_add = True
+                if can_add:
+                    slist = slist + [candidate]
+                    del clist[i]
+                    break
+            if not can_add:
+                raise OrderingError(f"could not find suitable element in {clist} that does not ref {slist}")
+
+        return {s.name: s for s in slist}
+
+
+    @lru_cache(None)
     def all_classes(self, ordered_by=OrderedBy.PRESERVE, imports=True) -> Dict[ClassDefinitionName, ClassDefinition]:
         """
         :param ordered_by: an enumerated parameter that returns all the slots in the order specified.
@@ -350,18 +404,11 @@ class SchemaView(object):
         :return: all classes in schema view
         """
         classes = copy(self._get_dict(CLASSES, imports))
-
-        if ordered_by == OrderedBy.LEXICAL:
-            ordered_classes = self._order_lexically(elements=classes)
-        elif ordered_by == OrderedBy.RANK:
-            ordered_classes = self._order_rank(elements=classes)
-        else:  # else preserve the order in the yaml
-            ordered_classes = classes
-
-        return ordered_classes
+        classes = self.ordered(classes, ordered_by=ordered_by)
+        return classes
 
     @deprecated("Use `all_slots` instead")
-    @lru_cache()
+    @lru_cache(None)
     def all_slot(self, **kwargs) -> Dict[SlotDefinitionName, SlotDefinition]:
         """
         :param imports: include imports closure
@@ -369,7 +416,7 @@ class SchemaView(object):
         """
         return self.all_slots(**kwargs)
 
-    @lru_cache()
+    @lru_cache(None)
     def all_slots(self, ordered_by=OrderedBy.PRESERVE, imports=True, attributes=True) -> Dict[
         SlotDefinitionName, SlotDefinition]:
         """
@@ -386,17 +433,11 @@ class SchemaView(object):
                     if aname not in slots:
                         slots[aname] = a
 
-        if ordered_by == OrderedBy.LEXICAL:
-            ordered_slots = self._order_lexically(elements=slots)
-        elif ordered_by == OrderedBy.RANK:
-            ordered_slots = self._order_rank(elements=slots)
-        else:
-            # preserve order in YAML
-            ordered_slots = slots
-        return ordered_slots
+        slots = self.ordered(slots, ordered_by=ordered_by)
+        return slots
 
     @deprecated("Use `all_enums` instead")
-    @lru_cache()
+    @lru_cache(None)
     def all_enum(self, imports=True) -> Dict[EnumDefinitionName, EnumDefinition]:
         """
         :param imports: include imports closure
@@ -404,7 +445,7 @@ class SchemaView(object):
         """
         return self._get_dict(ENUMS, imports)
 
-    @lru_cache()
+    @lru_cache(None)
     def all_enums(self, imports=True) -> Dict[EnumDefinitionName, EnumDefinition]:
         """
         :param imports: include imports closure
@@ -413,7 +454,7 @@ class SchemaView(object):
         return self._get_dict(ENUMS, imports)
 
     @deprecated("Use `all_types` instead")
-    @lru_cache()
+    @lru_cache(None)
     def all_type(self, imports=True) -> Dict[TypeDefinitionName, TypeDefinition]:
         """
         :param imports: include imports closure
@@ -421,7 +462,7 @@ class SchemaView(object):
         """
         return self._get_dict(TYPES, imports)
 
-    @lru_cache()
+    @lru_cache(None)
     def all_types(self, imports=True) -> Dict[TypeDefinitionName, TypeDefinition]:
         """
         :param imports: include imports closure
@@ -437,7 +478,7 @@ class SchemaView(object):
         """
         return self._get_dict(SUBSETS, imports)
 
-    @lru_cache()
+    @lru_cache(None)
     def all_subsets(self, imports=True) -> Dict[SubsetDefinitionName, SubsetDefinition]:
         """
         :param imports: include imports closure
@@ -446,7 +487,7 @@ class SchemaView(object):
         return self._get_dict(SUBSETS, imports)
 
     @deprecated("Use `all_elements` instead")
-    @lru_cache()
+    @lru_cache(None)
     def all_element(self, imports=True) -> Dict[ElementName, Element]:
         """
         :param imports: include imports closure
@@ -460,7 +501,7 @@ class SchemaView(object):
         # {**a,**b} syntax merges dictionary a and b into a single dictionary, removing duplicates.
         return {**all_classes, **all_slots, **all_enums, **all_types, **all_subsets}
 
-    @lru_cache()
+    @lru_cache(None)
     def all_elements(self, imports=True) -> Dict[ElementName, Element]:
         """
         :param imports: include imports closure
@@ -487,7 +528,7 @@ class SchemaView(object):
 
         return d
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_name_mappings(self) -> Dict[str, SlotDefinition]:
         """
         Mapping between processed safe slot names (following naming conventions)  and slots.
@@ -501,7 +542,7 @@ class SchemaView(object):
             m[underscore(s.name)] = s
         return m
 
-    @lru_cache()
+    @lru_cache(None)
     def class_name_mappings(self) -> Dict[str, ClassDefinition]:
         """
         Mapping between processed safe class names (following naming conventions) and classes.
@@ -515,7 +556,7 @@ class SchemaView(object):
             m[camelcase(s.name)] = s
         return m
 
-    @lru_cache()
+    @lru_cache(None)
     def in_schema(self, element_name: ElementName) -> SchemaDefinitionName:
         """
         :param element_name:
@@ -526,7 +567,7 @@ class SchemaView(object):
             raise ValueError(f'Element {element_name} not in any schema')
         return ix[element_name]
 
-    @lru_cache()
+    @lru_cache(None)
     def element_by_schema_map(self) -> Dict[ElementName, SchemaDefinitionName]:
         ix = {}
         schemas = self.all_schema(True)
@@ -539,7 +580,7 @@ class SchemaView(object):
                     ix[aname] = schema.name
         return ix
 
-    @lru_cache()
+    @lru_cache(None)
     def get_class(self, class_name: CLASS_NAME, imports=True, strict=False) -> ClassDefinition:
         """
         :param class_name: name of the class to be retrieved
@@ -552,7 +593,7 @@ class SchemaView(object):
         else:
             return c
 
-    @lru_cache()
+    @lru_cache(None)
     def get_slot(self, slot_name: SLOT_NAME, imports=True, attributes=True, strict=False) -> SlotDefinition:
         """
         :param slot_name: name of the slot to be retrieved
@@ -575,7 +616,7 @@ class SchemaView(object):
             raise ValueError(f'No such slot as "{slot_name}"')
         return slot
 
-    @lru_cache()
+    @lru_cache(None)
     def get_subset(self, subset_name: SUBSET_NAME, imports=True, strict=False) -> SubsetDefinition:
         """
         :param subset_name: name of the subsey to be retrieved
@@ -588,7 +629,7 @@ class SchemaView(object):
         else:
             return s
 
-    @lru_cache()
+    @lru_cache(None)
     def get_enum(self, enum_name: ENUM_NAME, imports=True, strict=False) -> EnumDefinition:
         """
         :param enum_name: name of the enum to be retrieved
@@ -601,7 +642,7 @@ class SchemaView(object):
         else:
             return e
 
-    @lru_cache()
+    @lru_cache(None)
     def get_type(self, type_name: TYPE_NAME, imports=True, strict=False) -> TypeDefinition:
         """
         :param type_name: name of the type to be retrieved
@@ -623,7 +664,7 @@ class SchemaView(object):
             parents.append(e.is_a)
         return parents
 
-    @lru_cache()
+    @lru_cache(None)
     def class_parents(self, class_name: CLASS_NAME, imports=True, mixins=True, is_a=True) -> List[ClassDefinitionName]:
         """
         :param class_name: child class name
@@ -634,7 +675,7 @@ class SchemaView(object):
         cls = self.get_class(class_name, imports, strict=True)
         return self._parents(cls, imports, mixins, is_a)
 
-    @lru_cache()
+    @lru_cache(None)
     def enum_parents(self, enum_name: ENUM_NAME, imports=False, mixins=False, is_a=True) -> List[EnumDefinitionName]:
         """
         :param enum_name: child enum name
@@ -645,7 +686,7 @@ class SchemaView(object):
         e = self.get_enum(enum_name, strict=True)
         return self._parents(e, imports, mixins, is_a=is_a)
 
-    @lru_cache()
+    @lru_cache(None)
     def permissible_value_parent(self, permissible_value: str, enum_name: ENUM_NAME) -> Union[
         str, PermissibleValueText, None, ValueError]:
         """
@@ -662,7 +703,7 @@ class SchemaView(object):
         else:
             return []
 
-    @lru_cache()
+    @lru_cache(None)
     def permissible_value_children(self, permissible_value: str, enum_name: ENUM_NAME) -> Union[
         str, PermissibleValueText, None, ValueError]:
         """
@@ -696,7 +737,7 @@ class SchemaView(object):
         else:
             raise ValueError(f'No such enum as "{enum_name}"')
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_parents(self, slot_name: SLOT_NAME, imports=True, mixins=True, is_a=True) -> List[SlotDefinitionName]:
         """
         :param slot_name: child slot name
@@ -710,7 +751,7 @@ class SchemaView(object):
         else:
             return []
 
-    @lru_cache()
+    @lru_cache(None)
     def type_parents(self, type_name: TYPE_NAME, imports=True) -> List[TypeDefinitionName]:
         """
         :param type_name: child type name
@@ -723,7 +764,7 @@ class SchemaView(object):
         else:
             return []
 
-    @lru_cache()
+    @lru_cache(None)
     def get_children(self, name: str, mixin: bool = True) -> List[str]:
         """
         get the children of an element (any class, slot, enum, type)
@@ -740,7 +781,7 @@ class SchemaView(object):
                     children.append(el.name)
         return children
 
-    @lru_cache()
+    @lru_cache(None)
     def class_children(self, class_name: CLASS_NAME, imports=True, mixins=True, is_a=True) -> List[ClassDefinitionName]:
         """
         :param class_name: parent class name
@@ -752,7 +793,7 @@ class SchemaView(object):
         elts = [self.get_class(x) for x in self.all_classes(imports=imports)]
         return [x.name for x in elts if (x.is_a == class_name and is_a) or (mixins and class_name in x.mixins)]
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_children(self, slot_name: SLOT_NAME, imports=True, mixins=True, is_a=True) -> List[SlotDefinitionName]:
         """
         :param slot_name: parent slot name
@@ -764,7 +805,7 @@ class SchemaView(object):
         elts = [self.get_slot(x) for x in self.all_slots(imports)]
         return [x.name for x in elts if (x.is_a == slot_name and is_a) or (mixins and slot_name in x.mixins)]
 
-    @lru_cache()
+    @lru_cache(None)
     def class_ancestors(self, class_name: CLASS_NAME, imports=True, mixins=True, reflexive=True, is_a=True,
                         depth_first=True) -> List[ClassDefinitionName]:
         """
@@ -782,7 +823,7 @@ class SchemaView(object):
                         class_name,
                         reflexive=reflexive, depth_first=depth_first)
 
-    @lru_cache()
+    @lru_cache(None)
     def permissible_value_ancestors(self, permissible_value_text: str,
                                     enum_name: ENUM_NAME,
                                     reflexive=True,
@@ -797,7 +838,7 @@ class SchemaView(object):
                         reflexive=reflexive,
                         depth_first=depth_first)
 
-    @lru_cache()
+    @lru_cache(None)
     def permissible_value_descendants(self, permissible_value_text: str,
                                     enum_name: ENUM_NAME,
                                     reflexive=True,
@@ -813,7 +854,7 @@ class SchemaView(object):
                         reflexive=reflexive,
                         depth_first=depth_first)
 
-    @lru_cache()
+    @lru_cache(None)
     def enum_ancestors(self, enum_name: ENUM_NAME, imports=True, mixins=True, reflexive=True, is_a=True,
                        depth_first=True) -> List[EnumDefinitionName]:
         """
@@ -831,7 +872,7 @@ class SchemaView(object):
                         enum_name,
                         reflexive=reflexive, depth_first=depth_first)
 
-    @lru_cache()
+    @lru_cache(None)
     def type_ancestors(self, type_name: TYPES, imports=True, reflexive=True, depth_first=True) -> List[
         TypeDefinitionName]:
         """
@@ -847,7 +888,7 @@ class SchemaView(object):
                         type_name,
                         reflexive=reflexive, depth_first=depth_first)
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_ancestors(self, slot_name: SLOT_NAME, imports=True, mixins=True, reflexive=True, is_a=True) -> List[
         SlotDefinitionName]:
         """
@@ -864,7 +905,7 @@ class SchemaView(object):
                         slot_name,
                         reflexive=reflexive)
 
-    @lru_cache()
+    @lru_cache(None)
     def class_descendants(self, class_name: CLASS_NAME, imports=True, mixins=True, reflexive=True, is_a=True) -> List[
         ClassDefinitionName]:
         """
@@ -880,7 +921,7 @@ class SchemaView(object):
         return _closure(lambda x: self.class_children(x, imports=imports, mixins=mixins, is_a=is_a), class_name,
                         reflexive=reflexive)
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_descendants(self, slot_name: SLOT_NAME, imports=True, mixins=True, reflexive=True, is_a=True) -> List[
         SlotDefinitionName]:
         """
@@ -896,7 +937,7 @@ class SchemaView(object):
         return _closure(lambda x: self.slot_children(x, imports=imports, mixins=mixins, is_a=is_a), slot_name,
                         reflexive=reflexive)
 
-    @lru_cache()
+    @lru_cache(None)
     def class_roots(self, imports=True, mixins=True, is_a=True) -> List[ClassDefinitionName]:
         """
         All classes that have no parents
@@ -909,7 +950,7 @@ class SchemaView(object):
                 for c in self.all_classes(imports=imports)
                 if self.class_parents(c, mixins=mixins, is_a=is_a, imports=imports) == []]
 
-    @lru_cache()
+    @lru_cache(None)
     def class_leaves(self, imports=True, mixins=True, is_a=True) -> List[ClassDefinitionName]:
         """
         All classes that have no children
@@ -922,7 +963,7 @@ class SchemaView(object):
                 for c in self.all_classes(imports=imports)
                 if self.class_children(c, mixins=mixins, is_a=is_a, imports=imports) == []]
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_roots(self, imports=True, mixins=True) -> List[SlotDefinitionName]:
         """
         All slotes that have no parents
@@ -934,7 +975,7 @@ class SchemaView(object):
                 for c in self.all_slots(imports=imports)
                 if self.slot_parents(c, mixins=mixins, imports=imports) == []]
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_leaves(self, imports=True, mixins=True) -> List[SlotDefinitionName]:
         """
         All slotes that have no children
@@ -946,7 +987,7 @@ class SchemaView(object):
                 for c in self.all_slots(imports=imports)
                 if self.slot_children(c, mixins=mixins, imports=imports) == []]
 
-    @lru_cache()
+    @lru_cache(None)
     def is_multivalued(self, slot_name: SlotDefinition) -> bool:
         """
         returns True if slot is multivalued, else returns False
@@ -956,7 +997,7 @@ class SchemaView(object):
         induced_slot = self.induced_slot(slot_name)
         return True if induced_slot.multivalued else False
 
-    @lru_cache()
+    @lru_cache(None)
     def slot_is_true_for_metadata_property(self, slot_name: SlotDefinition, metadata_property: str) -> bool:
         """
         Returns true if the value of the provided "metadata_property" is True.  For example,
@@ -1082,7 +1123,7 @@ class SchemaView(object):
 
         return applicable_elements
 
-    @lru_cache()
+    @lru_cache(None)
     def all_aliases(self) -> List[str]:
         """
         Get the aliases
@@ -1103,7 +1144,7 @@ class SchemaView(object):
 
         return element_aliases
 
-    @lru_cache()
+    @lru_cache(None)
     def get_mappings(self, element_name: ElementName = None, imports=True, expand=False) -> Dict[
         MAPPING_TYPE, List[URIorCURIE]]:
         """
@@ -1134,7 +1175,7 @@ class SchemaView(object):
 
         return m_dict
 
-    @lru_cache()
+    @lru_cache(None)
     def is_mixin(self, element_name: Union[ElementName, Element]):
         """
         Determines whether the given name is the name of a mixin
@@ -1148,7 +1189,7 @@ class SchemaView(object):
         is_mixin = element.mixin if isinstance(element, Definition) else False
         return is_mixin
 
-    @lru_cache()
+    @lru_cache(None)
     def inverse(self, slot_name: SlotDefinition):
         """
         Determines whether the given name is a relationship, and if that relationship has an inverse, returns
@@ -1192,7 +1233,7 @@ class SchemaView(object):
                     ix[v].append((mapping_type, self.get_element(en, imports=imports)))
         return ix
 
-    @lru_cache()
+    @lru_cache(None)
     def is_relationship(self, class_name: CLASS_NAME = None, imports=True) -> bool:
         """
         Tests if a class represents a relationship or reified statement
@@ -1211,7 +1252,7 @@ class SchemaView(object):
                     return True
         return False
 
-    @lru_cache()
+    @lru_cache(None)
     def annotation_dict(self, element_name: ElementName, imports=True) -> Dict[URIorCURIE, Any]:
         """
         Return a dictionary where keys are annotation tags and values are annotation values for any given element.
@@ -1227,7 +1268,7 @@ class SchemaView(object):
         e = self.get_element(element_name, imports=imports)
         return {k: v.value for k, v in e.annotations.items()}
 
-    @lru_cache()
+    @lru_cache(None)
     def class_slots(self, class_name: CLASS_NAME, imports=True, direct=False, attributes=True) -> List[
         SlotDefinitionName]:
         """
@@ -1253,7 +1294,7 @@ class SchemaView(object):
                 slots_nr.append(s)
         return slots_nr
 
-    @lru_cache()
+    @lru_cache(None)
     def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports=True,
                      mangle_name=False) -> SlotDefinition:
         """
@@ -1351,12 +1392,12 @@ class SchemaView(object):
                     induced_slot.domain_of.append(c.name)
         return induced_slot
 
-    @lru_cache()
+    @lru_cache(None)
     def _metaslots_for_slot(self):
         fake_slot = SlotDefinition('__FAKE')
         return vars(fake_slot).keys()
 
-    @lru_cache()
+    @lru_cache(None)
     def class_induced_slots(self, class_name: CLASS_NAME = None, imports=True) -> List[SlotDefinition]:
         """
         All slots that are asserted or inferred for a class, with their inferred semantics
@@ -1367,7 +1408,7 @@ class SchemaView(object):
         """
         return [self.induced_slot(sn, class_name, imports=imports) for sn in self.class_slots(class_name)]
 
-    @lru_cache()
+    @lru_cache(None)
     def induced_class(self, class_name: CLASS_NAME = None) -> ClassDefinition:
         """
         Generate an induced class
@@ -1387,7 +1428,7 @@ class SchemaView(object):
         c.slots = []
         return c
 
-    @lru_cache()
+    @lru_cache(None)
     def induced_type(self, type_name: TYPE_NAME = None) -> TypeDefinition:
         """
 
@@ -1405,7 +1446,7 @@ class SchemaView(object):
                 t.repr = parent.repr
         return t
 
-    @lru_cache()
+    @lru_cache(None)
     def induced_enum(self, enum_name: ENUM_NAME = None) -> EnumDefinition:
         """
 
@@ -1415,7 +1456,7 @@ class SchemaView(object):
         e = deepcopy(self.get_enum(enum_name))
         return e
 
-    @lru_cache()
+    @lru_cache(None)
     def get_identifier_slot(self, cn: CLASS_NAME, use_key=False, imports=True) -> Optional[SlotDefinition]:
         """
         Find the slot that is the identifier for the given class
@@ -1433,7 +1474,7 @@ class SchemaView(object):
         else:
             return None
 
-    @lru_cache()
+    @lru_cache(None)
     def get_key_slot(self, cn: CLASS_NAME, imports=True) -> Optional[SlotDefinition]:
         """
         Find the slot that is the key for the given class
@@ -1448,7 +1489,7 @@ class SchemaView(object):
                 return s
         return None
 
-    @lru_cache()
+    @lru_cache(None)
     def get_type_designator_slot(self, cn: CLASS_NAME, imports=True) -> Optional[SlotDefinition]:
         """
         :param cn: class name
@@ -1558,7 +1599,7 @@ class SchemaView(object):
 
         return list(classes_set)
 
-    @lru_cache()
+    @lru_cache(None)
     def get_slots_by_enum(self, enum_name: ENUM_NAME = None) -> List[SlotDefinition]:
         """Get all slots that use a given enum: schema defined, attribute, or slot_usage.
 
@@ -1609,7 +1650,7 @@ class SchemaView(object):
                 anns = self.get_type(t).annotations
                 return "percent_encoded" in anns
 
-    @lru_cache()
+    @lru_cache(None)
     def usage_index(self) -> Dict[ElementName, List[SchemaUsage]]:
         """
         Fetch an index that shows the ways in which each element is used
