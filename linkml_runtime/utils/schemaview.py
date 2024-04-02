@@ -1587,13 +1587,12 @@ class SchemaView(object):
 
         # direct slots
         for c_name, c in all_classes.items():
-            slot_name = slot.name
-            if slot_name in c.slots:
+            if slot.name in c.slots:
                 classes_set.add(c_name)
             if slot.any_of or slot.exactly_one_of:
                 for x in slot.any_of + slot.exactly_one_of:
-                    if x.range == c_name and slot not in classes_set:
-                        classes_set.append(slot_name)
+                    if x.range:
+                        classes_set.append(c_name)
 
         # add indirect slots
         if include_induced:
@@ -1601,13 +1600,12 @@ class SchemaView(object):
                 induced_slot_names = [
                     ind_slot.name for ind_slot in self.class_induced_slots(c_name)
                 ]
-                slot_name = slot.name
-                if slot_name in induced_slot_names:
+                if slot.name in induced_slot_names:
                     classes_set.add(c_name)
                 if slot.any_of or slot.exactly_one_of:
                     for x in slot.any_of + slot.exactly_one_of:
-                        if x.range == c_name and slot not in classes_set:
-                            classes_set.append(slot_name)
+                        if x.range:
+                            classes_set.append(c_name)
 
         return list(classes_set)
 
