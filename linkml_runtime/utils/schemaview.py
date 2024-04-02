@@ -1585,17 +1585,29 @@ class SchemaView(object):
         classes_set = set()  # use set to avoid duplicates
         all_classes = self.all_classes()
 
+        # direct slots
         for c_name, c in all_classes.items():
-            if slot.name in c.slots:
+            slot_name = slot.name
+            if slot_name in c.slots:
                 classes_set.add(c_name)
+            if slot.any_of or slot.exactly_one_of:
+                for x in slot.any_of + slot.exactly_one_of:
+                    if x.range == c_name and slot not in classes_set:
+                        classes_set.append(slot_name)
 
+        # add indirect slots
         if include_induced:
             for c_name in all_classes:
                 induced_slot_names = [
                     ind_slot.name for ind_slot in self.class_induced_slots(c_name)
                 ]
-                if slot.name in induced_slot_names:
+                slot_name = slot.name
+                if slot_name in induced_slot_names:
                     classes_set.add(c_name)
+                if slot.any_of or slot.exactly_one_of:
+                    for x in slot.any_of + slot.exactly_one_of:
+                        if x.range == c_name and slot not in classes_set:
+                            classes_set.append(slot_name)
 
         return list(classes_set)
 
@@ -1610,6 +1622,10 @@ class SchemaView(object):
         for s in self.all_slots().values():
             if s.range == enum_name and s not in enum_slots:
                 enum_slots.append(s)
+            if s.any_of or s.exactly_one_of:
+                for x in s.any_of + s.exactly_one_of:
+                    if x.range == enum_name and s not in enum_slots:
+                        enum_slots.append(s)
         for class_definition in self.all_classes().values():
             if class_definition.slot_usage:
                 for slot_definition in class_definition.slot_usage.values():
