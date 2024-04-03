@@ -1,3 +1,11 @@
+# This action is split up into two phases because
+# - We want to test linkml-runtime against linkml's lockfile - so we can't pip install --force-reinstall the local version
+# - We want to also take into account any deps changes linkml-runtime might have - so we can't pip install --no-deps
+# - We need to actually be able to install linkml-runtime, and since dynamic versioning doesn't work and can't be forced with
+#   env vars from another project...
+# We build a wheel with an artificially high version first, and then share that to the upstream tests
+# The linkml-runtime wheel should be the same across OS and python versions (and is actually an additional test of our packaging)
+
 name: Test with upstream linkml
 on:
   pull_request_review:
@@ -5,7 +13,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  build_wheel:
+    if: github.event_name == 'workflow_dispatch' || github.event.review.state == 'APPROVED'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      linkml-runtime-wheel: ${{ steps.wheel-upload.outputs.artifact-id }}
+
+    steps:
+      - name: checkout linkml-runtime
+        uses: actions/checkout@v4
+      - name: set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: get linkml-runtime short hash
+        run: |
+          LINKML_RUNTIME_COMMIT=$(git rev-parse --short HEAD)
+          echo "LINKML_RUNTIME_COMMIT=$LINKML_RUNTIME_COMMIT" >> "$GITHUB_ENV"
+      - name: build linkml-runtime wheel
+        run: |
+          POETRY_DYNAMIC_VERSIONING_BYPASS="1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry build
+      - name: upload dist directory
+        uses: actions/upload-artifact@v4
+        id: wheel-upload
+        with:
+          name: linkml-runtime-wheel
+          path: dist/
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 5
+
   test_upstream:
+    needs: build_wheel
     if: github.event_name == 'workflow_dispatch' || github.event.review.state == 'APPROVED'
     strategy:
       matrix:
@@ -38,14 +85,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: checkout linkml-runtime
-        uses: actions/checkout@v4
-        with:
-          # don't specify repository like this or else we won't get pull request branches correctly
-          # repository: linkml/linkml-runtime
-          path: linkml-runtime
-          fetch-depth: 0
-
       - name: set up python
         uses: actions/setup-python@v5
         with:
@@ -73,26 +112,18 @@ jobs:
         working-directory: linkml
         run: poetry run pip uninstall linkml-runtime -y
 
-      - name: get linkml-runtime short hash
-        working-directory: linkml-runtime
-        run: |
-          LINKML_RUNTIME_COMMIT=$(git rev-parse --short HEAD)
-          echo "LINKML_RUNTIME_COMMIT=$LINKML_RUNTIME_COMMIT" >> "$GITHUB_ENV"
+      # this should unpack into dist/
+      - name: Download the built wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build_wheel.outputs.linkml-runtime-wheel }}
 
-      # install the local version of linkml-runtime:
-      # we do this vs. pip --force-reinstall so that we keep linkml's locked deps
-      # and simulate what the lockfile will be after merging and relocking.
-      # we override the linkml-runtime version here according to poetry-dynamic-versioning:
-      # "The dynamic version is not available during poetry run or poetry shell because of a Poetry design choice that prevents the plugin from cleaning up after itself."
-      # and since linkml depends on a specific version of linkml-runtime, this would always fail
-      - name: add linkml-runtime to linkml's venv
+      # amazingly, poetry does find the wheel correctly
+      - name: add linkml-runtime wheel to linkml's venv
         working-directory: linkml
-        run: POETRY_DYNAMIC_VERSIONING_OVERRIDE="linkml-runtime = 1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry add ../linkml-runtime
+        run: poetry add ./dist/*
 
-      # note that we run the installation step always, even if we restore a venv,
-      # the cache will restore the old version of linkml-runtime, but the lockfile
-      # will only store the directory dependency (and thus will reinstall it)
-      # the cache will still speedup the rest of the installation
+      # with the modifications to the lockfile, we can install the rest of the deps
       - name: install linkml
         working-directory: linkml
         run: poetry install --no-interaction --no-root -E tests
