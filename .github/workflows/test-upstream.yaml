@@ -71,7 +71,13 @@ jobs:
 
       - name: remove potentially cached linkml-runtime version
         working-directory: linkml
-        run: poetry run pip uninstall linkml-runtime
+        run: poetry run pip uninstall linkml-runtime -y
+
+      - name: get linkml-runtime short hash
+        working-directory: linkml-runtime
+        run: |
+          LINKML_RUNTIME_COMMIT=$(git rev-parse --short HEAD)
+          echo "LINKML_RUNTIME_COMMIT=$LINKML_RUNTIME_COMMIT" >> "$GITHUB_ENV"
 
       # install the local version of linkml-runtime:
       # we do this vs. pip --force-reinstall so that we keep linkml's locked deps
@@ -82,7 +88,7 @@ jobs:
       - name: add linkml-runtime to linkml's venv
         working-directory: linkml
         env:
-          POETRY_DYNAMIC_VERSIONING_OVERRIDE: "linkml-runtime = 1.99.0"
+          POETRY_DYNAMIC_VERSIONING_OVERRIDE: "linkml-runtime = 1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}"
         run: poetry add ../linkml-runtime
 
       # note that we run the installation step always, even if we restore a venv,
