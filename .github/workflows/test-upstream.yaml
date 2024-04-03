@@ -40,7 +40,6 @@ jobs:
           echo "LINKML_RUNTIME_COMMIT=$LINKML_RUNTIME_COMMIT" >> "$GITHUB_ENV"
       - name: build linkml-runtime wheel
         run: |
-          poetry self add "poetry-dynamic-versioning[plugin]"
           POETRY_DYNAMIC_VERSIONING_BYPASS="1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry build
       - name: upload dist directory
         uses: actions/upload-artifact@v4
