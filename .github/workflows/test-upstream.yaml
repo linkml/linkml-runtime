@@ -87,7 +87,9 @@ jobs:
       # and since linkml depends on a specific version of linkml-runtime, this would always fail
       - name: add linkml-runtime to linkml's venv
         working-directory: linkml
-        run: POETRY_DYNAMIC_VERSIONING_OVERRIDE="linkml-runtime = 1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry add ../linkml-runtime
+        run: |
+          poetry self add "poetry-dynamic-versioning[plugin]"
+          POETRY_DYNAMIC_VERSIONING_OVERRIDE="linkml-runtime = 1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry add ../linkml-runtime
 
       # note that we run the installation step always, even if we restore a venv,
       # the cache will restore the old version of linkml-runtime, but the lockfile
