@@ -69,6 +69,22 @@ jobs:
         working-directory: linkml
         run: poetry add pydantic@^${{ matrix.pydantic-version }}
 
+      - name: remove potentially cached linkml-runtime version
+        working-directory: linkml
+        run: poetry run pip uninstall linkml-runtime
+
+      # install the local version of linkml-runtime:
+      # we do this vs. pip --force-reinstall so that we keep linkml's locked deps
+      # and simulate what the lockfile will be after merging and relocking.
+      # we override the linkml-runtime version here according to poetry-dynamic-versioning:
+      # "The dynamic version is not available during poetry run or poetry shell because of a Poetry design choice that prevents the plugin from cleaning up after itself."
+      # and since linkml depends on a specific version of linkml-runtime, this would always fail
+      - name: add linkml-runtime to linkml's venv
+        working-directory: linkml
+        env:
+          POETRY_DYNAMIC_VERSIONING_OVERRIDE: "linkml-runtime = 1.99.0"
+        run: poetry add ../linkml-runtime
+
       # note that we run the installation step always, even if we restore a venv,
       # the cache will restore the old version of linkml-runtime, but the lockfile
       # will only store the directory dependency (and thus will reinstall it)
@@ -76,14 +92,6 @@ jobs:
       - name: install linkml
         working-directory: linkml
         run: poetry install --no-interaction --no-root -E tests
-
-      # force install the local version of linkml-runtime
-      # we don't use poetry's lockfile here because according to poetry-dynamic-versioning:
-      # "The dynamic version is not available during poetry run or poetry shell because of a Poetry design choice that prevents the plugin from cleaning up after itself."
-      # and since linkml depends on a specific version of linkml-runtime, this would always fail
-      - name: install linkml-runtime in linkml's venv
-        working-directory: linkml
-        run: poetry run pip install --force-reinstall ../linkml-runtime
 
       - name: print linkml-runtime version
         working-directory: linkml
