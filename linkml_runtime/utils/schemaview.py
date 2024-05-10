@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Mapping, Tuple, TypeVar
 import warnings
 
-
+from deprecated.classic import deprecated
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.pattern import PatternResolver
@@ -602,16 +602,7 @@ class SchemaView(object):
         :param strict: raise ValueError is not found
         :return: slot definition
         """
-        slot = self.all_slots(imports=imports, attributes=False).get(slot_name, None)
-        if slot is None and attributes:
-            for c in self.all_classes(imports=imports).values():
-                if slot_name in c.attributes:
-                    if slot is not None:
-                        # slot name is ambiguous: return a stub slot
-                        return SlotDefinition(slot_name)
-                    slot = copy(c.attributes[slot_name])
-                    slot.from_schema = c.from_schema
-                    slot.owner = c.name
+        slot = self.all_slots(imports=imports, attributes=attributes).get(slot_name, None)
         if strict and slot is None:
             raise ValueError(f'No such slot as "{slot_name}"')
         return slot
@@ -1337,12 +1328,11 @@ class SchemaView(object):
         # attributes take priority over schema-level slot definitions, IF
         # the attribute is declared for the class or an ancestor
         slot_comes_from_attribute = False
-
         if cls:
+            induced_slot = SlotDefinition(slot_name)
             # if a class is provided, first check if there is slot_usage on the class for the slot and apply it.
             slot = self.get_slot(slot_name, imports, attributes=False)
             # copy the slot, as it will be modified
-            induced_slot = copy(slot)
             logger.debug("induced_slot", induced_slot)
             logger.debug("class slot usage", cls.slot_usage)
             if slot_name in cls.slot_usage and slot_name is not None:
@@ -1362,6 +1352,7 @@ class SchemaView(object):
 
         else:
             slot = self.get_slot(slot_name, imports, attributes=True)
+            induced_slot = SlotDefinition(slot_name)
 
         if slot is None:
             raise ValueError(f"No such slot {slot_name} as an attribute of {class_name} ancestors "

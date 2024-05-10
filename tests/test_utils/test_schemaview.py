@@ -676,9 +676,11 @@ class SchemaViewTestCase(unittest.TestCase):
 
     def test_induced(self):
         view = SchemaView(SCHEMA_WITH_IMPORTS)
-        #pprint(view.induced_slot('has_input'))
         print(view.get_slot('has_input').range)
         assert view.induced_slot('has_input_2', 'Extraction') is not None
+        assert view.induced_slot('has_input', 'Extraction') is not None
+        assert not view.get_slot("has_input").required
+        assert view.induced_slot('has_input', 'Extraction').required
 
     def test_slot_inheritance(self):
         schema = SchemaDefinition(id='test', name='test')

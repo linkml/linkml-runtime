@@ -265,10 +265,8 @@ slots:
       ucum_code: m
   has_input:
     range: Thing
-    required: true
   has_output:
     range: Thing
-    required: true
 
 
 
