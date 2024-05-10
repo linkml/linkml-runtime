@@ -65,6 +65,8 @@ classes:
     is_a: Thing
     title: Planned Process
     attributes:
+      has_input:
+        range: FamilialRelationship
       has_input_2:
         range: Thing
         required: true
