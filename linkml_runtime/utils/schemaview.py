@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Mapping, Tuple, TypeVar
 import warnings
 
+
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.pattern import PatternResolver
@@ -601,7 +602,7 @@ class SchemaView(object):
         :param strict: raise ValueError is not found
         :return: slot definition
         """
-        slot = self.all_slots(imports=imports, attributes=True).get(slot_name, None)
+        slot = self.all_slots(imports=imports, attributes=False).get(slot_name, None)
         if slot is None and attributes:
             for c in self.all_classes(imports=imports).values():
                 if slot_name in c.attributes:

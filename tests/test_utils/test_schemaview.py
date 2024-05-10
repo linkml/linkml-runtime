@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List
 from pprint import pprint
 
+
 from linkml_runtime.dumpers import yaml_dumper
 from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
     ClassDefinitionName, Prefix
