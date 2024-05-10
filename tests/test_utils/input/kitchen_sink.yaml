@@ -52,11 +52,39 @@ subsets:
 
 classes:
 
+
   HasAliases:
     mixin: true
     attributes:
       aliases:
         multivalued: true
+
+  PlannedProcess:
+    abstract: true
+    class_uri: OBI:0000011
+    is_a: Thing
+    title: Planned Process
+    attributes:
+      has_input_2:
+        range: Thing
+        required: true
+      has_output_2:
+    slots:
+      - has_input
+      - has_output
+
+  Extraction:
+    class_uri: nmdc:Extraction
+    is_a: PlannedProcess # from core.yaml
+    description: A material separation in which a desired component of an input material is separated from the remainder.
+    exact_mappings:
+      - OBI:0302884
+    slot_usage:
+      has_input:
+        required: true
+        any_of:
+          - range: Person
+          - range: FamilialRelationship
 
   Thing:
     slots:
@@ -235,8 +263,12 @@ slots:
     range: float
     unit:
       ucum_code: m
-
-
+  has_input:
+    range: Thing
+    required: true
+  has_output:
+    range: Thing
+    required: true
 
 
 

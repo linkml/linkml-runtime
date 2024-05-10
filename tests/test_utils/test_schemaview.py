@@ -4,7 +4,7 @@ import logging
 from copy import copy
 from pathlib import Path
 from typing import List
-from unittest import TestCase
+from pprint import pprint
 
 from linkml_runtime.dumpers import yaml_dumper
 from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
@@ -672,6 +672,17 @@ class SchemaViewTestCase(unittest.TestCase):
               ['C', 'B', 'A', 'Root'])
         check(view.class_ancestors('C', is_a=False),
               ['C', 'Cm1', 'Cm2', 'CX'])
+
+    def test_induced(self):
+        view = SchemaView(SCHEMA_WITH_IMPORTS)
+        #pprint(view.induced_slot('has_input'))
+        print(view.get_slot('has_input').range)
+        slotdef = view.induced_slot('has_input_2', 'Extraction')
+        print("range with induced", slotdef.range)
+        print("range_as_union no induction")
+        pprint(view.slot_range_as_union(view.get_slot('has_input')))
+        print("range_as_union with induction")
+        pprint(view.slot_range_as_union(slotdef))
 
     def test_slot_inheritance(self):
         schema = SchemaDefinition(id='test', name='test')

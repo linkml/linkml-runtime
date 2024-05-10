@@ -602,7 +602,7 @@ class SchemaView(object):
         :param strict: raise ValueError is not found
         :return: slot definition
         """
-        slot = self.all_slots(imports=imports, attributes=False).get(slot_name, None)
+        slot = self.all_slots(imports=imports, attributes=True).get(slot_name, None)
         if slot is None and attributes:
             for c in self.all_classes(imports=imports).values():
                 if slot_name in c.attributes:
@@ -1294,6 +1294,26 @@ class SchemaView(object):
                 slots_nr.append(s)
         return slots_nr
 
+
+    @lru_cache(None)
+    def get_slot_by_class(self,
+                          slot_name: SLOT_NAME,
+                          class_name: CLASS_NAME = None,
+                          imports=True,
+                          mangle_name=False) -> SlotDefinition:
+        """
+        Given a slot, in the context of a particular class, yield a SlotDefinition specific to the class.
+
+        :param slot_name: slot to be queried
+        :param class_name: class used as context
+        :param imports: include imports closure
+        :param mangle_name: mangle the slot name
+        :return: dynamic slot constructed by inference using the slot_usage of the class with precedence
+
+
+
+        """
+
     @lru_cache(None)
     def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports=True,
                      mangle_name=False) -> SlotDefinition:
@@ -1315,27 +1335,40 @@ class SchemaView(object):
             cls = None
 
         # attributes take priority over schema-level slot definitions, IF
-        # the attributes is declared for the class or an ancestor
+        # the attribute is declared for the class or an ancestor
         slot_comes_from_attribute = False
+
         if cls:
+            # if a class is provided, first check if there is slot_usage on the class for the slot and apply it.
             slot = self.get_slot(slot_name, imports, attributes=False)
-            # traverse ancestors (reflexive), starting with
-            # the main class
+            # copy the slot, as it will be modified
+            induced_slot = copy(slot)
+            print("induced_slot", induced_slot)
+            print("induced_slot name = ", induced_slot.name)
+            print("class slot usage", cls.slot_usage)
+            if slot_name in cls.slot_usage and slot_name is not None:
+                for meta_value in cls.slot_usage.get(slot_name):
+                    print("meta_value = ", meta_value)
+                    print("slot_name = ", slot_name)
+                    print("cls.slot_usage[slot_name] = ", cls.slot_usage[slot_name])
+                    print("cls.slot_usage[slot_name][meta_value] = ", cls.slot_usage[slot_name][meta_value])
+                    setattr(induced_slot, meta_value, cls.slot_usage[slot_name][meta_value])
+
+            # check if the slot is an attribute of the class or an attribute of an ancestor class
+            # if it is, then set the slot metadata to the found attribute metadata, else break
             for an in self.class_ancestors(class_name):
                 a = self.get_class(an, imports)
                 if slot_name in a.attributes:
                     slot = a.attributes[slot_name]
                     slot_comes_from_attribute = True
                     break
+
         else:
             slot = self.get_slot(slot_name, imports, attributes=True)
 
         if slot is None:
             raise ValueError(f"No such slot {slot_name} as an attribute of {class_name} ancestors "
                              "or as a slot definition in the schema")
-
-        # copy the slot, as it will be modified
-        induced_slot = copy(slot)
         if not slot_comes_from_attribute:
             slot_anc_names = self.slot_ancestors(slot_name, reflexive=True)
             # inheritable slot: first propagate from ancestors
@@ -1357,11 +1390,19 @@ class SchemaView(object):
                 propagated_from = []
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
+                if metaslot_name == 'range':
+                    print(metaslot_name, " = metaslot_name")
+                    print(propagated_from, " = propagated_from")
             for an in reversed(propagated_from):
                 induced_slot.owner = an
                 a = self.get_class(an, imports)
                 anc_slot_usage = a.slot_usage.get(slot_name, {})
+                if metaslot_name == 'range':
+                    print(anc_slot_usage, " = anc_slot_usage")
                 v2 = getattr(anc_slot_usage, metaslot_name, None)
+                if metaslot_name == 'range':
+                    print("v2 = ", v2)
+                    print("v = ", v)
                 if v is None:
                     v = v2
                 else:
@@ -1532,10 +1573,10 @@ class SchemaView(object):
         Returns all applicable metamodel elements for a slot range
         (metamodel class names returned: class_definition, enum_definition, type_definition)
 
-        Typically any given slot has exactly one range, and one metamodel element type,
+        Typically, any given slot has exactly one range, and one metamodel element type,
         but a proposed feature in LinkML 1.2 is range expressions, where ranges can be defined as unions
 
-        Additionally, if linkml:Any is a class_uri then this maps to the any element
+        Additionally, if linkml:Any is a class_uri then this maps to any element
 
         :param slot:
         :return: list of element types
@@ -1560,7 +1601,7 @@ class SchemaView(object):
         """
         Returns all applicable ranges for a slot
 
-        Typically any given slot has exactly one range, and one metamodel element type,
+        Typically, any given slot has exactly one range, and one metamodel element type,
         but a proposed feature in LinkML 1.2 is range expressions, where ranges can be defined as unions
 
         :param slot:
