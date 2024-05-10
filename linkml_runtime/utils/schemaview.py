@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Mapping, Tuple, TypeVar
 import warnings
 
-from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
+from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
@@ -216,7 +216,7 @@ class SchemaView(object):
             base_dir = os.path.dirname(from_schema.source_file)
         else:
             base_dir = None
-        logging.info(f'Importing {imp} as {sname} from source {from_schema.source_file}; base_dir={base_dir}')
+        logger.info(f'Importing {imp} as {sname} from source {from_schema.source_file}; base_dir={base_dir}')
         schema = load_schema_wrap(sname + '.yaml', base_dir=base_dir)
         return schema
 
@@ -602,16 +602,7 @@ class SchemaView(object):
         :param strict: raise ValueError is not found
         :return: slot definition
         """
-        slot = self.all_slots(imports=imports, attributes=False).get(slot_name, None)
-        if slot is None and attributes:
-            for c in self.all_classes(imports=imports).values():
-                if slot_name in c.attributes:
-                    if slot is not None:
-                        # slot name is ambiguous: return a stub slot
-                        return SlotDefinition(slot_name)
-                    slot = copy(c.attributes[slot_name])
-                    slot.from_schema = c.from_schema
-                    slot.owner = c.name
+        slot = self.all_slots(imports=imports, attributes=attributes).get(slot_name, None)
         if strict and slot is None:
             raise ValueError(f'No such slot as "{slot_name}"')
         return slot
@@ -1294,6 +1285,26 @@ class SchemaView(object):
                 slots_nr.append(s)
         return slots_nr
 
+
+    @lru_cache(None)
+    def get_slot_by_class(self,
+                          slot_name: SLOT_NAME,
+                          class_name: CLASS_NAME = None,
+                          imports=True,
+                          mangle_name=False) -> SlotDefinition:
+        """
+        Given a slot, in the context of a particular class, yield a SlotDefinition specific to the class.
+
+        :param slot_name: slot to be queried
+        :param class_name: class used as context
+        :param imports: include imports closure
+        :param mangle_name: mangle the slot name
+        :return: dynamic slot constructed by inference using the slot_usage of the class with precedence
+
+
+
+        """
+
     @lru_cache(None)
     def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports=True,
                      mangle_name=False) -> SlotDefinition:
@@ -1315,27 +1326,37 @@ class SchemaView(object):
             cls = None
 
         # attributes take priority over schema-level slot definitions, IF
-        # the attributes is declared for the class or an ancestor
+        # the attribute is declared for the class or an ancestor
         slot_comes_from_attribute = False
         if cls:
+            induced_slot = SlotDefinition(slot_name)
+            # if a class is provided, first check if there is slot_usage on the class for the slot and apply it.
             slot = self.get_slot(slot_name, imports, attributes=False)
-            # traverse ancestors (reflexive), starting with
-            # the main class
+            # copy the slot, as it will be modified
+            logger.debug("induced_slot", induced_slot)
+            logger.debug("class slot usage", cls.slot_usage)
+            if slot_name in cls.slot_usage and slot_name is not None:
+                for meta_value in cls.slot_usage.get(slot_name):
+                    logger.debug("meta_value = ", meta_value)
+                    logger.debug("cls.slot_usage[slot_name][meta_value] = ", cls.slot_usage[slot_name][meta_value])
+                    setattr(induced_slot, meta_value, cls.slot_usage[slot_name][meta_value])
+
+            # check if the slot is an attribute of the class or an attribute of an ancestor class
+            # if it is, then set the slot metadata to the found attribute metadata, else break
             for an in self.class_ancestors(class_name):
                 a = self.get_class(an, imports)
                 if slot_name in a.attributes:
                     slot = a.attributes[slot_name]
                     slot_comes_from_attribute = True
                     break
+
         else:
             slot = self.get_slot(slot_name, imports, attributes=True)
+            induced_slot = SlotDefinition(slot_name)
 
         if slot is None:
             raise ValueError(f"No such slot {slot_name} as an attribute of {class_name} ancestors "
                              "or as a slot definition in the schema")
-
-        # copy the slot, as it will be modified
-        induced_slot = copy(slot)
         if not slot_comes_from_attribute:
             slot_anc_names = self.slot_ancestors(slot_name, reflexive=True)
             # inheritable slot: first propagate from ancestors
@@ -1371,7 +1392,7 @@ class SchemaView(object):
                     else:
                         if v2 is not None:
                             v = v2
-                            logging.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
+                            logger.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
             if v is None:
                 if metaslot_name == 'range':
                     v = self.schema.default_range
@@ -1532,10 +1553,10 @@ class SchemaView(object):
         Returns all applicable metamodel elements for a slot range
         (metamodel class names returned: class_definition, enum_definition, type_definition)
 
-        Typically any given slot has exactly one range, and one metamodel element type,
+        Typically, any given slot has exactly one range, and one metamodel element type,
         but a proposed feature in LinkML 1.2 is range expressions, where ranges can be defined as unions
 
-        Additionally, if linkml:Any is a class_uri then this maps to the any element
+        Additionally, if linkml:Any is a class_uri then this maps to any element
 
         :param slot:
         :return: list of element types
@@ -1560,7 +1581,7 @@ class SchemaView(object):
         """
         Returns all applicable ranges for a slot
 
-        Typically any given slot has exactly one range, and one metamodel element type,
+        Typically, any given slot has exactly one range, and one metamodel element type,
         but a proposed feature in LinkML 1.2 is range expressions, where ranges can be defined as unions
 
         :param slot:
