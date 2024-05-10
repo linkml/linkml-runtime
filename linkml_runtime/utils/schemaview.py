@@ -10,7 +10,6 @@ from typing import Mapping, Tuple, TypeVar
 import warnings
 
 from linkml_runtime.utils.namespaces import Namespaces
-from deprecated.classic import deprecated
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
@@ -216,7 +215,7 @@ class SchemaView(object):
             base_dir = os.path.dirname(from_schema.source_file)
         else:
             base_dir = None
-        logging.info(f'Importing {imp} as {sname} from source {from_schema.source_file}; base_dir={base_dir}')
+        logger.info(f'Importing {imp} as {sname} from source {from_schema.source_file}; base_dir={base_dir}')
         schema = load_schema_wrap(sname + '.yaml', base_dir=base_dir)
         return schema
 
@@ -1343,15 +1342,12 @@ class SchemaView(object):
             slot = self.get_slot(slot_name, imports, attributes=False)
             # copy the slot, as it will be modified
             induced_slot = copy(slot)
-            print("induced_slot", induced_slot)
-            print("induced_slot name = ", induced_slot.name)
-            print("class slot usage", cls.slot_usage)
+            logger.debug("induced_slot", induced_slot)
+            logger.debug("class slot usage", cls.slot_usage)
             if slot_name in cls.slot_usage and slot_name is not None:
                 for meta_value in cls.slot_usage.get(slot_name):
-                    print("meta_value = ", meta_value)
-                    print("slot_name = ", slot_name)
-                    print("cls.slot_usage[slot_name] = ", cls.slot_usage[slot_name])
-                    print("cls.slot_usage[slot_name][meta_value] = ", cls.slot_usage[slot_name][meta_value])
+                    logger.debug("meta_value = ", meta_value)
+                    logger.debug("cls.slot_usage[slot_name][meta_value] = ", cls.slot_usage[slot_name][meta_value])
                     setattr(induced_slot, meta_value, cls.slot_usage[slot_name][meta_value])
 
             # check if the slot is an attribute of the class or an attribute of an ancestor class
@@ -1390,19 +1386,11 @@ class SchemaView(object):
                 propagated_from = []
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
-                if metaslot_name == 'range':
-                    print(metaslot_name, " = metaslot_name")
-                    print(propagated_from, " = propagated_from")
             for an in reversed(propagated_from):
                 induced_slot.owner = an
                 a = self.get_class(an, imports)
                 anc_slot_usage = a.slot_usage.get(slot_name, {})
-                if metaslot_name == 'range':
-                    print(anc_slot_usage, " = anc_slot_usage")
                 v2 = getattr(anc_slot_usage, metaslot_name, None)
-                if metaslot_name == 'range':
-                    print("v2 = ", v2)
-                    print("v = ", v)
                 if v is None:
                     v = v2
                 else:
@@ -1412,7 +1400,7 @@ class SchemaView(object):
                     else:
                         if v2 is not None:
                             v = v2
-                            logging.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
+                            logger.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
             if v is None:
                 if metaslot_name == 'range':
                     v = self.schema.default_range

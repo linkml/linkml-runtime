@@ -677,12 +677,7 @@ class SchemaViewTestCase(unittest.TestCase):
         view = SchemaView(SCHEMA_WITH_IMPORTS)
         #pprint(view.induced_slot('has_input'))
         print(view.get_slot('has_input').range)
-        slotdef = view.induced_slot('has_input_2', 'Extraction')
-        print("range with induced", slotdef.range)
-        print("range_as_union no induction")
-        pprint(view.slot_range_as_union(view.get_slot('has_input')))
-        print("range_as_union with induction")
-        pprint(view.slot_range_as_union(slotdef))
+        assert view.induced_slot('has_input_2', 'Extraction') is not None
 
     def test_slot_inheritance(self):
         schema = SchemaDefinition(id='test', name='test')
