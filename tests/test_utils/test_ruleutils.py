@@ -26,9 +26,6 @@ class RuleUtilsTestCase(unittest.TestCase):
         disj = get_range_as_disjunction(analyte)
         #print(disj)
         self.assertCountEqual(disj, {'MissingValueEnum', 'AnalyteEnum'})
-        for s in view.all_slots().values():
-            disj = get_range_as_disjunction(s)
-            print(f'{s.name} DISJ: {disj}')
 
     def test_roll_up(self):
         # no import schema
@@ -36,9 +33,6 @@ class RuleUtilsTestCase(unittest.TestCase):
         c = view.get_class('ProteinCodingGene')
         rules = subclass_to_rules(view, 'ProteinCodingGene', 'SeqFeature')
         rule = rules[0]
-        print(f'IF: {rule.preconditions}')
-        print(f'THEN: {rule.postconditions}')
-        print(yaml_dumper.dumps(rule))
 
 
 
