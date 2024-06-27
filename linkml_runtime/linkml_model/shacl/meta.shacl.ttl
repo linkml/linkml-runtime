@@ -4643,7 +4643,7 @@ implicitly asserts Y is an instance of C2
             sh:order 105 ;
             sh:path skos:broadMatch ],
         [ sh:datatype xsd:string ;
-            sh:description """function that provides a default value for the slot.  Possible values for this slot are defined in linkml.utils.ifabsent_functions.default_library:
+            sh:description """function that provides a default value for the slot.
   * [Tt]rue -- boolean True
   * [Ff]alse -- boolean False
   * bnode -- blank node identifier
@@ -4654,7 +4654,8 @@ implicitly asserts Y is an instance of C2
   * int(value) -- integer value
   * slot_uri -- URI for the slot
   * slot_curie -- CURIE for the slot
-  * string(value) -- string value""" ;
+  * string(value) -- string value
+  * EnumName(PermissibleValue) -- enum value""" ;
             sh:maxCount 1 ;
             sh:order 7 ;
             sh:path linkml:ifabsent ],
