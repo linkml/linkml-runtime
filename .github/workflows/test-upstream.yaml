@@ -24,6 +24,9 @@ jobs:
           - python-version: "3.10"
             pydantic-version: "1"
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
 
     steps:
 
@@ -61,21 +64,32 @@ jobs:
           path: linkml/.venv
           key: venv-${{ matrix.python-version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      # make extra sure we're removing any old version of linkml-runtime that exists
-      - name: uninstall potentially cached linkml-runtime
-        working-directory: linkml
-        run: poetry run pip uninstall linkml-runtime
-
-      # we are not using linkml-runtime's lockfile, but simulating what will happen
-      # when we merge this and update linkml's lockfile
-      - name: add linkml-runtime to lockfile
-        working-directory: linkml
-        run: poetry add ../linkml-runtime
-
       # use correct pydantic version
       - name: install pydantic
         working-directory: linkml
         run: poetry add pydantic@^${{ matrix.pydantic-version }}
+
+      - name: remove potentially cached linkml-runtime version
+        working-directory: linkml
+        run: poetry run pip uninstall linkml-runtime -y
+
+      - name: get linkml-runtime short hash
+        working-directory: linkml-runtime
+        run: |
+          LINKML_RUNTIME_COMMIT=$(git rev-parse --short HEAD)
+          echo "LINKML_RUNTIME_COMMIT=$LINKML_RUNTIME_COMMIT" >> "$GITHUB_ENV"
+
+      # install the local version of linkml-runtime:
+      # we do this vs. pip --force-reinstall so that we keep linkml's locked deps
+      # and simulate what the lockfile will be after merging and relocking.
+      # we override the linkml-runtime version here according to poetry-dynamic-versioning:
+      # "The dynamic version is not available during poetry run or poetry shell because of a Poetry design choice that prevents the plugin from cleaning up after itself."
+      # and since linkml depends on a specific version of linkml-runtime, this would always fail
+      - name: add linkml-runtime to linkml's venv
+        working-directory: linkml
+        run: |
+          poetry self add "poetry-dynamic-versioning[plugin]"
+          POETRY_DYNAMIC_VERSIONING_OVERRIDE="linkml-runtime = 1.99.0+${{ env.LINKML_RUNTIME_COMMIT }}" poetry add ../linkml-runtime
 
       # note that we run the installation step always, even if we restore a venv,
       # the cache will restore the old version of linkml-runtime, but the lockfile
@@ -83,7 +97,7 @@ jobs:
       # the cache will still speedup the rest of the installation
       - name: install linkml
         working-directory: linkml
-        run: poetry install --no-interaction -E tests
+        run: poetry install --no-interaction --no-root -E tests
 
       - name: print linkml-runtime version
         working-directory: linkml
