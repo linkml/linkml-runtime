@@ -65,6 +65,7 @@ def test_format_paths(fmt):
     """Every format should have an entry in _Path"""
     assert fmt.name in _Path.items()
 
+
 def test_no_unmapped_dirs():
     """
     There should be no additional directories that don't have a mapping for Format.
@@ -109,7 +110,7 @@ def test_github_path_exists(source,fmt, release_type):
     'source,fmt',
     EXPECTED_FORMATS
 )
-def test_github_path_format(source,fmt, release_type):
+def test_github_path_format(source, fmt, release_type):
     if release_type == ReleaseTag.CURRENT:
         pytest.skip("Need to cache network requests for this")
 
@@ -118,6 +119,7 @@ def test_github_path_format(source,fmt, release_type):
     assert urlparse(url)
     # for windows...
     assert '\\' not in url
+
 
 @pytest.mark.skip("github paths largely unused")
 @pytest.mark.parametrize(
