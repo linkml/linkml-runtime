@@ -14,8 +14,18 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.8", "3.9", "3.10", "3.12"]
         exclude:
-        - os: windows-latest
-          python-version: "3.8"
+          # Test on Windows with only the oldest and newest Python versions
+          - os: windows-latest
+            python-version: "3.9"
+          - os: windows-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.11"
+
+    # See https://github.com/snok/install-poetry#running-on-windows
+    defaults:
+      run:
+        shell: bash
 
     runs-on: ${{ matrix.os }}
 
@@ -24,13 +34,13 @@ jobs:
       #----------------------------------------------
       #       check-out repo and set-up python
       #----------------------------------------------
+      - name: Install poetry
+        run: pipx install poetry==1.4.0
+
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Install poetry
-        run: pipx install poetry
 
       - name: Install dynamic versioning plugin
         run: poetry self add "poetry-dynamic-versioning[plugin]"
@@ -53,7 +63,7 @@ jobs:
       #----------------------------------------------
       - name: Generate coverage results
         run: |
-          poetry run coverage run -m pytest --with-slow
+          poetry run coverage run -m pytest
           poetry run coverage xml
           poetry run coverage report -m
         shell: bash
@@ -63,7 +73,7 @@ jobs:
       #----------------------------------------------
       - name: Upload coverage report
         if: github.repository == 'linkml/linkml-runtime'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
           name: codecov-results-${{ matrix.os }}-${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
