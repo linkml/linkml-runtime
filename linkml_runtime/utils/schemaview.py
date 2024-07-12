@@ -1374,6 +1374,7 @@ class SchemaView(object):
                             logging.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
             if v is None:
                 if metaslot_name == 'range':
+
                     v = self.schema.default_range
             if v is not None:
                 setattr(induced_slot, metaslot_name, v)
