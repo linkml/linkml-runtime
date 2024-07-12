@@ -49,7 +49,7 @@ jobs:
         run: poetry install --no-interaction --all-extras
 
       #----------------------------------------------
-      #              coverage report   
+      #              coverage report
       #----------------------------------------------
       - name: Generate coverage results
         run: |
@@ -62,6 +62,7 @@ jobs:
       #           upload coverage results
       #----------------------------------------------
       - name: Upload coverage report
+        if: github.repository == 'linkml/linkml-runtime'
         uses: codecov/codecov-action@v4
         with:
           name: codecov-results-${{ matrix.os }}-${{ matrix.python-version }}
