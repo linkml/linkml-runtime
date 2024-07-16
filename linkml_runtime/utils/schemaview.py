@@ -16,6 +16,8 @@ from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.exceptions import OrderingError
 from enum import Enum
+from linkml_runtime.linkml_model.meta import ClassDefinition, SlotDefinition, ClassDefinitionName
+from dataclasses import asdict, is_dataclass, fields
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +117,23 @@ class SchemaUsage():
     metaslot: SlotDefinitionName
     used: ElementName
     inferred: bool = None
+
+
+def to_dict(obj):
+    """
+    Convert a LinkML class (such as ClassDefinition) to a dictionary.
+
+    :param obj: The LinkML class instance to convert.
+    :return: A dictionary representation of the class.
+    """
+    if is_dataclass(obj):
+        return asdict(obj)
+    elif isinstance(obj, list):
+        return [to_dict(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: to_dict(value) for key, value in obj.items()}
+    else:
+        return obj
 
 
 @dataclass
@@ -579,6 +598,16 @@ class SchemaView(object):
                 for aname, a in c.attributes.items():
                     ix[aname] = schema.name
         return ix
+
+    @lru_cache(None)
+    def get_anonymous_class_expression(self, class_name: ElementName) -> AnonymousClassExpression:
+        """
+        :param class_name: name of the class to be retrieved
+        :return: class definition
+        """
+        class_element = self.get_class(class_name, imports=True, strict=True)
+
+        return AnonymousClassExpression(class_element)
 
     @lru_cache(None)
     def get_class(self, class_name: CLASS_NAME, imports=True, strict=False) -> ClassDefinition:
@@ -1376,8 +1405,16 @@ class SchemaView(object):
                     if anc_slot_usage != {}:
                         for x in anc_slot_usage.exactly_one_of + anc_slot_usage.any_of:
                             if x.range:
-                                if self.get_class(x.range) not in union_range:
-                                    union_range.append(self.get_class(x.range))
+                                class_as_dict = to_dict(self.get_class(x.range))
+                                an_expr = AnonymousClassExpression()
+                                valid_fields = {field.name for field in fields(an_expr)}
+                                for k, v in class_as_dict.items():
+                                    if k in valid_fields:
+                                        setattr(an_expr, k, v)
+                                for k, v in class_as_dict.items():
+                                    setattr(an_expr, k, v)
+                                if an_expr not in union_range:
+                                    union_range.append(an_expr)
                 if v is None:
                     v = v2
                 else:
