@@ -1342,7 +1342,9 @@ class SchemaView(object):
             for anc_sn in reversed(slot_anc_names):
                 anc_slot = self.get_slot(anc_sn, attributes=False)
                 for metaslot_name in SlotDefinition._inherited_slots:
+                    # getattr(x, 'y') is equivalent to x.y. None here means raise an error if x.y is not found
                     if getattr(anc_slot, metaslot_name, None):
+                        # setattr(x, 'y', v) is equivalent to ``x.y = v''
                         setattr(induced_slot, metaslot_name, copy(getattr(anc_slot, metaslot_name)))
         COMBINE = {
             'maximum_value': lambda x, y: min(x, y),
@@ -1350,6 +1352,7 @@ class SchemaView(object):
         }
         # iterate through all metaslots, and potentially populate metaslot value for induced slot
         for metaslot_name in self._metaslots_for_slot():
+
             # inheritance of slots; priority order
             #   slot-level assignment < ancestor slot_usage < self slot_usage
             v = getattr(induced_slot, metaslot_name, None)
@@ -1357,11 +1360,24 @@ class SchemaView(object):
                 propagated_from = []
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
+            union_range = []
             for an in reversed(propagated_from):
                 induced_slot.owner = an
                 a = self.get_class(an, imports)
+                # slot usage of the slot in the ancestor class, last ancestor iterated through here is "self"
+                # so that self.slot_usage overrides ancestor slot_usage at the conclusion of the loop.
                 anc_slot_usage = a.slot_usage.get(slot_name, {})
+                # slot name in the ancestor class
+                # getattr(x, 'y') is equivalent to x.y. None here means raise an error if x.y is not found
                 v2 = getattr(anc_slot_usage, metaslot_name, None)
+                # v2 is the value of the metaslot in slot_usage in the ancestor class, which in the loop, means that
+                # the class itself is the last slot_usage to be considered and applied.
+                if metaslot_name in ["any_of", "exactly_one_of"]:
+                    if anc_slot_usage != {}:
+                        for x in anc_slot_usage.exactly_one_of + anc_slot_usage.any_of:
+                            if x.range:
+                                if self.get_class(x.range) not in union_range:
+                                    union_range.append(self.get_class(x.range))
                 if v is None:
                     v = v2
                 else:
@@ -1371,12 +1387,13 @@ class SchemaView(object):
                     else:
                         if v2 is not None:
                             v = v2
-                            logging.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
             if v is None:
                 if metaslot_name == 'range':
                     v = self.schema.default_range
             if v is not None:
                 setattr(induced_slot, metaslot_name, v)
+            if union_range:
+                setattr(induced_slot, 'range_expression', union_range)
         if slot.inlined_as_list:
             slot.inlined = True
         if slot.identifier or slot.key:
@@ -1560,7 +1577,7 @@ class SchemaView(object):
         """
         Returns all applicable ranges for a slot
 
-        Typically any given slot has exactly one range, and one metamodel element type,
+        Typically, any given slot has exactly one range, and one metamodel element type,
         but a proposed feature in LinkML 1.2 is range expressions, where ranges can be defined as unions
 
         :param slot:
