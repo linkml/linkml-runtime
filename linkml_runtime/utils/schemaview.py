@@ -136,6 +136,17 @@ def to_dict(obj):
         return obj
 
 
+def get_anonymous_class_definition(class_as_dict):
+    an_expr = AnonymousClassExpression()
+    valid_fields = {field.name for field in fields(an_expr)}
+    for k, v in class_as_dict.items():
+        if k in valid_fields:
+            setattr(an_expr, k, v)
+    for k, v in class_as_dict.items():
+        setattr(an_expr, k, v)
+    return an_expr
+
+
 @dataclass
 class SchemaView(object):
     """
@@ -598,16 +609,6 @@ class SchemaView(object):
                 for aname, a in c.attributes.items():
                     ix[aname] = schema.name
         return ix
-
-    @lru_cache(None)
-    def get_anonymous_class_expression(self, class_name: ElementName) -> AnonymousClassExpression:
-        """
-        :param class_name: name of the class to be retrieved
-        :return: class definition
-        """
-        class_element = self.get_class(class_name, imports=True, strict=True)
-
-        return AnonymousClassExpression(class_element)
 
     @lru_cache(None)
     def get_class(self, class_name: CLASS_NAME, imports=True, strict=False) -> ClassDefinition:
@@ -1406,13 +1407,7 @@ class SchemaView(object):
                         for x in anc_slot_usage.exactly_one_of + anc_slot_usage.any_of:
                             if x.range:
                                 class_as_dict = to_dict(self.get_class(x.range))
-                                an_expr = AnonymousClassExpression()
-                                valid_fields = {field.name for field in fields(an_expr)}
-                                for k, v in class_as_dict.items():
-                                    if k in valid_fields:
-                                        setattr(an_expr, k, v)
-                                for k, v in class_as_dict.items():
-                                    setattr(an_expr, k, v)
+                                an_expr = get_anonymous_class_definition(class_as_dict)
                                 if an_expr not in union_range:
                                     union_range.append(an_expr)
                 if v is None:
@@ -1444,6 +1439,11 @@ class SchemaView(object):
             if induced_slot.name in c.slots or induced_slot.name in c.attributes:
                 if c.name not in induced_slot.domain_of:
                     induced_slot.domain_of.append(c.name)
+        if induced_slot.range is not None and induced_slot.range_expression is None:
+            class_as_dict = to_dict(self.get_class(induced_slot.range))
+            an_expr = get_anonymous_class_definition(class_as_dict)
+            induced_slot.range_expression = [an_expr]
+
         return induced_slot
 
     @lru_cache(None)

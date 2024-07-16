@@ -34,24 +34,14 @@ AGE_IN_YEARS = 'age in years'
 def test_induced_range():
     view = SchemaView(SCHEMA_WITH_IMPORTS)
     rangers = view.induced_slot('related to', 'Alien').range_expression
-    print("class name: Alien")
-    if rangers:
-        for ranger in rangers:
-            print(ranger.name)
+    assert rangers is not None
+    assert len(rangers) == 2
+    ranger_names = []
+    for ranger in rangers:
+        ranger_names.append(ranger.name)
+    assert ranger_names == ['Person', 'Alien']
     rangers = view.induced_slot('related to', 'Person').range_expression
-    print("class name: Person")
-    if rangers:
-        for ranger in rangers:
-            print(ranger.name)
-    else:
-        print(view.induced_slot('related to', 'Person').range)
-    print("class name: FamilialRelationship")
-    rangers = view.induced_slot('related to', 'FamilialRelationship').range_expression
-    if rangers:
-        for ranger in rangers:
-            print(ranger.name)
-    else:
-        print(view.induced_slot('related to', 'FamilialRelationship').range)
+    assert rangers is not None
 
 
 def test_children_method():
