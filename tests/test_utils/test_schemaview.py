@@ -1,12 +1,10 @@
 import os
-import unittest
-from pprint import pprint
+
 import logging
 from copy import copy
 from pathlib import Path
-from typing import List
 import pytest 
-from unittest import TestCase
+
 
 from linkml_runtime.dumpers import yaml_dumper
 from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
@@ -32,17 +30,35 @@ RELATED_TO = 'related to'
 AGE_IN_YEARS = 'age in years'
 
 
-def test_induced_range():
+def test_induced_range_expression_with_range():
     view = SchemaView(SCHEMA_WITH_IMPORTS)
     rangers = view.induced_slot('related to', 'Alien').range_expression.any_of
     assert rangers is not None
-    assert len(rangers) == 2
-    ranger_names = []
-    for ranger in rangers:
-        ranger_names.append(ranger.name)
-    assert ranger_names == ['Person', 'Alien']
-    rangers = view.induced_slot('related to', 'Person').range_expression.any_of
+    assert len(rangers) == 3
+    ranger_names = [ranger.name for ranger in rangers]
+    expected_names = ['Alien', 'Person', 'FamilialRelationship']
+    assert sorted(ranger_names) == sorted(expected_names)
+
+
+def test_induced_range_only_range():
+    view = SchemaView(SCHEMA_WITH_IMPORTS)
+    rangers = view.induced_slot('related to', 'Martian').range_expression.any_of
     assert rangers is not None
+    assert len(rangers) == 1
+    ranger_names = []
+    ranger_names = [ranger.name for ranger in rangers]
+    expected_names = ['Alien']
+    assert sorted(ranger_names) == sorted(expected_names)
+
+
+def test_induced_range_only_range_expression():
+    view = SchemaView(SCHEMA_WITH_IMPORTS)
+    rangers = view.induced_slot('related to', 'Venetian').range_expression.any_of
+    assert rangers is not None
+    ranger_names = [ranger.name for ranger in rangers]
+    expected_names = ['Alien', 'Person']
+    assert sorted(ranger_names) == sorted(expected_names)
+    assert len(rangers) == 2
 
 
 def test_children_method():

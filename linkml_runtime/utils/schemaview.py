@@ -1392,7 +1392,6 @@ class SchemaView(object):
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
 
-            an_expr = AnonymousClassExpression()
             for an in reversed(propagated_from):
                 induced_slot.owner = an
                 a = self.get_class(an, imports)
@@ -1418,7 +1417,6 @@ class SchemaView(object):
                                     # Check for duplicates before appending
                                     if acd not in induced_slot.range_expression.any_of:
                                         induced_slot.range_expression.any_of.append(acd)
-
                         for eoo in anc_slot_usage.exactly_one_of:
                             if eoo.range is not None:
                                 eoo_range = self.get_class(eoo.range)
@@ -1457,16 +1455,31 @@ class SchemaView(object):
             if induced_slot.name in c.slots or induced_slot.name in c.attributes:
                 if c.name not in induced_slot.domain_of:
                     induced_slot.domain_of.append(c.name)
-        # not sure what the logic should be here; should range_expression hold standard ranges in the anyOf slot
-        # to make usage easier?  or is this an exercise for the user to unionize slot.range and
-        # slot.range_expression.anyOf?
-        if induced_slot.range is not None and induced_slot.range_expression is None:
-            induced_slot.range_expression = AnonymousClassExpression()
-            induced_slot.range_expression.any_of = [
-                get_anonymous_class_definition(to_dict(self.get_class(induced_slot.range)))
-            ]
+        if induced_slot.range is not None:
+            if induced_slot.range_expression is None:
+                induced_slot.range_expression = AnonymousClassExpression()
+                induced_slot.range_expression.any_of = []
+                induced_slot.range_expression.any_of.append(
+                    get_anonymous_class_definition(to_dict(self.get_class(induced_slot.range)))
+                )
+                return induced_slot
+            else:
+                any_of_ancestors = []
+                if induced_slot.range_expression.any_of is not None:
+                    for ao_range in induced_slot.range_expression.any_of:
+                        ao_range_class = self.get_class(ao_range.name)
+                        ao_anc = self.class_ancestors(ao_range_class.name)
+                        for a in ao_anc:
+                            if a not in any_of_ancestors:
+                                any_of_ancestors.append(a)
+                if induced_slot.range in any_of_ancestors:
+                    return induced_slot
+                else:
+                    induced_slot.range_expression.any_of.append(
+                        get_anonymous_class_definition(to_dict(self.get_class(induced_slot.range)))
+                    )
+                return induced_slot
         return induced_slot
-
     @lru_cache(None)
     def _metaslots_for_slot(self):
         fake_slot = SlotDefinition('__FAKE')
