@@ -1,5 +1,6 @@
 import os
 import unittest
+from pprint import pprint
 import logging
 from copy import copy
 from pathlib import Path
@@ -33,14 +34,14 @@ AGE_IN_YEARS = 'age in years'
 
 def test_induced_range():
     view = SchemaView(SCHEMA_WITH_IMPORTS)
-    rangers = view.induced_slot('related to', 'Alien').range_expression
+    rangers = view.induced_slot('related to', 'Alien').range_expression.any_of
     assert rangers is not None
     assert len(rangers) == 2
     ranger_names = []
     for ranger in rangers:
         ranger_names.append(ranger.name)
     assert ranger_names == ['Person', 'Alien']
-    rangers = view.induced_slot('related to', 'Person').range_expression
+    rangers = view.induced_slot('related to', 'Person').range_expression.any_of
     assert rangers is not None
 
 

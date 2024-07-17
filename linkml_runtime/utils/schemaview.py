@@ -8,6 +8,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Mapping, Tuple, TypeVar
 import warnings
+from pprint import pprint
 
 from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
@@ -1390,7 +1391,8 @@ class SchemaView(object):
                 propagated_from = []
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
-            union_range = []
+
+            an_expr = AnonymousClassExpression()
             for an in reversed(propagated_from):
                 induced_slot.owner = an
                 a = self.get_class(an, imports)
@@ -1404,12 +1406,30 @@ class SchemaView(object):
                 # the class itself is the last slot_usage to be considered and applied.
                 if metaslot_name in ["any_of", "exactly_one_of"]:
                     if anc_slot_usage != {}:
-                        for x in anc_slot_usage.exactly_one_of + anc_slot_usage.any_of:
-                            if x.range:
-                                class_as_dict = to_dict(self.get_class(x.range))
-                                an_expr = get_anonymous_class_definition(class_as_dict)
-                                if an_expr not in union_range:
-                                    union_range.append(an_expr)
+                        for ao in anc_slot_usage.any_of:
+                            if ao.range is not None:
+                                ao_range = self.get_class(ao.range)
+                                if ao_range:
+                                    acd = get_anonymous_class_definition(to_dict(ao_range))
+                                    if induced_slot.range_expression is None:
+                                        induced_slot.range_expression = AnonymousClassExpression()
+                                    if induced_slot.range_expression.any_of is None:
+                                        induced_slot.range_expression.any_of = []
+                                    # Check for duplicates before appending
+                                    if acd not in induced_slot.range_expression.any_of:
+                                        induced_slot.range_expression.any_of.append(acd)
+
+                        for eoo in anc_slot_usage.exactly_one_of:
+                            if eoo.range is not None:
+                                eoo_range = self.get_class(eoo.range)
+                                acd = get_anonymous_class_definition(as_dict(eoo_range))
+                                if induced_slot.range_expression is None:
+                                    induced_slot.range_expression = AnonymousClassExpression()
+                                if induced_slot.range_expression.exactly_one_of is None:
+                                    induced_slot.range_expression.exactly_one_of = []
+                                # Check for duplicates before appending
+                                if acd not in induced_slot.range_expression.exactly_one_of:
+                                    induced_slot.range_expression.exactly_one_of.append(acd)
                 if v is None:
                     v = v2
                 else:
@@ -1424,8 +1444,6 @@ class SchemaView(object):
                     v = self.schema.default_range
             if v is not None:
                 setattr(induced_slot, metaslot_name, v)
-            if union_range:
-                setattr(induced_slot, 'range_expression', union_range)
         if slot.inlined_as_list:
             slot.inlined = True
         if slot.identifier or slot.key:
@@ -1439,11 +1457,14 @@ class SchemaView(object):
             if induced_slot.name in c.slots or induced_slot.name in c.attributes:
                 if c.name not in induced_slot.domain_of:
                     induced_slot.domain_of.append(c.name)
+        # not sure what the logic should be here; should range_expression hold standard ranges in the anyOf slot
+        # to make usage easier?  or is this an exercise for the user to unionize slot.range and
+        # slot.range_expression.anyOf?
         if induced_slot.range is not None and induced_slot.range_expression is None:
-            class_as_dict = to_dict(self.get_class(induced_slot.range))
-            an_expr = get_anonymous_class_definition(class_as_dict)
-            induced_slot.range_expression = [an_expr]
-
+            induced_slot.range_expression = AnonymousClassExpression()
+            induced_slot.range_expression.any_of = [
+                get_anonymous_class_definition(to_dict(self.get_class(induced_slot.range)))
+            ]
         return induced_slot
 
     @lru_cache(None)
