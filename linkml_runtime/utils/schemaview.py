@@ -122,7 +122,7 @@ class SchemaUsage():
 
 def to_dict(obj):
     """
-    Convert a LinkML class (such as ClassDefinition) to a dictionary.
+    Convert a LinkML element (such as ClassDefinition) to a dictionary.
 
     :param obj: The LinkML class instance to convert.
     :return: A dictionary representation of the class.
