@@ -1324,7 +1324,7 @@ class SchemaView(object):
         # attributes take priority over schema-level slot definitions, IF
         # the attributes is declared for the class or an ancestor
         slot_comes_from_attribute = False
-        if cls:
+        if cls is not None:
             slot = self.get_slot(slot_name, imports, attributes=False)
             # traverse ancestors (reflexive), starting with
             # the main class
@@ -1343,6 +1343,8 @@ class SchemaView(object):
 
         # copy the slot, as it will be modified
         induced_slot = copy(slot)
+
+        # propagate inheritable_slots from ancestors
         if not slot_comes_from_attribute:
             slot_anc_names = self.slot_ancestors(slot_name, reflexive=True)
             # inheritable slot: first propagate from ancestors
@@ -1351,44 +1353,49 @@ class SchemaView(object):
                 for metaslot_name in SlotDefinition._inherited_slots:
                     if getattr(anc_slot, metaslot_name, None):
                         setattr(induced_slot, metaslot_name, copy(getattr(anc_slot, metaslot_name)))
+
         COMBINE = {
             'maximum_value': lambda x, y: min(x, y),
             'minimum_value': lambda x, y: max(x, y),
         }
-        # iterate through all metaslots, and potentially populate metaslot value for induced slot
-        for metaslot_name in self._metaslots_for_slot():
-            # inheritance of slots; priority order
-            #   slot-level assignment < ancestor slot_usage < self slot_usage
-            v = getattr(induced_slot, metaslot_name, None)
-            if not cls:
-                propagated_from = []
-            else:
-                propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
+        # update slot_usage from ancestor classes if we have them
+        # gather slot_usage and assign at the end since setattr is slow in jsonasobj2
+        if cls is not None:
+            slot_usage = {}
+            propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
+            induced_slot.owner = propagated_from[0]
+
             for an in reversed(propagated_from):
-                induced_slot.owner = an
-                a = self.get_class(an, imports)
-                anc_slot_usage = a.slot_usage.get(slot_name, {})
-                v2 = getattr(anc_slot_usage, metaslot_name, None)
-                if v is None:
-                    v = v2
-                else:
-                    if metaslot_name in COMBINE:
-                        if v2 is not None:
-                            v = COMBINE[metaslot_name](v, v2)
-                    else:
-                        if v2 is not None:
-                            v = v2
-                            logging.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
-            if v is None:
-                if metaslot_name == 'range':
-                    v = self.schema.default_range
-            if v is not None:
-                setattr(induced_slot, metaslot_name, v)
-        if slot.inlined_as_list:
-            slot.inlined = True
-        if slot.identifier or slot.key:
-            slot.required = True
-        if mangle_name:
+                parent_class = self.get_class(an, imports)
+                parent_slot_usage = parent_class.slot_usage.get(slot_name, None)
+                if parent_slot_usage is None:
+                    continue
+                elif isinstance(parent_slot_usage, SlotDefinition):
+                    parent_slot_usage = parent_slot_usage._as_dict()
+
+                # make any values that combine values from ancestry layers
+                combines = {}
+                for combine_key, combine_func in COMBINE.items():
+                    if combine_key in parent_slot_usage:
+                        cmp_val = slot_usage.get(combine_key, getattr(induced_slot, combine_key, None))
+                        if cmp_val is not None:
+                            combines[combine_key] = combine_func(cmp_val, parent_slot_usage[combine_key])
+
+                slot_usage.update(parent_slot_usage)
+                slot_usage.update(combines)
+
+            for k,v in slot_usage.items():
+                setattr(induced_slot, k, v)
+
+        # Set any values that need to take on defaults that aren't explicit in the metamodel
+        if induced_slot.range is None:
+            induced_slot.range = self.schema.default_range
+
+        if induced_slot.inlined_as_list:
+            induced_slot.inlined = True
+        if induced_slot.identifier or induced_slot.key:
+            induced_slot.required = True
+        if mangle_name and class_name:
             mangled_name = f'{camelcase(class_name)}__{underscore(slot_name)}'
             induced_slot.name = mangled_name
         if not induced_slot.alias:
