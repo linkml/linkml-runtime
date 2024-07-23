@@ -1343,7 +1343,7 @@ class SchemaView(object):
                              "or as a slot definition in the schema")
 
         # copy the slot, as it will be modified
-        induced_slot = copy(slot)
+        induced_slot = deepcopy(slot)
 
         # propagate inheritable_slots from ancestors
         if not slot_comes_from_attribute:
