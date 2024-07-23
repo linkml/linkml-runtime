@@ -12,6 +12,7 @@ import warnings
 from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
+from linkml_runtime.utils.formatutils import remove_empty_items
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.exceptions import OrderingError
@@ -1371,7 +1372,7 @@ class SchemaView(object):
                 if parent_slot_usage is None:
                     continue
                 elif isinstance(parent_slot_usage, SlotDefinition):
-                    parent_slot_usage = parent_slot_usage._as_dict()
+                    parent_slot_usage = remove_empty_items(parent_slot_usage)
 
                 # make any values that combine values from ancestry layers
                 combines = {}
@@ -1384,17 +1385,30 @@ class SchemaView(object):
                 slot_usage.update(parent_slot_usage)
                 slot_usage.update(combines)
 
-            for k,v in slot_usage.items():
-                setattr(induced_slot, k, v)
+            # cast back to a SlotDefinition and assign from that, since it handles
+            # nested types like any_of, one_of, etc., but the dict form lets us avoid
+            # overriding with unset keys
+            if 'name' in slot_usage:
+                usage_name = slot_usage.pop('name')
+                setattr(induced_slot, 'name', usage_name)
+            else:
+                usage_name = induced_slot.name
+            slot_usage_obj = SlotDefinition(name=usage_name, **slot_usage)
+            for k in slot_usage:
+                setattr(induced_slot, k, copy(getattr(slot_usage_obj, k)))
 
         # Set any values that need to take on defaults that aren't explicit in the metamodel
         if induced_slot.range is None:
             induced_slot.range = self.schema.default_range
 
-        if induced_slot.inlined_as_list:
-            induced_slot.inlined = True
-        if induced_slot.identifier or induced_slot.key:
-            induced_slot.required = True
+        # if induced_slot.inlined_as_list:
+        #     induced_slot.inlined = True
+        # if induced_slot.identifier or induced_slot.key:
+        #     induced_slot.required = True
+        if slot.inlined_as_list:
+            slot.inlined = True
+        if slot.identifier or slot.key:
+            slot.required = True
         if mangle_name and class_name:
             mangled_name = f'{camelcase(class_name)}__{underscore(slot_name)}'
             induced_slot.name = mangled_name
