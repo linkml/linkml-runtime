@@ -1,4 +1,5 @@
 import os
+import pdb
 import uuid
 import logging
 import collections
@@ -12,7 +13,7 @@ import warnings
 from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
-from linkml_runtime.utils.formatutils import remove_empty_items
+from linkml_runtime.utils.formatutils import is_empty, remove_empty_items
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.exceptions import OrderingError
@@ -602,7 +603,7 @@ class SchemaView(object):
             return c
 
     @lru_cache(None)
-    def get_slot(self, slot_name: SLOT_NAME, imports=True, attributes=True, strict=False) -> SlotDefinition:
+    def get_slot(self, slot_name: SLOT_NAME, imports=True, attributes=True, strict=False) -> Optional[SlotDefinition]:
         """
         :param slot_name: name of the slot to be retrieved
         :param imports: include import closure
@@ -622,6 +623,11 @@ class SchemaView(object):
                     slot.owner = c.name
         if strict and slot is None:
             raise ValueError(f'No such slot as "{slot_name}"')
+        if slot is not None:
+            if slot.inlined_as_list:
+                slot.inlined = True
+            if slot.identifier or slot.key:
+                slot.required = True
         return slot
 
     @lru_cache(None)
@@ -1303,14 +1309,17 @@ class SchemaView(object):
         return slots_nr
 
     @lru_cache(None)
-    def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports=True,
+    def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports: bool = True,
                      mangle_name=False) -> SlotDefinition:
         """
         Given a slot, in the context of a particular class, yield a dynamic SlotDefinition that
         has all properties materialized.
 
         This makes use of schema slots, such as attributes, slot_usage. It also uses ancestor relationships
-        to infer missing values, for inheritable slots
+        to infer missing values, for inheritable slots.
+
+        Creates a new SlotDefinition object, so ``sv.induced_slot(slot) is sv.get_slot(slot)``
+        will always be ``False`` .
 
         :param slot_name: slot to be queries
         :param class_name: class used as context
@@ -1318,106 +1327,128 @@ class SchemaView(object):
         :return: dynamic slot constructed by inference
         """
         if class_name:
-            cls = self.get_class(class_name, imports, strict=True)
+            induced_slot = self._induced_attribute(slot_name=slot_name, class_name=class_name, imports=imports)
         else:
-            cls = None
+            induced_slot = self._induced_slot(slot_name=slot_name, imports=imports)
+            if induced_slot is None:
+                # try to get it from the attributes of whatever class we find first
+                attr = self.get_slot(slot_name=slot_name, imports=imports, attributes=True)
+                induced_slot = self._induced_attribute(attr.name, class_name=attr.owner, imports=imports)
 
-        # attributes take priority over schema-level slot definitions, IF
-        # the attributes is declared for the class or an ancestor
-        slot_comes_from_attribute = False
-        if cls is not None:
-            slot = self.get_slot(slot_name, imports, attributes=False)
-            # traverse ancestors (reflexive), starting with
-            # the main class
-            for an in self.class_ancestors(class_name):
-                a = self.get_class(an, imports)
-                if slot_name in a.attributes:
-                    slot = a.attributes[slot_name]
-                    slot_comes_from_attribute = True
-                    break
-        else:
-            slot = self.get_slot(slot_name, imports, attributes=True)
-
-        if slot is None:
+        if induced_slot is None:
             raise ValueError(f"No such slot {slot_name} as an attribute of {class_name} ancestors "
                              "or as a slot definition in the schema")
 
-        # copy the slot, as it will be modified
-        induced_slot = SlotDefinition(**{k:v for k,v in slot.__dict__.items() if v})
+        # Set any values that need to take on defaults that aren't explicit in the metamodel
+        if 'range' not in induced_slot:
+            induced_slot['range'] = self.schema.default_range
+        if 'alias' not in induced_slot:
+            induced_slot['alias'] = underscore(slot_name)
+
+        # Set values based on logical conditions of the induced_slot
+        if induced_slot.get('inlined_as_list', False):
+            induced_slot['inlined'] = True
+        if induced_slot.get('identifier', False) or induced_slot.get('key', False):
+            induced_slot['required'] = True
+
+        # final modifications outside of schema declaration
+        if mangle_name and class_name:
+            induced_slot['name'] = f'{camelcase(class_name)}__{underscore(slot_name)}'
+
+        # set the domain of the slot
+        # FIXME: this is inaccurate because classes can inherit slots and attrs
+        # return when induced_classes is recursive and it's cheap to get a fully hydrated class
+        induced_slot['domain_of'] = []
+        for c in self.all_classes().values():
+            if induced_slot['name'] in c.slots or induced_slot['name'] in c.attributes:
+                if c.name not in induced_slot['domain_of']:
+                    induced_slot['domain_of'].append(c.name)
+
+        induced_slot = SlotDefinition(**induced_slot)
+
+        return induced_slot
+
+    @lru_cache(None)
+    def _induced_slot(self, slot_name: SLOT_NAME, imports: bool =True) -> Optional[dict]:
+        """
+        induced_slot when class_name is None - schema-level slot definitions only
+        """
+        slot = self.get_slot(slot_name, imports, attributes=False)
+        if slot is None:
+            return slot
 
         # propagate inheritable_slots from ancestors
-        if not slot_comes_from_attribute:
-            slot_anc_names = self.slot_ancestors(slot_name, reflexive=True)
-            # inheritable slot: first propagate from ancestors
-            for anc_sn in reversed(slot_anc_names):
-                anc_slot = self.get_slot(anc_sn, attributes=False)
-                for metaslot_name in SlotDefinition._inherited_slots:
-                    if getattr(anc_slot, metaslot_name, None):
-                        setattr(induced_slot, metaslot_name, copy(getattr(anc_slot, metaslot_name)))
+        # recursively propagate from n+1 layer up
+        induced_slot = {}
+        parent_names = self.slot_parents(slot_name=slot_name, imports=imports, mixins=True, is_a=True)
+        for parent_name in reversed(parent_names):
+            induced_parent = copy(self._induced_slot(parent_name, imports=imports))
+            induced_slot.update({k:v for k,v in induced_parent.items() if k in SlotDefinition._inherited_slots})
+
+        # apply props set on this slot last
+        induced_slot.update({k: v for k, v in slot.__dict__.items() if not is_empty(v)})
+        return induced_slot
+
+    @lru_cache(None)
+    def _induced_attribute(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None,
+                           imports=True) -> Optional[dict]:
+        """
+        induced_slot when class_name is given - could be either an attribute or a schema-level slot definition
+        """
+        cls = self.get_class(class_name, imports, strict=True)
+        class_ancestor_names = self.class_ancestors(class_name, imports=imports, reflexive=True,
+                                                    mixins=True)
+        class_parent_names = self.class_parents(class_name=class_name, imports=imports, mixins=True, is_a=True)
+        class_ancestors = [self.get_class(name, imports=imports) for name in class_ancestor_names]
+
+        # attributes take priority over schema-level slot definitions, IF
+        # the attributes is declared for the class or an ancestor
+        attribute = None
+        for ancestor in class_ancestors:
+            if slot_name in ancestor.attributes:
+                attribute = ancestor.attributes[slot_name]
+                break
+
+        if attribute is None:
+            induced_slot = copy(self._induced_slot(slot_name=slot_name, imports=imports))
+            if induced_slot is None:
+                return induced_slot
+        else:
+            # we'll update from the values of this attribute at the end
+            induced_slot = {}
 
         COMBINE = {
             'maximum_value': lambda x, y: min(x, y),
             'minimum_value': lambda x, y: max(x, y),
         }
-        # update slot_usage from ancestor classes if we have them
-        # gather slot_usage and assign at the end since setattr is slow in jsonasobj2
-        if cls is not None:
-            slot_usage = {}
-            propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
-            induced_slot.owner = propagated_from[0]
+        # update recursively from parent classes
+        for parent_name in reversed(class_parent_names):
+            induced_parent = copy(self._induced_attribute(slot_name=slot_name, class_name=parent_name, imports=imports))
+            if induced_parent is None:
+                continue
+            # even tho parent should already be completed,
+            # merge values here too since we can have multiple parents via mixins
+            for combine_key, combine_func in COMBINE.items():
+                if (src_val := induced_slot.get(combine_key, None)) and (parent_val := induced_parent.get(combine_key, None)):
+                    induced_parent[combine_key] = combine_func(src_val, parent_val)
+            induced_slot.update(induced_parent)
 
-            for an in reversed(propagated_from):
-                parent_class = self.get_class(an, imports)
-                parent_slot_usage = parent_class.slot_usage.get(slot_name, None)
-                if parent_slot_usage is None:
-                    continue
-                elif isinstance(parent_slot_usage, SlotDefinition):
-                    parent_slot_usage = remove_empty_items(parent_slot_usage)
+        # now update from values set in this class on an attribute
+        if attribute is not None:
+            induced_slot.update({k: v for k, v in attribute.__dict__.items() if not is_empty(v)})
 
-                # make any values that combine values from ancestry layers
-                combines = {}
-                for combine_key, combine_func in COMBINE.items():
-                    if combine_key in parent_slot_usage:
-                        cmp_val = slot_usage.get(combine_key, getattr(induced_slot, combine_key, None))
-                        if cmp_val is not None:
-                            combines[combine_key] = combine_func(cmp_val, parent_slot_usage[combine_key])
+        # update from any slot_usage from this class
+        if slot_usage := cls.slot_usage.get(slot_name, None):
+            if isinstance(slot_usage, SlotDefinition):
+                slot_usage = remove_empty_items(slot_usage)
 
-                slot_usage.update(parent_slot_usage)
-                slot_usage.update(combines)
+            # merge any fields that need to be merged for monotonicity reazons
+            for combine_key, combine_func in COMBINE.items():
+                if (src_val := induced_slot.get(combine_key, None)) and (parent_val := slot_usage.get(combine_key, None)):
+                    slot_usage[combine_key] = combine_func(src_val, parent_val)
 
-            # cast back to a SlotDefinition and assign from that, since it handles
-            # nested types like any_of, one_of, etc., but the dict form lets us avoid
-            # overriding with unset keys
-            if 'name' in slot_usage:
-                usage_name = slot_usage.pop('name')
-                setattr(induced_slot, 'name', usage_name)
-            else:
-                usage_name = induced_slot.name
-            slot_usage_obj = SlotDefinition(name=usage_name, **slot_usage)
-            for k in slot_usage:
-                setattr(induced_slot, k, copy(getattr(slot_usage_obj, k)))
+            induced_slot.update(slot_usage)
 
-        # Set any values that need to take on defaults that aren't explicit in the metamodel
-        if induced_slot.range is None:
-            induced_slot.range = self.schema.default_range
-
-        # if induced_slot.inlined_as_list:
-        #     induced_slot.inlined = True
-        # if induced_slot.identifier or induced_slot.key:
-        #     induced_slot.required = True
-        if slot.inlined_as_list:
-            slot.inlined = True
-        if slot.identifier or slot.key:
-            slot.required = True
-        if mangle_name and class_name:
-            mangled_name = f'{camelcase(class_name)}__{underscore(slot_name)}'
-            induced_slot.name = mangled_name
-        if not induced_slot.alias:
-            induced_slot.alias = underscore(slot_name)
-        for c in self.all_classes().values():
-            if induced_slot.name in c.slots or induced_slot.name in c.attributes:
-                if c.name not in induced_slot.domain_of:
-                    induced_slot.domain_of.append(c.name)
         return induced_slot
 
     @lru_cache(None)
