@@ -39,6 +39,9 @@ def test_induced_range_expression_with_range():
     expected_names = ['Alien', 'Person', 'FamilialRelationship']
     assert sorted(ranger_names) == sorted(expected_names)
 
+    # slot.range still is the default specified in the SlotDefinition.......
+    assert view.get_slot('related to').range == "Thing"
+
 
 def test_induced_range_only_range():
     view = SchemaView(SCHEMA_WITH_IMPORTS)

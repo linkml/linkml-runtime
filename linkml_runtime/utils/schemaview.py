@@ -38,9 +38,9 @@ TYPE_NAME = Union[TypeDefinitionName, str]
 ENUM_NAME = Union[EnumDefinitionName, str]
 
 ElementType = TypeVar("ElementType", bound=Element)
-ElementNameType = TypeVar("ElementNameType", bound=Union[ElementName,str])
+ElementNameType = TypeVar("ElementNameType", bound=Union[ElementName, str])
 DefinitionType = TypeVar("DefinitionType", bound=Definition)
-DefinitionNameType = TypeVar("DefinitionNameType", bound=Union[DefinitionName,str])
+DefinitionNameType = TypeVar("DefinitionNameType", bound=Union[DefinitionName, str])
 ElementDict = Dict[ElementNameType, ElementType]
 DefDict = Dict[DefinitionNameType, DefinitionType]
 
@@ -53,7 +53,6 @@ class OrderedBy(Enum):
     """
     Order according to inheritance such that if C is a child of P then C appears after P
     """
-
 
 
 def _closure(f, x, reflexive=True, depth_first=True, **kwargs):
@@ -86,7 +85,7 @@ def load_schema_wrap(path: str, **kwargs):
     schema: SchemaDefinition
     schema = yaml_loader.load(path, target_class=SchemaDefinition, **kwargs)
     if "\n" not in path:
-    # if "\n" not in path and "://" not in path:
+        # if "\n" not in path and "://" not in path:
         # only set path if the input is not a yaml string or URL.
         # Setting the source path is necessary for relative imports;
         # while initializing a schema with a yaml string is possible, there
@@ -137,7 +136,16 @@ def to_dict(obj):
         return obj
 
 
-def get_anonymous_class_definition(class_as_dict):
+def get_anonymous_class_definition(class_as_dict: ClassDefinition) -> AnonymousClassExpression:
+    """
+    Convert a ClassDefinition to an AnonymousClassExpression, typically for use in defining an Expression object
+    (e.g. SlotDefinition.range_expression). This method only fills out the fields that are present in the
+    AnonymousClassExpression class. #TODO: We should consider whether an Expression should share a common ancestor with
+    the Definition classes.
+
+    :param class_as_dict: The ClassDefinition to convert.
+    :return: An AnonymousClassExpression.
+    """
     an_expr = AnonymousClassExpression()
     valid_fields = {field.name for field in fields(an_expr)}
     for k, v in class_as_dict.items():
@@ -252,7 +260,8 @@ class SchemaView(object):
         return schema
 
     @lru_cache(None)
-    def imports_closure(self, imports: bool = True, traverse: Optional[bool] = None, inject_metadata=True) -> List[SchemaDefinitionName]:
+    def imports_closure(self, imports: bool = True, traverse: Optional[bool] = None, inject_metadata=True) -> List[
+        SchemaDefinitionName]:
         """
         Return all imports
 
@@ -320,7 +329,7 @@ class SchemaView(object):
             visited.add(sn)
 
         # filter duplicates, keeping first entry
-        closure = list({k:None for k in closure}.keys())
+        closure = list({k: None for k in closure}.keys())
 
         if inject_metadata:
             for s in self.schema_map.values():
@@ -425,7 +434,6 @@ class SchemaView(object):
                 raise OrderingError(f"could not find suitable element in {clist} that does not ref {slist}")
 
         return {s.name: s for s in slist}
-
 
     @lru_cache(None)
     def all_classes(self, ordered_by=OrderedBy.PRESERVE, imports=True) -> Dict[ClassDefinitionName, ClassDefinition]:
@@ -871,14 +879,13 @@ class SchemaView(object):
 
     @lru_cache(None)
     def permissible_value_descendants(self, permissible_value_text: str,
-                                    enum_name: ENUM_NAME,
-                                    reflexive=True,
-                                    depth_first=True) -> List[str]:
+                                      enum_name: ENUM_NAME,
+                                      reflexive=True,
+                                      depth_first=True) -> List[str]:
         """
         Closure of permissible_value_children method
         :enum
         """
-
 
         return _closure(lambda x: self.permissible_value_children(x, enum_name),
                         permissible_value_text,
@@ -1025,7 +1032,7 @@ class SchemaView(object):
         :param slot_name: slot to test for multivalued
         :return boolean:
         """
-        induced_slot = self.induced_slot(slot_name)
+        induced_slot = self.induced_slot(slot_name.name)
         return True if induced_slot.multivalued else False
 
     @lru_cache(None)
@@ -1325,6 +1332,7 @@ class SchemaView(object):
                 slots_nr.append(s)
         return slots_nr
 
+
     @lru_cache(None)
     def induced_slot(self, slot_name: SLOT_NAME, class_name: CLASS_NAME = None, imports=True,
                      mangle_name=False) -> SlotDefinition:
@@ -1338,6 +1346,7 @@ class SchemaView(object):
         :param slot_name: slot to be queries
         :param class_name: class used as context
         :param imports: include imports closure
+        :param mangle_name: if True, the slot name will be mangled to include the class name
         :return: dynamic slot constructed by inference
         """
         if class_name:
@@ -1480,6 +1489,7 @@ class SchemaView(object):
                     )
                 return induced_slot
         return induced_slot
+
     @lru_cache(None)
     def _metaslots_for_slot(self):
         fake_slot = SlotDefinition('__FAKE')
@@ -1604,7 +1614,7 @@ class SchemaView(object):
                 return True
             elif slot.inlined_as_list:
                 return True
-            
+
             id_slot = self.get_identifier_slot(range, imports=imports)
             if id_slot is None:
                 # must be inlined as has no identifier
@@ -1660,9 +1670,9 @@ class SchemaView(object):
             if x.range:
                 range_union_of.append(x.range)
         return range_union_of
-        
+
     def get_classes_by_slot(
-        self, slot: SlotDefinition, include_induced: bool = False
+            self, slot: SlotDefinition, include_induced: bool = False
     ) -> List[ClassDefinitionName]:
         """Get all classes that use a given slot, either as a direct or induced slot.
 
