@@ -14,50 +14,61 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.8", "3.9", "3.10", "3.12"]
         exclude:
-        - os: windows-latest
-          python-version: "3.8"
+          # Test on Windows with only the oldest and newest Python versions
+          - os: windows-latest
+            python-version: "3.8"
+            
+    # See https://github.com/snok/install-poetry#running-on-windows
+    defaults:
+      run:
+        shell: bash
 
     runs-on: ${{ matrix.os }}
 
     steps:
 
       #----------------------------------------------
-      #          install poetry
-      #----------------------------------------------
-      - name: Install Poetry
-        run: pipx install poetry==1.4.0
-        
-      #----------------------------------------------
       #       check-out repo and set-up python
       #----------------------------------------------
+      - name: Install poetry
+        run: pipx install poetry==1.4.0
+
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dynamic versioning plugin
+        run: poetry self add "poetry-dynamic-versioning[plugin]"
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
       #----------------------------------------------
-      #    install your root project, if required 
+      #    install dependencies
       #----------------------------------------------      
-      - name: Install library
-        run: poetry install --no-interaction
+      - name: Install dependencies
+        run: poetry install --no-interaction --all-extras
 
       #----------------------------------------------
-      #              coverage report   
+      #              coverage report
       #----------------------------------------------
       - name: Generate coverage results
         run: |
           poetry run coverage run -m pytest
           poetry run coverage xml
           poetry run coverage report -m
+        shell: bash
 
       #----------------------------------------------
       #           upload coverage results
       #----------------------------------------------
       - name: Upload coverage report
+        if: github.repository == 'linkml/linkml-runtime'
         uses: codecov/codecov-action@v3
         with:
           name: codecov-results-${{ matrix.os }}-${{ matrix.python-version }}
