@@ -7,8 +7,10 @@ from typing import List
 from pprint import pprint
 
 
+from jsonasobj2 import JsonObj
+
 from linkml_runtime.dumpers import yaml_dumper
-from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
+from linkml_runtime.linkml_model.meta import Example, SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
     ClassDefinitionName, Prefix
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
 from linkml_runtime.utils.introspection import package_schemaview
@@ -20,6 +22,7 @@ SCHEMA_NO_IMPORTS = Path(INPUT_DIR) / 'kitchen_sink_noimports.yaml'
 SCHEMA_WITH_IMPORTS = Path(INPUT_DIR) / 'kitchen_sink.yaml'
 SCHEMA_WITH_STRUCTURED_PATTERNS = Path(INPUT_DIR) / "pattern-example.yaml"
 SCHEMA_IMPORT_TREE = Path(INPUT_DIR) / 'imports' / 'main.yaml'
+SCHEMA_RELATIVE_IMPORT_TREE = Path(INPUT_DIR) / 'imports_relative' / 'L0_0' / 'L1_0_0' / 'main.yaml'
 
 yaml_loader = YAMLLoader()
 IS_CURRENT = 'is current'
@@ -187,7 +190,7 @@ class SchemaViewTestCase(unittest.TestCase):
 
         self.assertCountEqual(['id', 'name',  ## From Thing
                                'has employment history', 'has familial relationships', 'has medical history',
-                               AGE_IN_YEARS, 'addresses', 'has birth event', ## From Person
+                               AGE_IN_YEARS, 'addresses', 'has birth event', 'reason_for_happiness', ## From Person
                                'aliases'  ## From HasAliases
                                 ],
                               view.class_slots('Person'))
@@ -257,6 +260,42 @@ class SchemaViewTestCase(unittest.TestCase):
             logging.debug(f' {k} = {v}')
         self.assertIn(SchemaUsage(used_by='FamilialRelationship', slot=RELATED_TO,
                            metaslot='range', used='Person', inferred=False), u['Person'])
+        self.assertListEqual(
+            [SchemaUsage(used_by='Person', 
+                        slot='reason_for_happiness', 
+                        metaslot='any_of[range]', 
+                        used='MarriageEvent', 
+                        inferred=True
+                        ), 
+            SchemaUsage(used_by='Adult',
+                        slot='reason_for_happiness', 
+                        metaslot='any_of[range]', 
+                        used='MarriageEvent', 
+                        inferred=False
+                        )], 
+            u['MarriageEvent'])
+        self.assertListEqual(
+            [SchemaUsage(used_by='Person', 
+                        slot='has employment history', 
+                        metaslot='range', 
+                        used='EmploymentEvent', 
+                        inferred=True), 
+            SchemaUsage(used_by='Person', 
+                        slot='reason_for_happiness', 
+                        metaslot='any_of[range]', 
+                        used='EmploymentEvent', 
+                        inferred=True), 
+            SchemaUsage(used_by='Adult', 
+                        slot='has employment history', 
+                        metaslot='range', 
+                        used='EmploymentEvent', 
+                        inferred=False), 
+            SchemaUsage(used_by='Adult', 
+                        slot='reason_for_happiness', 
+                        metaslot='any_of[range]', 
+                        used='EmploymentEvent', 
+                        inferred=False)],
+            u['EmploymentEvent'])
 
         # test methods also work for attributes
         leaves = view.class_leaves()
@@ -542,6 +581,41 @@ class SchemaViewTestCase(unittest.TestCase):
 
         self.assertEqual(defaults, target)
 
+    def test_imports_relative(self):
+        """
+        Relative imports from relative imports should evaluate relative to the *importing* schema,
+        not the *origin* schema.
+
+        See
+            - input/imports_relative/README.md for an explanation of the test schema
+        """
+        sv = SchemaView(SCHEMA_RELATIVE_IMPORT_TREE)
+        closure = sv.imports_closure(imports=True)
+
+        assert len(closure) == len(sv.schema_map.keys())
+        assert closure == [
+            'linkml:types',
+            '../neighborhood_parent',
+            'neighbor',
+            '../parent',
+            '../L1_0_1/L2_0_1_0/grandchild',
+            '../../L0_1/L1_1_0/L2_1_0_0/apple',
+            '../../L0_1/L1_1_0/L2_1_0_0/index',
+            '../../L0_1/L1_1_0/L2_1_0_1/banana',
+            '../../L0_1/L1_1_0/L2_1_0_1/index',
+            '../../L0_1/L1_1_0/index',
+            '../../L0_1/cousin',
+            '../L1_0_1/dupe',
+            './L2_0_0_0/child',
+            './L2_0_0_1/child',
+            'main'
+        ]
+
+        # check that we can actually get the classes from the same-named schema
+        classes = sv.all_classes(imports=True)
+        assert 'L110Index' in classes
+        assert 'L2100Index' in classes
+        assert 'L2101Index' in classes
 
     def test_direct_remote_imports(self):
         """
@@ -918,6 +992,47 @@ class SchemaViewTestCase(unittest.TestCase):
                 slot = sv.get_slot(slot_name)
                 actual_result = sv.is_inlined(slot)
                 self.assertEqual(actual_result, expected_result)
+
+    def test_materialize_nonscalar_slot_usage(self):
+        """
+        ``slot_usage`` overrides values in the base slot definition without
+        clobbering unrelated, nonscalar values.
+        
+        See: 
+        - https://github.com/linkml/linkml/issues/2224
+        - https://github.com/linkml/linkml-runtime/pull/335
+        """
+        schema_path = os.path.join(INPUT_DIR, "DJ_controller_schema.yaml")
+        sv = SchemaView(schema_path)
+        cls = sv.induced_class("DJController")
+
+        # jog_wheels is a slot asserted at the schema level
+        # check that the range (scalar value) is being materialized properly
+        assert cls.attributes["jog_wheels"].range == "integer"
+        # check that the examples (list) is being materialized properly
+        assert isinstance(cls.attributes["jog_wheels"].examples, list)
+        for example in cls.attributes["jog_wheels"].examples:
+            assert example.value == "2"
+        for example in cls.attributes["volume_faders"].examples:
+            assert example.value == "4"
+        for example in cls.attributes["crossfaders"].examples:
+            assert example.value == "1"
+        # check that the annotations (dictionary) is being materialized properly
+        assert isinstance(cls.attributes["jog_wheels"].annotations, JsonObj)
+        assert cls.attributes["jog_wheels"].annotations.expected_value.value == "an integer between 0 and 4"
+        assert cls.attributes["volume_faders"].annotations.expected_value.value == "an integer between 0 and 8"
+
+        # examples being overridden by slot_usage modification
+        assert cls.attributes["tempo"].examples == [Example(value='120.0'), Example(value='144.0'), Example(value='126.8'), Example(value='102.6')]
+        # annotations remain the same / propagated as is from schema-level 
+        # definition of `tempo` slot
+        assert cls.attributes["tempo"].annotations.expected_value.value == "a number between 0 and 200"
+        assert cls.attributes["tempo"].annotations.preferred_unit.value == "BPM"
+
+        assert cls.attributes["tempo"].domain_of == ["DJController"]
+        # ensure that domain_of is not being populated in slot_usage
+        # test for https://github.com/linkml/linkml/pull/2262 from upstream linkml
+        assert cls.slot_usage["tempo"].domain_of == [] 
 
 
 if __name__ == '__main__':

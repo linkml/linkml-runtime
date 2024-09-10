@@ -6,12 +6,13 @@ from functools import lru_cache
 from copy import copy, deepcopy
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Mapping, Tuple, TypeVar
+from typing import Mapping, Optional, Tuple, TypeVar
 import warnings
 
 from deprecated.classic import deprecated
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.context_utils import parse_import_map, map_import
+from linkml_runtime.utils.formatutils import is_empty
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.exceptions import OrderingError
@@ -144,6 +145,11 @@ class SchemaView(object):
     modifications: int = 0
     uuid: str = None
 
+    ## private vars --------
+    # cached hash
+    _hash: Optional[int] = None
+
+
     def __init__(self, schema: Union[str, Path, SchemaDefinition],
                  importmap: Optional[Dict[str, str]] = None, merge_imports: bool = False, base_dir: str = None):
         if isinstance(schema, Path):
@@ -165,8 +171,10 @@ class SchemaView(object):
             return self.__key() == other.__key()
         return NotImplemented
 
-    def __hash__(self):
-        return hash(self.__key())
+    def __hash__(self) -> int:
+        if self._hash is None:
+            self._hash = hash(self.__key())
+        return self._hash
 
     @lru_cache(None)
     def namespaces(self) -> Namespaces:
@@ -279,8 +287,25 @@ class SchemaView(object):
             if sn not in visited:
                 for i in self.schema_map[sn].imports:
                     # no self imports ;)
-                    if i != sn:
-                        todo.append(i)
+                    if i == sn:
+                        continue
+
+                    # resolve relative imports relative to the importing schema, rather than the
+                    # origin schema. Imports can be a URI or Curie, and imports from the same
+                    # directory don't require a ./, so if the current (sn) import is a relative
+                    # path, and the target import doesn't have : (as in a curie or a URI)
+                    # we prepend the relative path. This WILL make the key in the `schema_map` not
+                    # equal to the literal text specified in the importing schema, but this is
+                    # essential to sensible deduplication: eg. for
+                    # - main.yaml (imports ./types.yaml, ./subdir/subschema.yaml)
+                    # - types.yaml
+                    # - subdir/subschema.yaml (imports ./types.yaml)
+                    # - subdir/types.yaml
+                    # we should treat the two `types.yaml` as separate schemas from the POV of the
+                    # origin schema.
+                    if sn.startswith('.') and ':' not in i:
+                        i = os.path.normpath(str(Path(sn).parent / i))
+                    todo.append(i)
 
             # add item to closure
             # append + pop (above) is FILO queue, which correctly extends tree leaves,
@@ -399,7 +424,7 @@ class SchemaView(object):
     @lru_cache(None)
     def all_classes(self, ordered_by=OrderedBy.PRESERVE, imports=True) -> Dict[ClassDefinitionName, ClassDefinition]:
         """
-        :param ordered_by: an enumerated parameter that returns all the slots in the order specified.
+        :param ordered_by: an enumerated parameter that returns all the classes in the order specified.
         :param imports: include imports closure
         :return: all classes in schema view
         """
@@ -1328,7 +1353,7 @@ class SchemaView(object):
         # attributes take priority over schema-level slot definitions, IF
         # the attribute is declared for the class or an ancestor
         slot_comes_from_attribute = False
-        if cls:
+        if cls is not None:
             induced_slot = SlotDefinition(slot_name)
             # if a class is provided, first check if there is slot_usage on the class for the slot and apply it.
             slot = self.get_slot(slot_name, imports, attributes=False)
@@ -1374,7 +1399,7 @@ class SchemaView(object):
             # inheritance of slots; priority order
             #   slot-level assignment < ancestor slot_usage < self slot_usage
             v = getattr(induced_slot, metaslot_name, None)
-            if not cls:
+            if cls is None:
                 propagated_from = []
             else:
                 propagated_from = self.class_ancestors(class_name, reflexive=True, mixins=True)
@@ -1390,7 +1415,14 @@ class SchemaView(object):
                         if v2 is not None:
                             v = COMBINE[metaslot_name](v, v2)
                     else:
-                        if v2 is not None:
+                        # can rewrite below as:
+                        # 1. if v2:
+                        # 2. if v2 is not None and 
+                        #    (
+                        #      (isinstance(v2, (dict, list)) and v2) or 
+                        #      (isinstance(v2, JsonObj) and as_dict(v2))
+                        #    )
+                        if not is_empty(v2):
                             v = v2
                             logger.debug(f'{v} takes precedence over {v2} for {induced_slot.name}.{metaslot_name}')
             if v is None:
@@ -1678,7 +1710,7 @@ class SchemaView(object):
 
         :return: dictionary of SchemaUsages keyed by used elements
         """
-        ROLES = ['domain', 'range']
+        ROLES = ['domain', 'range', 'any_of', 'exactly_one_of', 'none_of', 'all_of']
         ix = defaultdict(list)
         for cn, c in self.all_classes().items():
             direct_slots = c.slots
@@ -1692,6 +1724,10 @@ class SchemaView(object):
                         vl = [v]
                     for x in vl:
                         if x is not None:
+                            if isinstance(x, AnonymousSlotExpression):
+                                x = x.range
+                                k = f"{k}[range]"
+                            k = k.split("[")[0] + "[range]" if "[range]" in k else k
                             u = SchemaUsage(used_by=cn, slot=sn, metaslot=k, used=x)
                             u.inferred = sn in direct_slots
                             ix[x].append(u)
@@ -1842,6 +1878,7 @@ class SchemaView(object):
         return s2
 
     def set_modified(self) -> None:
+        self._hash = None
         self.modifications += 1
 
     def materialize_patterns(self) -> None:

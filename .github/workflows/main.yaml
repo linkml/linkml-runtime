@@ -50,7 +50,7 @@ jobs:
       #----------------------------------------------
       - name: Generate coverage results
         run: |
-          poetry run coverage run -m unittest discover
+          poetry run coverage run -m pytest
           poetry run coverage xml
           poetry run coverage report -m
 
@@ -63,4 +63,4 @@ jobs:
           name: codecov-results-${{ matrix.os }}-${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: false
