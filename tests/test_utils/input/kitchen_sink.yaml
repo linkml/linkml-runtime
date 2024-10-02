@@ -63,6 +63,49 @@ classes:
       - id
       - name
 
+  Alien:
+    is_a: Thing
+    slots:
+      - height_in_m
+      - type
+      - related to
+    slot_usage:
+      type:
+        range: OrganismType
+        required: true
+      related to:
+        any_of:
+          - range: Person
+          - range: Alien
+        range: FamilialRelationship
+        id_prefixes: [ ks ]
+
+  Martian:
+    is_a: Thing
+    slots:
+      - height_in_m
+      - type
+      - related to
+    slot_usage:
+      type:
+        range: OrganismType
+        required: true
+      related to:
+        range: Alien
+        required: true
+
+  Venetian:
+    is_a: Thing
+    slots:
+      - height_in_m
+      - type
+      - related to
+    slot_usage:
+      related to:
+        any_of:
+          - range: Person
+          - range: Alien
+
   Person:
     is_a: Thing
     in_subset:
@@ -224,6 +267,8 @@ slots:
       - subset A
       - subset B
   related to:
+    range: Thing
+  associated with:
     range: Thing
   type:
     range: string

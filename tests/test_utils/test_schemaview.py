@@ -72,6 +72,7 @@ def test_alias_slot():
 
     for c in view.all_classes().values():
         for s in view.class_induced_slots(c.name):
+            print("slot: ", s)
             assert s.alias is not None  # Assert that alias is not None
 
     postal_code_slot = view.induced_slot('postal code', 'Address')
