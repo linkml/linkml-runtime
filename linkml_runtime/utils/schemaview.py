@@ -8,7 +8,6 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Mapping, Optional, Tuple, TypeVar
 import warnings
-from pprint import pprint
 
 from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
@@ -18,8 +17,6 @@ from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
 from linkml_runtime.exceptions import OrderingError
 from enum import Enum
-from linkml_runtime.linkml_model.meta import ClassDefinition, SlotDefinition, ClassDefinitionName
-from dataclasses import asdict, is_dataclass, fields
 
 logger = logging.getLogger(__name__)
 
@@ -118,44 +115,6 @@ class SchemaUsage():
     metaslot: SlotDefinitionName
     used: ElementName
     inferred: bool = None
-
-
-def to_dict(obj):
-    """
-    Convert a LinkML element (such as ClassDefinition) to a dictionary.
-
-    :param obj: The LinkML class instance to convert.
-    :return: A dictionary representation of the class.
-    """
-    if is_dataclass(obj):
-        return asdict(obj)
-    elif isinstance(obj, list):
-        return [to_dict(item) for item in obj]
-    elif isinstance(obj, dict):
-        return {key: to_dict(value) for key, value in obj.items()}
-    else:
-        return obj
-
-
-def get_anonymous_class_definition(class_as_dict: ClassDefinition) -> AnonymousClassExpression:
-    """
-    Convert a ClassDefinition to an AnonymousClassExpression, typically for use in defining an Expression object
-    (e.g. SlotDefinition.range_expression). This method only fills out the fields that are present in the
-    AnonymousClassExpression class. #TODO: We should consider whether an Expression should share a common ancestor with
-    the Definition classes.
-
-    :param class_as_dict: The ClassDefinition to convert.
-    :return: An AnonymousClassExpression.
-    """
-    an_expr = AnonymousClassExpression()
-    print(class_as_dict)
-    valid_fields = {field.name for field in fields(an_expr)}
-    for k, v in class_as_dict.items():
-        if k in valid_fields:
-            setattr(an_expr, k, v)
-    for k, v in class_as_dict.items():
-        setattr(an_expr, k, v)
-    return an_expr
 
 
 @dataclass
