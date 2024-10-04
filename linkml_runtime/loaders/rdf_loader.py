@@ -1,4 +1,4 @@
-from typing import Union, TextIO, Optional, Type, List
+from typing import Any, Union, TextIO, Optional, Type, List, Iterator
 
 from hbreader import FileInfo
 
@@ -90,3 +90,6 @@ class RDFLoader(Loader):
         # TODO: Make the SSL option a settable parameter in the package itself
         with no_ssl_verification():
             return self.load_source(source, loader, target_class, accept_header=RDF_MIME_TYPES, metadata=metadata)
+
+    def iter_instances(self) -> Iterator[Any]:
+        raise NotImplementedError("RDF Loader doesn't have instance iterator yet!")
