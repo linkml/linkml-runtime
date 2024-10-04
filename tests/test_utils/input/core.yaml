@@ -21,6 +21,9 @@ types:
   SymbolString:
     typeof: string
 
+  NarrativeText:
+    typeof: string
+
 classes:
 
   activity:
