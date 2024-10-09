@@ -3,8 +3,6 @@ import unittest
 import logging
 from copy import copy
 from pathlib import Path
-from typing import List
-from unittest import TestCase
 
 from jsonasobj2 import JsonObj
 
@@ -738,7 +736,7 @@ class SchemaViewTestCase(unittest.TestCase):
         view.add_class(ClassDefinition('BY', is_a='RootMixin', mixin=True))
         view.add_class(ClassDefinition('CX', is_a='RootMixin', mixin=True))
 
-        def check(ancs: List, expected: List):
+        def check(ancs: list, expected: list):
             self.assertEqual(ancs, expected)
         check(view.class_ancestors('C', depth_first=True),
               ['C', 'Cm1', 'Cm2', 'CX', 'B', 'Bm1', 'Bm2', 'BY', 'A', 'Am1', 'Am2', 'AZ', 'Root', 'RootMixin'])
