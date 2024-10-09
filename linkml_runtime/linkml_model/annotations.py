@@ -6,6 +6,7 @@
 # description: Annotations mixin
 # license: https://creativecommons.org/publicdomain/zero/1.0/
 
+import dataclasses
 from typing import Optional, Union, ClassVar, Any
 from dataclasses import dataclass
 
