@@ -6,7 +6,8 @@ from functools import lru_cache
 from copy import copy, deepcopy
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Mapping, Optional, Tuple, TypeVar
+from typing import Optional, TypeVar
+from collections.abc import Mapping
 import warnings
 
 from linkml_runtime.utils.namespaces import Namespaces
@@ -106,7 +107,7 @@ def is_absolute_path(path: str) -> bool:
 
 
 @dataclass
-class SchemaUsage():
+class SchemaUsage:
     """
     A usage of an element of a schema
     """
@@ -118,7 +119,7 @@ class SchemaUsage():
 
 
 @dataclass
-class SchemaView(object):
+class SchemaView:
     """
     A SchemaView provides a virtual schema layered on top of a schema plus its import closure
 
@@ -1240,7 +1241,7 @@ class SchemaView(object):
                 model_elements.append(element.name)
         return model_elements
 
-    def get_mapping_index(self, imports=True, expand=False) -> Dict[URIorCURIE, List[Tuple[MAPPING_TYPE, Element]]]:
+    def get_mapping_index(self, imports=True, expand=False) -> Dict[URIorCURIE, List[tuple[MAPPING_TYPE, Element]]]:
         """
         Returns an index of all elements keyed by the mapping value.
         The index values are tuples of mapping type and element
