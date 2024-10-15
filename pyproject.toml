@@ -62,17 +62,62 @@ prefixmaps = ">=0.1.4"
 curies = ">=0.5.4"
 pydantic = ">=1.10.2, <3.0.0"
 
-[tool.ruff]
-line-length = 120
-select = [
-    "F401",
-    "UP"
-]
-target-version = "py39"
-
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.tests.dependencies]
 coverage = "^6.2"
 requests-cache = "^1.2.0"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.6.9"
+black = "^24.10.0"
+codespell = "^2.3.0"
+
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+force-exclude = '''
+/(
+  # default exclude
+  \.direnv|\.eggs|\.git|\.hg|\.ipynb_checkpoints|\.mypy_cache|\.nox|\.pytest_cache|\.ruff_cache|\.tox|\.svn|\.venv|\.vscode|__pypackages__|_build|buck-out|build|dist|venv
+  # additional exclude
+  | tests.*/output
+  | __snapshots__
+  | docs
+  | examples
+  | notebooks
+)/
+'''
+
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+# -- Rule selection --
+select = [
+  "E",  # pycodestyle errors
+  "F",  # Pyflakes
+  "I",  # isort
+  "UP", # pyupgrade
+]
+force-exclude = true
+extend-ignore = ["E203"]
+
+# -- Exclude files --
+extend-exclude = [
+    "tests/**/output",
+    "tests/**/input",
+    "tests/**/__snapshots__",
+    "notebooks/"
+]
+
+[tool.codespell]
+skip = '.git,*.pdf,*.svg,./tests,pyproject.toml,*.dill,poetry.lock'
+# Ignore table where words could be split across rows
+# Ignore shortcut specifications like [Ff]alse
+ignore-regex = '(\|.*\|.*\|.*\||\[[A-Z][a-z]\][a-z][a-z])'
+ignore-words-list = 'mater,connexion,infarction,thirdparty'
+quiet-level = 3
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
