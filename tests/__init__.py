@@ -1,10 +1,13 @@
 import configparser
-import logging
 
 # Global testing control variables
 import os
 
 from tests.support.test_environment import MismatchAction
+
+__all__ = [
+    "MismatchAction",
+]
 
 # ---------------------------------------------------------------
 #                DO NOT change this file.

@@ -22,7 +22,7 @@ def no_click_exit(_self, code=0):
 
 
 # This import has to occur here
-import click
+import click  # noqa: E402
 
 click.core.Context.exit = no_click_exit
 
@@ -209,8 +209,9 @@ class TestEnvironment:
         :return: the generator output
         """
         # If no filter, default to identity function
-        if not filtr:
-            filtr = lambda s: s
+        if filtr is None:
+            def filtr(s):
+                return s
         filename = filename if isinstance(filename, list) else [filename]
         actual_file = self.root_temp_file_path(*filename) if use_testing_root else self.actual_path(*filename)
         expected_file = self.root_expected_path(*filename) if use_testing_root else self.expected_path(*filename)
