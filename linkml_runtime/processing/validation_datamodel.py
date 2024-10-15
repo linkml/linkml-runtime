@@ -44,6 +44,7 @@ DEFAULT_ = VM
 
 # Types
 
+
 # Class references
 class ConstraintCheckId(URIorCURIE):
     pass
@@ -122,9 +123,7 @@ class ValidationConfiguration(YAMLRoot):
     ] = empty_dict()
 
     def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
-        if self.max_number_results_per_type is not None and not isinstance(
-            self.max_number_results_per_type, int
-        ):
+        if self.max_number_results_per_type is not None and not isinstance(self.max_number_results_per_type, int):
             self.max_number_results_per_type = int(self.max_number_results_per_type)
 
         self._normalize_inlined_as_dict(
@@ -157,9 +156,7 @@ class RepairConfiguration(YAMLRoot):
         if self.validation_configuration is not None and not isinstance(
             self.validation_configuration, ValidationConfiguration
         ):
-            self.validation_configuration = ValidationConfiguration(
-                **as_dict(self.validation_configuration)
-            )
+            self.validation_configuration = ValidationConfiguration(**as_dict(self.validation_configuration))
 
         if self.dry_run is not None and not isinstance(self.dry_run, Bool):
             self.dry_run = Bool(self.dry_run)
@@ -208,16 +205,12 @@ class Report(YAMLRoot):
     class_name: ClassVar[str] = "Report"
     class_model_uri: ClassVar[URIRef] = VM.Report
 
-    results: Optional[
-        Union[Union[dict, "Result"], list[Union[dict, "Result"]]]
-    ] = empty_list()
+    results: Optional[Union[Union[dict, "Result"], list[Union[dict, "Result"]]]] = empty_list()
 
     def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if not isinstance(self.results, list):
             self.results = [self.results] if self.results is not None else []
-        self.results = [
-            v if isinstance(v, Result) else Result(**as_dict(v)) for v in self.results
-        ]
+        self.results = [v if isinstance(v, Result) else Result(**as_dict(v)) for v in self.results]
 
         super().__post_init__(**kwargs)
 
@@ -235,17 +228,12 @@ class ValidationReport(Report):
     class_name: ClassVar[str] = "ValidationReport"
     class_model_uri: ClassVar[URIRef] = VM.ValidationReport
 
-    results: Optional[
-        Union[Union[dict, "ValidationResult"], list[Union[dict, "ValidationResult"]]]
-    ] = empty_list()
+    results: Optional[Union[Union[dict, "ValidationResult"], list[Union[dict, "ValidationResult"]]]] = empty_list()
 
     def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if not isinstance(self.results, list):
             self.results = [self.results] if self.results is not None else []
-        self.results = [
-            v if isinstance(v, ValidationResult) else ValidationResult(**as_dict(v))
-            for v in self.results
-        ]
+        self.results = [v if isinstance(v, ValidationResult) else ValidationResult(**as_dict(v)) for v in self.results]
 
         super().__post_init__(**kwargs)
 
@@ -263,17 +251,12 @@ class RepairReport(Report):
     class_name: ClassVar[str] = "RepairReport"
     class_model_uri: ClassVar[URIRef] = VM.RepairReport
 
-    results: Optional[
-        Union[Union[dict, "RepairOperation"], list[Union[dict, "RepairOperation"]]]
-    ] = empty_list()
+    results: Optional[Union[Union[dict, "RepairOperation"], list[Union[dict, "RepairOperation"]]]] = empty_list()
 
     def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if not isinstance(self.results, list):
             self.results = [self.results] if self.results is not None else []
-        self.results = [
-            v if isinstance(v, RepairOperation) else RepairOperation(**as_dict(v))
-            for v in self.results
-        ]
+        self.results = [v if isinstance(v, RepairOperation) else RepairOperation(**as_dict(v)) for v in self.results]
 
         super().__post_init__(**kwargs)
 
@@ -355,19 +338,13 @@ class ValidationResult(Result):
         if self.repaired is not None and not isinstance(self.repaired, Bool):
             self.repaired = Bool(self.repaired)
 
-        if self.source_line_number is not None and not isinstance(
-            self.source_line_number, int
-        ):
+        if self.source_line_number is not None and not isinstance(self.source_line_number, int):
             self.source_line_number = int(self.source_line_number)
 
-        if self.source_column_number is not None and not isinstance(
-            self.source_column_number, int
-        ):
+        if self.source_column_number is not None and not isinstance(self.source_column_number, int):
             self.source_column_number = int(self.source_column_number)
 
-        if self.source_location is not None and not isinstance(
-            self.source_location, str
-        ):
+        if self.source_location is not None and not isinstance(self.source_location, str):
             self.source_location = str(self.source_location)
 
         super().__post_init__(**kwargs)
@@ -481,12 +458,8 @@ class ConstraintType(EnumDefinitionImpl):
         meaning=SH.ClosedConstraintComponent,
     )
     DesignatesTypeConstraint = PermissibleValue(text="DesignatesTypeConstraint")
-    InstanceConstraint = PermissibleValue(
-        text="InstanceConstraint", meaning=SH.NodeConstraintComponent
-    )
-    SlotConstraint = PermissibleValue(
-        text="SlotConstraint", meaning=SH.PropertyConstraintComponent
-    )
+    InstanceConstraint = PermissibleValue(text="InstanceConstraint", meaning=SH.NodeConstraintComponent)
+    SlotConstraint = PermissibleValue(text="SlotConstraint", meaning=SH.PropertyConstraintComponent)
     PermissibleValueConstraint = PermissibleValue(
         text="PermissibleValueConstraint",
         description="constraint where the slot value must be one of a set of permissible values",
@@ -508,15 +481,9 @@ class ConstraintType(EnumDefinitionImpl):
         text="LessThanOrEqualsExpressionConstraint",
         meaning=SH.LessThanOrEqualsComponent,
     )
-    DisjointConstraint = PermissibleValue(
-        text="DisjointConstraint", meaning=SH.DisjointConstraintComponent
-    )
-    MinimumValueConstraint = PermissibleValue(
-        text="MinimumValueConstraint", meaning=SH.MinInclusiveConstraintComponent
-    )
-    MaximumValueConstraint = PermissibleValue(
-        text="MaximumValueConstraint", meaning=SH.MaxInclusiveConstraintComponent
-    )
+    DisjointConstraint = PermissibleValue(text="DisjointConstraint", meaning=SH.DisjointConstraintComponent)
+    MinimumValueConstraint = PermissibleValue(text="MinimumValueConstraint", meaning=SH.MinInclusiveConstraintComponent)
+    MaximumValueConstraint = PermissibleValue(text="MaximumValueConstraint", meaning=SH.MaxInclusiveConstraintComponent)
     MinimumExclusiveValueConstraint = PermissibleValue(
         text="MinimumExclusiveValueConstraint",
         meaning=SH.MinExclusiveInclusiveConstraintComponent,
@@ -528,15 +495,9 @@ class ConstraintType(EnumDefinitionImpl):
     CollectionFormConstraint = PermissibleValue(text="CollectionFormConstraint")
     ListCollectionFormConstraint = PermissibleValue(text="ListCollectionFormConstraint")
     DictCollectionFormConstraint = PermissibleValue(text="DictCollectionFormConstraint")
-    SimpleDictCollectionFormConstraint = PermissibleValue(
-        text="SimpleDictCollectionFormConstraint"
-    )
-    CompactDictCollectionFormConstraint = PermissibleValue(
-        text="CompactDictCollectionFormConstraint"
-    )
-    ExpandedDictCollectionFormConstraint = PermissibleValue(
-        text="ExpandedDictCollectionFormConstraint"
-    )
+    SimpleDictCollectionFormConstraint = PermissibleValue(text="SimpleDictCollectionFormConstraint")
+    CompactDictCollectionFormConstraint = PermissibleValue(text="CompactDictCollectionFormConstraint")
+    ExpandedDictCollectionFormConstraint = PermissibleValue(text="ExpandedDictCollectionFormConstraint")
 
     _defn = EnumDefinition(
         name="ConstraintType",
@@ -718,9 +679,7 @@ slots.validationConfiguration__type_severity_map = Slot(
     domain=None,
     range=Optional[
         Union[
-            dict[
-                Union[str, TypeSeverityKeyValueType], Union[dict, TypeSeverityKeyValue]
-            ],
+            dict[Union[str, TypeSeverityKeyValueType], Union[dict, TypeSeverityKeyValue]],
             list[Union[dict, TypeSeverityKeyValue]],
         ]
     ],
@@ -804,9 +763,7 @@ slots.ValidationReport_results = Slot(
     curie=SH.curie("result"),
     model_uri=VM.ValidationReport_results,
     domain=ValidationReport,
-    range=Optional[
-        Union[Union[dict, "ValidationResult"], list[Union[dict, "ValidationResult"]]]
-    ],
+    range=Optional[Union[Union[dict, "ValidationResult"], list[Union[dict, "ValidationResult"]]]],
 )
 
 slots.RepairReport_results = Slot(
@@ -815,7 +772,5 @@ slots.RepairReport_results = Slot(
     curie=SH.curie("result"),
     model_uri=VM.RepairReport_results,
     domain=RepairReport,
-    range=Optional[
-        Union[Union[dict, "RepairOperation"], list[Union[dict, "RepairOperation"]]]
-    ],
+    range=Optional[Union[Union[dict, "RepairOperation"], list[Union[dict, "RepairOperation"]]]],
 )
