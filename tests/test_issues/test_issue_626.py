@@ -24,7 +24,7 @@ class IsolatedNameTestCase(unittest.TestCase):
         error_thrown = False
         try:
             from_yaml(model_txt, SchemaDefinition)
-        except TypeError as e:
+        except TypeError:
             error_thrown = True
         self.assertFalse(error_thrown, msg="Type error should not be thrown")
 

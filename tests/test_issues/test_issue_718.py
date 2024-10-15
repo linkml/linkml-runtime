@@ -1,10 +1,10 @@
-import pytest
 from dataclasses import dataclass
-from typing import Optional, ClassVar
+from typing import ClassVar, Optional
 
+import pytest
 import yaml
 
-from linkml_runtime.utils.yamlutils import YAMLRoot, DupCheckYamlLoader
+from linkml_runtime.utils.yamlutils import DupCheckYamlLoader, YAMLRoot
 
 
 @pytest.mark.xfail(reason="Reporting line numbers should happen at load time not when instantiating dataclasses")

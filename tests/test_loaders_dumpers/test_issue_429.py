@@ -1,8 +1,9 @@
 import os
 import unittest
-from rdflib import Graph, Literal
-from rdflib import Namespace
+
+from rdflib import Graph, Literal, Namespace
 from rdflib.namespace import RDF
+
 from linkml_runtime.dumpers import rdflib_dumper
 from linkml_runtime.loaders import yaml_loader
 from linkml_runtime.utils.schemaview import SchemaView

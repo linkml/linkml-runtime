@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from typing import Any, Optional, ClassVar, Union
+from typing import Any, ClassVar, Optional, Union
 
 from rdflib import URIRef
+from utils.enumerations import EnumDefinitionImpl
 
 from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.utils.metamodelcore import URIorCURIE, empty_list, URI
+from linkml_runtime.utils.metamodelcore import URI, URIorCURIE, empty_list
 from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
-from utils.enumerations import EnumDefinitionImpl
 
 LINKML = CurieNamespace("linkml", "https://w3id.org/linkml/")
 

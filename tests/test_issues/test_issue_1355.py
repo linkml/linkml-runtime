@@ -5,6 +5,7 @@ Created on 2023-03-24
 """
 
 from unittest import TestCase
+
 from linkml_runtime.utils.metamodelcore import URI
 
 

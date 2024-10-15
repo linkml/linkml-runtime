@@ -9,7 +9,6 @@ from linkml_runtime.utils.distroutils import get_schema_string
 from linkml_runtime.utils.schemaview import SchemaView
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
-
 SCHEMA_PATH_VAR = "schema_path"
 
 

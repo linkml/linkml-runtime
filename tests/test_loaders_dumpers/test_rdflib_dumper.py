@@ -1,27 +1,25 @@
+import logging
 import os
 import unittest
-import logging
 from pathlib import Path
 
 from curies import Converter
-from rdflib import Graph, Literal, URIRef
+from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, SKOS, XSD
-from rdflib import Namespace
 
-from linkml_runtime import MappingError, DataNotFoundError
+from linkml_runtime import DataNotFoundError, MappingError
 from linkml_runtime.dumpers import rdflib_dumper, yaml_dumper
 from linkml_runtime.linkml_model import Prefix
-from linkml_runtime.loaders import yaml_loader
-from linkml_runtime.loaders import rdflib_loader
+from linkml_runtime.loaders import rdflib_loader, yaml_loader
 from linkml_runtime.utils.schemaview import SchemaView
 from tests.test_loaders_dumpers import INPUT_DIR, OUTPUT_DIR
-from tests.test_loaders_dumpers.models.personinfo import Container, Person, Address, Organization, OrganizationType
 from tests.test_loaders_dumpers.models.node_object import NodeObject, Triple
+from tests.test_loaders_dumpers.models.personinfo import Address, Container, Organization, OrganizationType, Person
 from tests.test_loaders_dumpers.models.phenopackets import (
-    PhenotypicFeature,
+    MetaData,
     OntologyClass,
     Phenopacket,
-    MetaData,
+    PhenotypicFeature,
     Resource,
 )
 
@@ -369,7 +367,7 @@ class RdfLibDumperTestCase(unittest.TestCase):
                 allow_unprocessed_triples=False,
                 prefix_map=taxon_prefix_map,
             )
-            logger.error(f"Passed unexpectedly: there are known to be unreachable triples")
+            logger.error("Passed unexpectedly: there are known to be unreachable triples")
         # removing complex range, object has a range of string
         view.schema.slots["object"].exactly_one_of = []
         view.set_modified()
@@ -390,7 +388,7 @@ class RdfLibDumperTestCase(unittest.TestCase):
                 allow_unprocessed_triples=True,
                 prefix_map=taxon_prefix_map,
             )
-            logger.error(f"Passed unexpectedly: rdf:object is known to have a mix of literals and nodes")
+            logger.error("Passed unexpectedly: rdf:object is known to have a mix of literals and nodes")
 
     def test_phenopackets(self):
         view = SchemaView(str(Path(INPUT_DIR) / "phenopackets" / "phenopackets.yaml"))

@@ -4,9 +4,8 @@ from unittest import TestCase
 import rdflib
 
 from linkml_runtime.dumpers import rdflib_dumper
-from linkml_runtime.loaders import yaml_loader, rdflib_loader
+from linkml_runtime.loaders import rdflib_loader, yaml_loader
 from linkml_runtime.utils.schemaview import SchemaView
-
 from tests.test_issues.environment import env
 from tests.test_issues.models.linkml_issue_576 import Dataset
 

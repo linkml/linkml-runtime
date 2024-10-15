@@ -1,10 +1,10 @@
 import unittest
 from typing import Callable
 
-from linkml_runtime.dumpers import json_dumper, yaml_dumper, rdf_dumper
+from linkml_runtime.dumpers import json_dumper, rdf_dumper, yaml_dumper
+from linkml_runtime.utils.compile_python import compile_python
 from tests.test_issues.environment import env
 from tests.test_loaders_dumpers.loaderdumpertestcase import LoaderDumperTestCase
-from linkml_runtime.utils.compile_python import compile_python
 
 
 class Issue368TestCase(LoaderDumperTestCase):

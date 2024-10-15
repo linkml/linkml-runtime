@@ -3,16 +3,15 @@ from copy import deepcopy
 from unittest import TestCase
 
 from linkml_runtime.linkml_model import (
-    SchemaDefinition,
     ClassDefinition,
-    SlotDefinition,
     EnumDefinition,
-    TypeDefinition,
     Prefix,
+    SchemaDefinition,
+    SlotDefinition,
     SubsetDefinition,
+    TypeDefinition,
 )
 from linkml_runtime.utils.schemaview import SchemaView
-
 from tests.test_issues.environment import env
 
 ELEMENTS = ["prefixes", "classes", "slots", "enums", "types", "subsets"]

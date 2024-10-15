@@ -156,10 +156,10 @@ def eval_(node, bindings=None, distribute=True):
     elif isinstance(node, ast.Set):
         # sets are not part of the language; we use {x} as notation for x
         if len(node.elts) != 1:
-            raise ValueError(f"The {{}} must enclose a single variable")
+            raise ValueError("The {} must enclose a single variable")
         e = node.elts[0]
         if not isinstance(e, ast.Name):
-            raise ValueError(f"The {{}} must enclose a variable")
+            raise ValueError("The {} must enclose a variable")
         v = eval_(e, bindings)
         if v is None:
             raise UnsetValueException(f"{e} is not set")
