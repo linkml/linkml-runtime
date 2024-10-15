@@ -75,19 +75,58 @@ style = "pep440"
 coverage = "^6.2"
 requests-cache = "^1.2.0"
 
+[tool.poetry.group.tests.dependencies]
+coverage = "^6.2"
+requests-cache = "^1.2.0"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.6.9"
+black = "^24.10.0"
+codespell = "^2.3.0"
+
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+force-exclude = '''
+/(
+  # default exclude
+  \.direnv|\.eggs|\.git|\.hg|\.ipynb_checkpoints|\.mypy_cache|\.nox|\.pytest_cache|\.ruff_cache|\.tox|\.svn|\.venv|\.vscode|__pypackages__|_build|buck-out|build|dist|venv
+  # additional exclude
+  | tests.*/output
+  | __snapshots__
+  | docs
+  | examples
+  | notebooks
+)/
+'''
+
+
 [tool.ruff]
 line-length = 120
 target-version = "py39"
 
-[tool.ruff.lint]
+# -- Rule selection --
 select = [
-    "F401",
-    "UP"
+  "E",  # pycodestyle errors
+  "F",  # Pyflakes
+  "I",  # isort
+  "UP", # pyupgrade
 ]
-ignore = [
-    # Until 3.9 is dropped
-    "UP007",
+force-exclude = true
+extend-ignore = ["E203"]
+
+# -- Exclude files --
+extend-exclude = [
+    "tests/**/output",
+    "tests/**/input",
+    "tests/**/__snapshots__",
+    "notebooks/"
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["F401"] # unused imports
+[tool.codespell]
+skip = '.git,*.pdf,*.svg,./tests,pyproject.toml,*.dill,poetry.lock'
+# Ignore table where words could be split across rows
+# Ignore shortcut specifications like [Ff]alse
+ignore-regex = '(\|.*\|.*\|.*\||\[[A-Z][a-z]\][a-z][a-z])'
+ignore-words-list = 'mater,connexion,infarction,thirdparty'
+quiet-level = 3
