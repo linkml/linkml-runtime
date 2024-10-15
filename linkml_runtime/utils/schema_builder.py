@@ -1,10 +1,15 @@
 from dataclasses import dataclass, fields
 from typing import Union, Optional
 
-from linkml_runtime.linkml_model import (ClassDefinition, EnumDefinition,
-                                         PermissibleValue, Prefix,
-                                         SchemaDefinition, SlotDefinition,
-                                         TypeDefinition)
+from linkml_runtime.linkml_model import (
+    ClassDefinition,
+    EnumDefinition,
+    PermissibleValue,
+    Prefix,
+    SchemaDefinition,
+    SlotDefinition,
+    TypeDefinition,
+)
 from linkml_runtime.utils.formatutils import underscore
 from linkml_runtime.utils.schema_as_dict import schema_as_dict
 
@@ -105,9 +110,7 @@ class SchemaBuilder:
                 if isinstance(s, SlotDefinition):
                     cls.attributes[s.name] = s
                 else:
-                    raise ValueError(
-                        f"If use_attributes=True then slots must be SlotDefinitions"
-                    )
+                    raise ValueError(f"If use_attributes=True then slots must be SlotDefinitions")
         else:
             for s in slots:
                 cls.slots.append(s.name if isinstance(s, SlotDefinition) else s)
@@ -212,7 +215,7 @@ class SchemaBuilder:
 
         return self
 
-    def add_prefix(self, prefix: str, url: str, replace_if_present = False) -> "SchemaBuilder":
+    def add_prefix(self, prefix: str, url: str, replace_if_present=False) -> "SchemaBuilder":
         """
         Adds a prefix for use with CURIEs
 
@@ -237,7 +240,6 @@ class SchemaBuilder:
         self.schema.imports.extend(imports)
         return self
 
-
     def add_defaults(self) -> "SchemaBuilder":
         """
         Sets defaults, including:
@@ -258,12 +260,12 @@ class SchemaBuilder:
         return self
 
     def add_type(
-            self,
-            type: Union[TypeDefinition, dict, str],
-            typeof: str = None,
-            uri: str = None,
-            replace_if_present=False,
-            **kwargs
+        self,
+        type: Union[TypeDefinition, dict, str],
+        typeof: str = None,
+        uri: str = None,
+        replace_if_present=False,
+        **kwargs,
     ) -> "SchemaBuilder":
         """
         Adds the type to the schema
