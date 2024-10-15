@@ -12,7 +12,7 @@ from rdflib import Graph, URIRef
 from yaml.constructor import ConstructorError
 
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE, merge_contexts
-from linkml_runtime.utils.formatutils import is_empty, items
+from linkml_runtime.utils.formatutils import is_empty
 
 YAMLObjTypes = Union[JsonObjTypes, "YAMLRoot"]
 
@@ -229,16 +229,20 @@ class YAMLRoot(JsonObj):
                 self.<slot> = []
             if not isinstance(self.<slot>, list):
                 self.extensions = [self.<slot>]
-            self._normalize_inlined_slot(slot_name="<slot>", slot_type=<type>, key_name="<key>", inlined_as_list=True, keyed=...)
+            self._normalize_inlined_slot(
+                slot_name="<slot>", slot_type=<type>, key_name="<key>", inlined_as_list=True, keyed=...
+            )
         or
             if self.<slot> is None:
                 self.<slot> = []
             if not isinstance(self.<slot>, (list, dict)):
                 self.local_names = [self.<slot>]
-            self._normalize_inlined_slot(slot_name="<slot>", slot_type=<type>, key_name="<key>", inlined_as_list=None, keyed=...)
+            self._normalize_inlined_slot(
+                slot_name="<slot>", slot_type=<type>, key_name="<key>", inlined_as_list=None, keyed=...
+            )
 
-        The above pattern broke when the new jsonasobj was introduced, which is why we have the normalization above.  The code
-        below reverse engineers the above and invokes the new form
+        The above pattern broke when the new jsonasobj was introduced, which is why we have the normalization above.
+        The code below reverse engineers the above and invokes the new form
 
         """
         if inlined_as_list:
@@ -305,7 +309,8 @@ def _pformat(fields: dict, cls_name: str, indent: str = "  ") -> str:
         # pformat handles everything else that isn't a YAMLRoot object, but it sure does look ugly
         # use it to split lines and as the thing of last resort, but otherwise indent = 0, we'll do that
         val_str = pformat(val, indent=0, compact=True, sort_dicts=False)
-        # now we indent everything except the first line by indenting and then using regex to remove just the first indent
+        # now we indent everything except the first line by indenting
+        # and then using regex to remove just the first indent
         val_str = re.sub(rf"\A{re.escape(indent)}", "", textwrap.indent(val_str, indent))
         # now recombine with the key in a format that can be re-eval'd into an object if indent is just whitespace
         val_str = f"'{key}': " + val_str

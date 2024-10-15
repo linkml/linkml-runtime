@@ -6,8 +6,6 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
-HAVE_REQUESTS_CACHE = bool(find_spec("requests_cache"))
-
 from linkml_runtime.linkml_model.linkml_files import (
     GITHUB_IO_PATH_FOR,
     GITHUB_PATH_FOR,
@@ -20,6 +18,9 @@ from linkml_runtime.linkml_model.linkml_files import (
     Source,
     _Path,
 )
+
+HAVE_REQUESTS_CACHE = bool(find_spec("requests_cache"))
+
 
 EXPECTED_FORMATS = [
     (source, fmt) for source, fmt in product(Source, Format) if (fmt not in META_ONLY or source == Source.META)

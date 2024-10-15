@@ -3,6 +3,11 @@ from .extensions import Extensible, Extension
 from .meta import (
     AltDescription,
     AltDescriptionSource,
+    AnonymousClassExpression,
+    AnonymousEnumExpression,
+    AnonymousExpression,
+    AnonymousSlotExpression,
+    AnonymousTypeExpression,
     ClassDefinition,
     ClassDefinitionName,
     Definition,
@@ -90,4 +95,9 @@ __all__ = [
     "AltDescription",
     "PermissibleValue",
     "PvFormulaOptions",
+    "AnonymousClassExpression",
+    "AnonymousEnumExpression",
+    "AnonymousExpression",
+    "AnonymousSlotExpression",
+    "AnonymousTypeExpression",
 ]

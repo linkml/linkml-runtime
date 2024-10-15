@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Any, ClassVar, Optional, Union
 
 from rdflib import URIRef
-from utils.enumerations import EnumDefinitionImpl
 
 from linkml_runtime.utils.curienamespace import CurieNamespace
+from linkml_runtime.utils.enumerations import EnumDefinitionImpl
 from linkml_runtime.utils.metamodelcore import URI, URIorCURIE, empty_list
 from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
 

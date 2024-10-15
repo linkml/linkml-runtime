@@ -107,7 +107,7 @@ class Issue68TestCase(TestCase):
 
         s3_induced_c2 = view.induced_slot("slot3", "class2")
         assert not s3_induced_c2.required
-        assert s3_induced_c2.description == None
+        assert s3_induced_c2.description is None
         assert s3_induced_c2.range == "class0"
 
         # mixins take priority over is-a

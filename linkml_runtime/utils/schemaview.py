@@ -6,17 +6,38 @@ import warnings
 from collections import defaultdict, deque
 from collections.abc import Mapping
 from copy import copy, deepcopy
+from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, TypeVar
+from typing import Any, Optional, TypeVar, Union
 
 from deprecated.classic import deprecated
 
 from linkml_runtime.exceptions import OrderingError
-from linkml_runtime.linkml_model.meta import *
+from linkml_runtime.linkml_model import (
+    AnonymousSlotExpression,
+    ClassDefinition,
+    ClassDefinitionName,
+    Definition,
+    DefinitionName,
+    Element,
+    ElementName,
+    EnumDefinition,
+    EnumDefinitionName,
+    PermissibleValueText,
+    SchemaDefinition,
+    SchemaDefinitionName,
+    SlotDefinition,
+    SlotDefinitionName,
+    SubsetDefinition,
+    SubsetDefinitionName,
+    TypeDefinition,
+    TypeDefinitionName,
+)
 from linkml_runtime.utils.context_utils import map_import, parse_import_map
 from linkml_runtime.utils.formatutils import camelcase, is_empty, underscore
+from linkml_runtime.utils.metamodelcore import URIorCURIE
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.pattern import PatternResolver
 
@@ -1117,7 +1138,7 @@ class SchemaView:
         if uri is None or native:
             if e.from_schema is not None:
                 schema = next(sc for sc in self.schema_map.values() if sc.id == e.from_schema)
-                if schema == None:
+                if schema is None:
                     raise ValueError(f"Cannot find {e.from_schema} in schema_map")
             else:
                 schema = self.schema_map[self.in_schema(e.name)]
