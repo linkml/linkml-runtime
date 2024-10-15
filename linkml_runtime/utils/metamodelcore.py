@@ -3,7 +3,7 @@ import datetime
 import re
 from dataclasses import field
 from decimal import Decimal
-from typing import Union, Optional, Tuple
+from typing import Union, Optional
 from urllib.parse import urlparse
 
 from rdflib import Literal, BNode, URIRef
@@ -166,7 +166,7 @@ class Curie(URIorCURIE):
     term_name = re.compile("^[A-Za-z]([A-Za-z0-9._-]|/)*$")
 
     @classmethod
-    def ns_ln(cls, v: str) -> Optional[Tuple[str, str]]:
+    def ns_ln(cls, v: str) -> Optional[tuple[str, str]]:
         # See if this is indeed a valid CURIE, ie, it can be split by a colon
         curie_split = v.split(':', 1)
         if len(curie_split) == 1:

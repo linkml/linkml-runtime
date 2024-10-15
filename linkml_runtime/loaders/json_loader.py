@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Union, TextIO, Optional, Dict, Type, List
+from typing import Union, TextIO, Optional
 
 from hbreader import FileInfo
 
@@ -17,18 +17,18 @@ class JSONLoader(Loader):
                      source: Union[str, dict, TextIO], 
                      *, 
                      base_dir: Optional[str] = None,
-                     metadata: Optional[FileInfo] = None) -> Union[dict, List[dict]]:
+                     metadata: Optional[FileInfo] = None) -> Union[dict, list[dict]]:
         data = self._read_source(source, base_dir=base_dir, metadata=metadata, accept_header="application/ld+json, application/json, text/json")
         data_as_dict = json.loads(data) if isinstance(data, str) else data
         return self.json_clean(data_as_dict)
 
     def load_any(self, 
                  source: Union[str, dict, TextIO], 
-                 target_class: Type[Union[BaseModel, YAMLRoot]], 
+                 target_class: type[Union[BaseModel, YAMLRoot]], 
                  *, 
                  base_dir: Optional[str] = None,
                  metadata: Optional[FileInfo] = None, 
-                 **_) -> Union[BaseModel, YAMLRoot, List[BaseModel], List[YAMLRoot]]:
+                 **_) -> Union[BaseModel, YAMLRoot, list[BaseModel], list[YAMLRoot]]:
         data_as_dict = self.load_as_dict(source, base_dir=base_dir, metadata=metadata)
 
         if isinstance(data_as_dict, dict):

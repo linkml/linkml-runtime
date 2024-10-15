@@ -655,17 +655,10 @@ def test_traversal():
     view.add_class(ClassDefinition('BY', is_a='RootMixin', mixin=True))
     view.add_class(ClassDefinition('CX', is_a='RootMixin', mixin=True))
 
-    def check(ancs, expected):
-        assert ancs == expected
-
-    check(view.class_ancestors('C', depth_first=True),
-          ['C', 'Cm1', 'Cm2', 'CX', 'B', 'Bm1', 'Bm2', 'BY', 'A', 'Am1', 'Am2', 'AZ', 'Root', 'RootMixin'])
-    check(view.class_ancestors('C', depth_first=False),
-          ['C', 'Cm1', 'Cm2', 'CX', 'B', 'Bm1', 'Bm2', 'RootMixin', 'BY', 'A', 'Am1', 'Am2', 'AZ', 'Root'])
-    check(view.class_ancestors('C', mixins=False),
-          ['C', 'B', 'A', 'Root'])
-    check(view.class_ancestors('C', is_a=False),
-          ['C', 'Cm1', 'Cm2', 'CX'])
+    assert view.class_ancestors('C', depth_first=True) == ['C', 'Cm1', 'Cm2', 'CX', 'B', 'Bm1', 'Bm2', 'BY', 'A', 'Am1', 'Am2', 'AZ', 'Root', 'RootMixin']
+    assert view.class_ancestors('C', depth_first=False) == ['C', 'Cm1', 'Cm2', 'CX', 'B', 'Bm1', 'Bm2', 'RootMixin', 'BY', 'A', 'Am1', 'Am2', 'AZ', 'Root']
+    assert view.class_ancestors('C', mixins=False) == ['C', 'B', 'A', 'Root']
+    assert view.class_ancestors('C', is_a=False) == ['C', 'Cm1', 'Cm2', 'CX']
 
 def test_slot_inheritance():
     schema = SchemaDefinition(id='test', name='test')
