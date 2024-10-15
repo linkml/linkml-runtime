@@ -5,15 +5,15 @@ from typing import Any
 from jsonasobj2 import JsonObj, as_json
 
 from linkml_runtime.utils.formatutils import (
-    camelcase,
-    underscore,
-    lcamelcase,
     be,
-    split_line,
-    wrapped_annotation,
+    camelcase,
     is_empty,
+    lcamelcase,
     remove_empty_items,
+    split_line,
     uncamelcase,
+    underscore,
+    wrapped_annotation,
 )
 
 empty_things = [None, dict(), list(), JsonObj(), JsonObj({}), JsonObj([])]

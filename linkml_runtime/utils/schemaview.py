@@ -1,23 +1,24 @@
+import collections
+import logging
 import os
 import uuid
-import logging
-import collections
-from functools import lru_cache
-from copy import copy, deepcopy
+import warnings
 from collections import defaultdict, deque
+from collections.abc import Mapping
+from copy import copy, deepcopy
+from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional, TypeVar
-from collections.abc import Mapping
-import warnings
 
-from linkml_runtime.utils.namespaces import Namespaces
 from deprecated.classic import deprecated
-from linkml_runtime.utils.context_utils import parse_import_map, map_import
-from linkml_runtime.utils.formatutils import is_empty, underscore, camelcase
-from linkml_runtime.utils.pattern import PatternResolver
-from linkml_runtime.linkml_model.meta import *
+
 from linkml_runtime.exceptions import OrderingError
-from enum import Enum
+from linkml_runtime.linkml_model.meta import *
+from linkml_runtime.utils.context_utils import map_import, parse_import_map
+from linkml_runtime.utils.formatutils import camelcase, is_empty, underscore
+from linkml_runtime.utils.namespaces import Namespaces
+from linkml_runtime.utils.pattern import PatternResolver
 
 logger = logging.getLogger(__name__)
 
@@ -1066,7 +1067,7 @@ class SchemaView:
         if type(getattr(induced_slot, metadata_property)) == bool:
             return True if getattr(induced_slot, metadata_property) else False
         else:
-            raise ValueError(f'property to introspect must be of type "boolean"')
+            raise ValueError('property to introspect must be of type "boolean"')
 
     def get_element(self, element: Union[ElementName, Element], imports=True) -> Element:
         """

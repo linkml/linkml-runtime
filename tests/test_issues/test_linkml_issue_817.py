@@ -2,9 +2,8 @@ import unittest
 
 from linkml_runtime.dumpers import yaml_dumper
 from linkml_runtime.loaders import yaml_loader
-
 from tests.test_issues.environment import env
-from tests.test_issues.models.model_817 import Container, Person, VitalStatusEnum, PersonNoId
+from tests.test_issues.models.model_817 import Container, Person, PersonNoId, VitalStatusEnum
 
 
 class Issue817TestCase(unittest.TestCase):

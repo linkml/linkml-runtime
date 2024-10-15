@@ -1,7 +1,7 @@
 import json
 import os
 from io import TextIOWrapper
-from typing import Optional, Union, Any, Callable
+from typing import Any, Callable, Optional, Union
 
 import yaml
 from jsonasobj2 import JsonObj, loads

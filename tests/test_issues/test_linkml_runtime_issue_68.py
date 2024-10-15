@@ -1,6 +1,7 @@
 import logging
 import unittest
 from unittest import TestCase
+
 from linkml_runtime.utils.schemaview import SchemaView
 
 logger = logging.getLogger(__name__)

@@ -1,4 +1,5 @@
 import unittest
+
 from linkml_runtime import SchemaView
 
 URL = (

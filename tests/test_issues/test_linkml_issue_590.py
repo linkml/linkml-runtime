@@ -1,7 +1,6 @@
 import unittest
 
 from linkml_runtime.utils.schemaview import SchemaView
-
 from tests.test_issues.environment import env
 
 SCHEMA = env.input_path("test_linkml_issue_590.yaml")

@@ -3,19 +3,16 @@ import datetime
 import re
 from dataclasses import field
 from decimal import Decimal
-from typing import Union, Optional
+from typing import Optional, Union
 from urllib.parse import urlparse
 
-from rdflib import Literal, BNode, URIRef
+from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import is_ncname
 from rdflib.term import Identifier as rdflib_Identifier
 
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.strictness import is_strict
-
-from linkml_runtime.utils.uri_validator import validate_uri
-from linkml_runtime.utils.uri_validator import validate_uri_reference
-from linkml_runtime.utils.uri_validator import validate_curie
+from linkml_runtime.utils.uri_validator import validate_curie, validate_uri, validate_uri_reference
 
 # Reference Decimal to make sure it stays in the imports
 _z = Decimal(1)
@@ -236,9 +233,9 @@ class XSDTime(str, TypedNode):
             if not isinstance(value, datetime.time):
                 value = datetime.time.fromisoformat(value)
             return datetime.time.fromisoformat(str(value)).isoformat()
-        except TypeError as e:
+        except TypeError:
             pass
-        except ValueError as e:
+        except ValueError:
             pass
         if not is_strict():
             return str(value)
@@ -269,9 +266,9 @@ class XSDDate(str, TypedNode):
             if not isinstance(value, datetime.date):
                 value = datetime.date.fromisoformat(str(value))
             return value.isoformat()
-        except TypeError as e:
+        except TypeError:
             pass
-        except ValueError as e:
+        except ValueError:
             pass
         if not is_strict():
             return str(value)
@@ -304,9 +301,9 @@ class XSDDateTime(str, TypedNode):
             if not isinstance(value, datetime.datetime):
                 value = datetime.datetime.fromisoformat(value)  # Note that this handles non 'T' format as well
             return value.isoformat()
-        except TypeError as e:
+        except TypeError:
             pass
-        except ValueError as e:
+        except ValueError:
             pass
         if not is_strict():
             return str(value)

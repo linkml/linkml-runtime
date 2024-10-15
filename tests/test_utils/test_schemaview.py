@@ -1,24 +1,25 @@
-import os
 import logging
+import os
 from copy import copy
 from pathlib import Path
+
 import pytest
 from jsonasobj2 import JsonObj
 
 from linkml_runtime.dumpers import yaml_dumper
 from linkml_runtime.linkml_model.meta import (
-    Example,
-    SchemaDefinition,
     ClassDefinition,
-    SlotDefinitionName,
-    SlotDefinition,
     ClassDefinitionName,
+    Example,
     Prefix,
+    SchemaDefinition,
+    SlotDefinition,
+    SlotDefinitionName,
 )
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
 from linkml_runtime.utils.introspection import package_schemaview
-from linkml_runtime.utils.schemaview import SchemaView, SchemaUsage, OrderedBy
-from linkml_runtime.utils.schemaops import roll_up, roll_down
+from linkml_runtime.utils.schemaops import roll_down, roll_up
+from linkml_runtime.utils.schemaview import SchemaUsage, SchemaView
 from tests.test_utils import INPUT_DIR
 
 logger = logging.getLogger(__name__)

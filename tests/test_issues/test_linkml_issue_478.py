@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
-from linkml_runtime.utils.schemaview import SchemaView
 
+from linkml_runtime.utils.schemaview import SchemaView
 from tests.test_issues.environment import env
 
 

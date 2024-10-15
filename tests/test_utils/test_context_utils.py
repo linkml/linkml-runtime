@@ -3,7 +3,7 @@ import unittest
 from jsonasobj2 import JsonObj, loads
 
 from linkml_runtime.utils.context_utils import merge_contexts
-from tests.test_utils import METAMODEL_CONTEXT_URI, META_BASE_URI
+from tests.test_utils import META_BASE_URI, METAMODEL_CONTEXT_URI
 
 json_1 = '{ "ex": "http://example.org/test/", "ex2": "http://example.org/test2/" }'
 json_2 = '{ "foo": 17, "@context": { "ex": "http://example.org/test3/", "ex2": {"@id": "http://example.org/test4/" }}}'
@@ -50,7 +50,7 @@ class ContextUtilsTestCase(unittest.TestCase):
         )
         self.assertEqual(
             [
-                f"file://local.jsonld",
+                "file://local.jsonld",
                 "https://w3id.org/linkml/meta.context.jsonld",
                 JsonObj(ex="http://example.org/test/", ex2="http://example.org/test2/"),
                 JsonObj(ex="http://example.org/test3/", ex2=JsonObj(**{"@id": "http://example.org/test4/"})),
