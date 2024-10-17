@@ -2,7 +2,7 @@ import logging
 import urllib
 from copy import copy
 from dataclasses import dataclass
-from typing import Optional, Any, Dict, Type, Union, TextIO, List, Tuple, Set
+from typing import Optional, Any, Dict, Type, Union, TextIO, List, Tuple, Set, Iterator
 
 from curies import Converter
 from hbreader import FileInfo
@@ -279,4 +279,5 @@ class RDFLibLoader(Loader):
     def load_any(self, source: str, **kwargs) -> Union[BaseModel, YAMLRoot, List[BaseModel], List[YAMLRoot]]:
         return self.load(source, **kwargs)
 
-
+    def iter_instances(self) -> Iterator[Any]:
+        raise NotImplementedError("RDF Loader doesn't have instance iterator yet!")
