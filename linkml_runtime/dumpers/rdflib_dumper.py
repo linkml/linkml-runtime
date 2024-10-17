@@ -4,6 +4,7 @@ from abc import abstractmethod
 from typing import Optional, Any, Dict, Union
 from pydantic import BaseModel
 
+import rdflib
 from curies import Converter
 from rdflib import Graph, URIRef, XSD
 from rdflib.term import Node, BNode, Literal
