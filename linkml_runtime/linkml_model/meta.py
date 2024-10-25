@@ -4014,6 +4014,9 @@ class PermissibleValue(YAMLRoot):
 
         super().__post_init__(**kwargs)
 
+    def __repr__(self):
+        return repr(getattr(self, 'text')).replace("'", "")
+
 
 @dataclass(repr=False)
 class UniqueKey(YAMLRoot):
