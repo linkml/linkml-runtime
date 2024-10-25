@@ -26,6 +26,8 @@ class EnumTestCase(unittest.TestCase):
         print(StateEnum.LIVING)
         assert str(i.state) == 'LIVING'
         assert i.state.code == StateEnum.LIVING
+        pv = StateEnum.LIVING
+        assert str(pv) == 'LIVING'
         obj = json.loads(json_dumper.dumps(i))
         assert obj['state'] == 'LIVING'
         obj = yaml.safe_load(yaml_dumper.dumps(i))
