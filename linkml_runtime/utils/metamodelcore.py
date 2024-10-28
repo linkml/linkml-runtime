@@ -229,6 +229,7 @@ class XSDTime(str, TypedNode):
             raise ValueError(f"{value} is not a valid time")
         if isinstance(value, Literal):
             value = value.value
+
         try:
             if not isinstance(value, datetime.time):
                 value = datetime.time.fromisoformat(value)
@@ -236,8 +237,8 @@ class XSDTime(str, TypedNode):
         except (TypeError, ValueError):
             if is_strict():
                 raise
-        finally:
-            return str(value)
+
+        return str(value)
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.time, datetime.datetime, Literal]) -> bool:
@@ -260,6 +261,7 @@ class XSDDate(str, TypedNode):
             raise ValueError(f"{value} is not a valid date")
         if isinstance(value, Literal):
             value = value.value
+
         try:
             if not isinstance(value, datetime.date):
                 value = datetime.date.fromisoformat(str(value))
@@ -267,8 +269,8 @@ class XSDDate(str, TypedNode):
         except (TypeError, ValueError):
             if is_strict():
                 raise
-        finally:
-            return str(value)
+
+        return str(value)
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.date, Literal]) -> bool:
@@ -293,6 +295,7 @@ class XSDDateTime(str, TypedNode):
             raise ValueError(f"{value} is not a valid datetime")
         if isinstance(value, Literal):
             value = value.value
+
         try:
             if not isinstance(value, datetime.datetime):
                 value = datetime.datetime.fromisoformat(value)  # Note that this handles non 'T' format as well
@@ -300,8 +303,8 @@ class XSDDateTime(str, TypedNode):
         except (TypeError, ValueError):
             if is_strict():
                 raise
-        finally:
-            return str(value)
+
+        return str(value)
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.datetime, Literal]) -> bool:
