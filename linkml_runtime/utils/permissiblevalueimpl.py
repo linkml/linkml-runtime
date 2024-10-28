@@ -130,10 +130,10 @@ class PvFormulaOptions(EnumDefinitionImpl):
         description="The permissible values are the set of FHIR coding elements derived from the code set",
     )
 
-    _defn = EnumDefinition(
-        name="PvFormulaOptions",
-        description="The formula used to generate the set of permissible values from the code_set values",
-    )
+    # _defn = EnumDefinition(
+    #     name="PvFormulaOptions",
+    #     description="The formula used to generate the set of permissible values from the code_set values",
+    # )
 
 
 class PermissibleValueImpl(PermissibleValue):

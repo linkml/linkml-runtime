@@ -1050,12 +1050,12 @@ class SchemaView:
         will return True if the slot id has the identifier property set to True.
 
         :param slot_name: slot to test for multivalued
-        :param metadata_property: controlled vocabulary for boolean attribtues
+        :param metadata_property: controlled vocabulary for boolean attributes
         :return: boolean
         """
 
         induced_slot = self.induced_slot(slot_name)
-        if type(getattr(induced_slot, metadata_property)) == bool:
+        if type(getattr(induced_slot, metadata_property)) is bool:
             return True if getattr(induced_slot, metadata_property) else False
         else:
             raise ValueError(f'property to introspect must be of type "boolean"')
@@ -1666,7 +1666,7 @@ class SchemaView:
         """Get all slots that use a given enum: schema defined, attribute, or slot_usage.
 
         :param enum_name: enum in consideration
-        :return: list of slots, either schem or both class attribute defined
+        :return: list of slots, either schema or both class attribute defined
         """
         enum_slots = []
         for s in self.all_slots().values():

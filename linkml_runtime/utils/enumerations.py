@@ -1,8 +1,11 @@
 from dataclasses import fields
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from linkml_runtime.utils.metamodelcore import Curie
 from linkml_runtime.utils.yamlutils import YAMLRoot
+
+if TYPE_CHECKING:
+    from linkml_runtime.linkml_model import EnumDefinition, PermissibleValue
 
 
 class EnumDefinitionMeta(type):

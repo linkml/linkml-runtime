@@ -24,7 +24,7 @@ compare_operators = {ast.Eq: op.eq, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt
 
 def eval_conditional(*conds: list[tuple[bool, Any]]) -> Any:
     """
-    Evaluate a collection of expression,value tuples, returing the first value whose expression is true
+    Evaluate a collection of expression, value tuples, returning the first value whose expression is true
 
     >>> x= 40
     >>> eval_conditional((x < 25, 'low'),  (x > 25, 'high'), (True, 'low'))

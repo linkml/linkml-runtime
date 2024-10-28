@@ -1,4 +1,5 @@
 import configparser
+import logging
 
 # Global testing control variables
 import os
@@ -37,7 +38,7 @@ USE_LOCAL_IMPORT_MAP = test_settings.getboolean("USE_LOCAL_IMPORT_MAP", False)
 
 
 # There are lots of warnings emitted by the generators. Default logging level
-DEFAULT_LOG_LEVEL = eval(test_settings.get("DEFAULT_LOG_LEVEL", "logging.ERROR"))
+DEFAULT_LOG_LEVEL = getattr(logging, test_settings.get("DEFAULT_LOG_LEVEL", "WARNING"))
 DEFAULT_LOG_LEVEL_TEXT = test_settings.get("DEFAULT_LOG_LEVEL_TEXT", "ERROR")
 
 

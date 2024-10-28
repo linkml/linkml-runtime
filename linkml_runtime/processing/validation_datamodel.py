@@ -405,7 +405,8 @@ class ConstraintType(EnumDefinitionImpl):
     )
     MinCountConstraint = PermissibleValue(
         text="MinCountConstraint",
-        description="cardinality constraint where the number of values of the slot must be greater or equal to a specified minimum",
+        description="cardinality constraint where the number of values of the slot must be greater than "
+        "or equal to a specified minimum",
         meaning=SH.MinCountConstraintComponent,
     )
     RequiredConstraint = PermissibleValue(
@@ -420,7 +421,8 @@ class ConstraintType(EnumDefinitionImpl):
     )
     MaxCountConstraint = PermissibleValue(
         text="MaxCountConstraint",
-        description="cardinality constraint where the number of values of the slot must be less than or equal to a specified maximum",
+        description="cardinality constraint where the number of values of the slot must be less than "
+        "or equal to a specified maximum",
         meaning=SH.MaxCountConstraintComponent,
     )
     SingleValuedConstraint = PermissibleValue(

@@ -55,7 +55,8 @@ class RDFLibLoader(Loader):
         :param schemaview: schema to which graph conforms
         :param target_class: class which root nodes should instantiate
         :param prefix_map: additional prefix mappings for data objects
-        :param ignore_unmapped_predicates: if True then a predicate that has no mapping to a slot does not raise an error
+        :param ignore_unmapped_predicates:
+            if True then a predicate that has no mapping to a slot does not raise an error
         :return: all instances of target class type
         """
         namespaces = schemaview.namespaces()
@@ -231,8 +232,7 @@ class RDFLibLoader(Loader):
         id_slot = schemaview.get_identifier_slot(cn)
         if not isinstance(node, BNode):
             id_val = self._uri_to_id(node, id_slot, schemaview)
-            # id_val = schemaview.namespaces().curie_for(node)
-            if id_val == None:
+            if id_val is None:
                 id_val = str(node)
             return {id_slot.name: id_val}
         else:
