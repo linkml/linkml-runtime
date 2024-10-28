@@ -1,18 +1,20 @@
 from dataclasses import dataclass
-from typing import Type, List, Optional, Any, re
+from re import Pattern
+from typing import Any, Optional
 
 from rdflib import URIRef
 
 
 @dataclass
 class Slot:
-    """ Runtime slot definition """
+    """Runtime slot definition"""
+
     uri: URIRef
     name: str
     curie: Optional[str]
     model_uri: URIRef
 
-    domain: Optional[Type]
+    domain: Optional[type]
     range: Any
-    mappings: Optional[List[URIRef]] = None
-    pattern: Optional[re] = None
+    mappings: Optional[list[URIRef]] = None
+    pattern: Optional[Pattern] = None

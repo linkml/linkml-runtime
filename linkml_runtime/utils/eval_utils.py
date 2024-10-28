@@ -8,16 +8,23 @@ import ast
 import operator as op
 
 # supported operators
-from typing import Tuple, List, Any
+from typing import Any
 
-operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
-             ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-             ast.USub: op.neg}
+operators = {
+    ast.Add: op.add,
+    ast.Sub: op.sub,
+    ast.Mult: op.mul,
+    ast.Div: op.truediv,
+    ast.Pow: op.pow,
+    ast.BitXor: op.xor,
+    ast.USub: op.neg,
+}
 compare_operators = {ast.Eq: op.eq, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
 
-def eval_conditional(*conds: List[Tuple[bool, Any]]) -> Any:
+
+def eval_conditional(*conds: list[tuple[bool, Any]]) -> Any:
     """
-    Evaluate a collection of expression,value tuples, returing the first value whose expression is true
+    Evaluate a collection of expression, value tuples, returning the first value whose expression is true
 
     >>> x= 40
     >>> eval_conditional((x < 25, 'low'),  (x > 25, 'high'), (True, 'low'))
@@ -31,12 +38,14 @@ def eval_conditional(*conds: List[Tuple[bool, Any]]) -> Any:
             return val
 
 
-funcs = {'max': (True, max),
-         'min': (True, min),
-         'len': (True, len),
-         'str': (False, str),
-         'strlen': (False, len),
-         'case': (False, eval_conditional)}
+funcs = {
+    "max": (True, max),
+    "min": (True, min),
+    "len": (True, len),
+    "str": (False, str),
+    "strlen": (False, len),
+    "case": (False, eval_conditional),
+}
 
 
 class UnsetValueException(Exception):
@@ -83,31 +92,27 @@ def eval_expr(expr: str, **kwargs) -> Any:
 
     :param expr: expression to evaluate
     """
-    #if kwargs:
+    # if kwargs:
     #    expr = expr.format(**kwargs)
-    if 'None' in expr:
+    if "None" in expr:
         # TODO: do this as part of parsing
         return None
     else:
         try:
-            return eval_(ast.parse(expr, mode='eval').body, kwargs)
+            return eval_(ast.parse(expr, mode="eval").body, kwargs)
         except UnsetValueException:
             return None
-
 
 
 def eval_(node, bindings={}):
     if isinstance(node, ast.Num):
         return node.n
     elif isinstance(node, ast.Str):
-        if 's' in vars(node):
+        if "s" in vars(node):
             return node.s
         else:
             return node.value
     elif isinstance(node, ast.Constant):
-        return node.value
-    elif isinstance(node, ast.NameConstant):
-        # can be removed when python 3.7 is no longer supported
         return node.value
     elif isinstance(node, ast.Name):
         return bindings.get(node.id)
@@ -122,6 +127,7 @@ def eval_(node, bindings={}):
     elif isinstance(node, ast.Attribute):
         # e.g. for person.name, this returns the val of person
         v = eval_(node.value, bindings)
+
         # lookup attribute, potentially distributing the results over collections
         def _get(obj: Any, k: str, recurse=True) -> Any:
             if isinstance(obj, dict):
@@ -137,19 +143,20 @@ def eval_(node, bindings={}):
                 return None
             else:
                 return getattr(obj, k)
+
         return _get(v, node.attr)
     elif isinstance(node, ast.List):
         return [eval_(x, bindings) for x in node.elts]
     elif isinstance(node, ast.Set):
         # sets are not part of the language; we use {x} as notation for x
         if len(node.elts) != 1:
-            raise ValueError(f'The {{}} must enclose a single variable')
+            raise ValueError("The {} must enclose a single variable")
         e = node.elts[0]
         if not isinstance(e, ast.Name):
-            raise ValueError(f'The {{}} must enclose a variable')
+            raise ValueError("The {} must enclose a variable")
         v = eval_(e, bindings)
         if v is None:
-            raise UnsetValueException(f'{e} is not set')
+            raise UnsetValueException(f"{e} is not set")
         else:
             return v
     elif isinstance(node, ast.Tuple):
@@ -158,19 +165,19 @@ def eval_(node, bindings={}):
         return {eval_(k, bindings): eval_(v, bindings) for k, v in zip(node.keys, node.values)}
     elif isinstance(node, ast.Compare):  # <left> <operator> <right>
         if len(node.ops) != 1:
-            raise ValueError(f'Must be exactly one op in {node}')
+            raise ValueError(f"Must be exactly one op in {node}")
         if type(node.ops[0]) not in compare_operators:
-            raise NotImplementedError(f'Not implemented: {node.ops[0]} in {node}')
+            raise NotImplementedError(f"Not implemented: {node.ops[0]} in {node}")
         py_op = compare_operators[type(node.ops[0])]
         if len(node.comparators) != 1:
-            raise ValueError(f'Must be exactly one comparator in {node}')
+            raise ValueError(f"Must be exactly one comparator in {node}")
         right = node.comparators[0]
         return py_op(eval_(node.left, bindings), eval_(right, bindings))
     elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
         return operators[type(node.op)](eval_(node.left, bindings), eval_(node.right, bindings))
     elif isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
         return operators[type(node.op)](eval_(node.operand, bindings))
-    #elif isinstance(node, ast.Match):
+    # elif isinstance(node, ast.Match):
     #    # implementing this would restrict python version to 3.10
     #    # https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python
     #    raise NotImplementedError(f'Not supported')
@@ -186,9 +193,9 @@ def eval_(node, bindings={}):
                 takes_list, func = funcs[fn]
                 args = [eval_(x, bindings) for x in node.args]
                 if isinstance(args[0], list) and not takes_list:
-                    return [func(*[x]+args[1:]) for x in args[0]]
+                    return [func(*[x] + args[1:]) for x in args[0]]
                 else:
                     return func(*args)
-        raise NotImplementedError(f'Call {node.func} not implemented. node = {node}')
+        raise NotImplementedError(f"Call {node.func} not implemented. node = {node}")
     else:
         raise TypeError(node)

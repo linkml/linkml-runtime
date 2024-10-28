@@ -1,15 +1,15 @@
-from functools import lru_cache
 import re
-from typing import Dict
+from functools import lru_cache
+
 
 # We might want to deprecate this method in favor of PatternResolver in the future
-def generate_patterns(schema_view) -> Dict[str, str]:
+def generate_patterns(schema_view) -> dict[str, str]:
     """Generates a dictionary of slot patterns corresponding to
     the structured patterns in the settings.
     :param schema_view: SchemaView object with LinkML YAML
         already loaded
-    :return generated_patterns: dictionary with the 
-        expanded structured patterns 
+    :return generated_patterns: dictionary with the
+        expanded structured patterns
     """
 
     resolver = PatternResolver(schema_view)
@@ -27,7 +27,7 @@ def generate_patterns(schema_view) -> Dict[str, str]:
     return generated_patterns
 
 
-class PatternResolver():
+class PatternResolver:
 
     # regular expression capturing the various use cases
     # for the optionally dot separated, curly braces bound, pattern syntax
@@ -46,7 +46,7 @@ class PatternResolver():
             # substrings in the structured pattern syntax
             self.format_spec[k] = setting.setting_value
 
-    @lru_cache()
+    @lru_cache
     def resolve(self, pattern: str) -> str:
         # apply the regex to the pattern and look for matches
         matches = self.var_name.finditer(pattern)
@@ -78,11 +78,6 @@ class PatternResolver():
 
         converted = pattern
         for item in reversed:
-            converted = (
-                converted[: item["start"]]
-                + item["string"]
-                + converted[item["end"] :]
-            )
+            converted = converted[: item["start"]] + item["string"] + converted[item["end"] :]
 
         return converted
-

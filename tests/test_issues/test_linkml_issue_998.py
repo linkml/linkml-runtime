@@ -1,4 +1,5 @@
 import pytest
+
 from linkml_runtime.utils.schemaview import SchemaView
 
 schema = """

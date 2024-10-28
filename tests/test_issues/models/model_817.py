@@ -6,41 +6,34 @@
 # description:
 # license: https://creativecommons.org/publicdomain/zero/1.0/
 
-import dataclasses
-import sys
-import re
-from jsonasobj2 import JsonObj, as_dict
-from typing import Optional, List, Union, Dict, ClassVar, Any
 from dataclasses import dataclass
-from linkml_runtime.linkml_model.meta import EnumDefinition, PermissibleValue, PvFormulaOptions
+from typing import Any, ClassVar, Optional, Union
 
-from linkml_runtime.utils.slot import Slot
-from linkml_runtime.utils.metamodelcore import empty_list, empty_dict, bnode
-from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str, extended_float, extended_int
-from linkml_runtime.utils.dataclass_extensions_376 import dataclasses_init_fn_with_kwargs
-from linkml_runtime.utils.formatutils import camelcase, underscore, sfx
-from linkml_runtime.utils.enumerations import EnumDefinitionImpl
-from rdflib import Namespace, URIRef
+from jsonasobj2 import as_dict
+from rdflib import URIRef
+
+from linkml_runtime.linkml_model.meta import EnumDefinition, PermissibleValue
 from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.linkml_model.types import String
+from linkml_runtime.utils.enumerations import EnumDefinitionImpl
+from linkml_runtime.utils.metamodelcore import empty_dict, empty_list
+from linkml_runtime.utils.slot import Slot
+from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
 
 metamodel_version = "1.7.0"
 version = None
 
-# Overwrite dataclasses _init_fn to add **kwargs in __init__
-dataclasses._init_fn = dataclasses_init_fn_with_kwargs
-
 # Namespaces
-LINKML = CurieNamespace('linkml', 'https://w3id.org/linkml/')
-PERSONINFO = CurieNamespace('personinfo', 'https://w3id.org/linkml/examples/personinfo/')
-RDF = CurieNamespace('rdf', 'http://example.org/UNKNOWN/rdf/')
-RDFS = CurieNamespace('rdfs', 'http://example.org/UNKNOWN/rdfs/')
-SKOS = CurieNamespace('skos', 'http://example.org/UNKNOWN/skos/')
-XSD = CurieNamespace('xsd', 'http://www.w3.org/2001/XMLSchema#')
+LINKML = CurieNamespace("linkml", "https://w3id.org/linkml/")
+PERSONINFO = CurieNamespace("personinfo", "https://w3id.org/linkml/examples/personinfo/")
+RDF = CurieNamespace("rdf", "http://example.org/UNKNOWN/rdf/")
+RDFS = CurieNamespace("rdfs", "http://example.org/UNKNOWN/rdfs/")
+SKOS = CurieNamespace("skos", "http://example.org/UNKNOWN/skos/")
+XSD = CurieNamespace("xsd", "http://www.w3.org/2001/XMLSchema#")
 DEFAULT_ = PERSONINFO
 
 
 # Types
+
 
 # Class references
 class PersonId(extended_str):
@@ -49,7 +42,7 @@ class PersonId(extended_str):
 
 @dataclass
 class Person(YAMLRoot):
-    _inherited_slots: ClassVar[List[str]] = []
+    _inherited_slots: ClassVar[list[str]] = []
 
     class_class_uri: ClassVar[URIRef] = PERSONINFO.Person
     class_class_curie: ClassVar[str] = "personinfo:Person"
@@ -60,7 +53,7 @@ class Person(YAMLRoot):
     name: Optional[str] = None
     vital_status: Optional[Union[str, "VitalStatusEnum"]] = None
 
-    def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
+    def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if self._is_empty(self.id):
             self.MissingRequiredField("id")
         if not isinstance(self.id, PersonId):
@@ -77,7 +70,7 @@ class Person(YAMLRoot):
 
 @dataclass
 class PersonNoId(YAMLRoot):
-    _inherited_slots: ClassVar[List[str]] = []
+    _inherited_slots: ClassVar[list[str]] = []
 
     class_class_uri: ClassVar[URIRef] = PERSONINFO.PersonNoId
     class_class_curie: ClassVar[str] = "personinfo:PersonNoId"
@@ -87,7 +80,7 @@ class PersonNoId(YAMLRoot):
     name: Optional[str] = None
     vital_status: Optional[Union[str, "VitalStatusEnum"]] = None
 
-    def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
+    def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if self.name is not None and not isinstance(self.name, str):
             self.name = str(self.name)
 
@@ -99,7 +92,7 @@ class PersonNoId(YAMLRoot):
 
 @dataclass
 class Container(YAMLRoot):
-    _inherited_slots: ClassVar[List[str]] = []
+    _inherited_slots: ClassVar[list[str]] = []
 
     class_class_uri: ClassVar[URIRef] = PERSONINFO.Container
     class_class_curie: ClassVar[str] = "personinfo:Container"
@@ -107,13 +100,17 @@ class Container(YAMLRoot):
     class_model_uri: ClassVar[URIRef] = PERSONINFO.Container
 
     name: Optional[str] = None
-    persons_as_list: Optional[Union[Dict[Union[str, PersonId], Union[dict, Person]], List[Union[dict, Person]]]] = empty_dict()
-    persons_as_dict: Optional[Union[Dict[Union[str, PersonId], Union[dict, Person]], List[Union[dict, Person]]]] = empty_dict()
+    persons_as_list: Optional[Union[dict[Union[str, PersonId], Union[dict, Person]], list[Union[dict, Person]]]] = (
+        empty_dict()
+    )
+    persons_as_dict: Optional[Union[dict[Union[str, PersonId], Union[dict, Person]], list[Union[dict, Person]]]] = (
+        empty_dict()
+    )
     single_person_inlined: Optional[Union[dict, Person]] = None
-    noidobj_as_list: Optional[Union[Union[dict, PersonNoId], List[Union[dict, PersonNoId]]]] = empty_list()
+    noidobj_as_list: Optional[Union[Union[dict, PersonNoId], list[Union[dict, PersonNoId]]]] = empty_list()
     single_noidobj_inlined: Optional[Union[dict, PersonNoId]] = None
 
-    def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
+    def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if self.name is not None and not isinstance(self.name, str):
             self.name = str(self.name)
 
@@ -126,7 +123,9 @@ class Container(YAMLRoot):
 
         if not isinstance(self.noidobj_as_list, list):
             self.noidobj_as_list = [self.noidobj_as_list] if self.noidobj_as_list is not None else []
-        self.noidobj_as_list = [v if isinstance(v, PersonNoId) else PersonNoId(**as_dict(v)) for v in self.noidobj_as_list]
+        self.noidobj_as_list = [
+            v if isinstance(v, PersonNoId) else PersonNoId(**as_dict(v)) for v in self.noidobj_as_list
+        ]
 
         if self.single_noidobj_inlined is not None and not isinstance(self.single_noidobj_inlined, PersonNoId):
             self.single_noidobj_inlined = PersonNoId(**as_dict(self.single_noidobj_inlined))
@@ -144,30 +143,75 @@ class VitalStatusEnum(EnumDefinitionImpl):
         name="VitalStatusEnum",
     )
 
+
 # Slots
 class slots:
     pass
 
-slots.id = Slot(uri=PERSONINFO.id, name="id", curie=PERSONINFO.curie('id'),
-                   model_uri=PERSONINFO.id, domain=None, range=URIRef)
 
-slots.name = Slot(uri=PERSONINFO.name, name="name", curie=PERSONINFO.curie('name'),
-                   model_uri=PERSONINFO.name, domain=None, range=Optional[str])
+slots.id = Slot(
+    uri=PERSONINFO.id, name="id", curie=PERSONINFO.curie("id"), model_uri=PERSONINFO.id, domain=None, range=URIRef
+)
 
-slots.persons_as_list = Slot(uri=PERSONINFO.persons_as_list, name="persons_as_list", curie=PERSONINFO.curie('persons_as_list'),
-                   model_uri=PERSONINFO.persons_as_list, domain=None, range=Optional[Union[Dict[Union[str, PersonId], Union[dict, Person]], List[Union[dict, Person]]]])
+slots.name = Slot(
+    uri=PERSONINFO.name,
+    name="name",
+    curie=PERSONINFO.curie("name"),
+    model_uri=PERSONINFO.name,
+    domain=None,
+    range=Optional[str],
+)
 
-slots.persons_as_dict = Slot(uri=PERSONINFO.persons_as_dict, name="persons_as_dict", curie=PERSONINFO.curie('persons_as_dict'),
-                   model_uri=PERSONINFO.persons_as_dict, domain=None, range=Optional[Union[Dict[Union[str, PersonId], Union[dict, Person]], List[Union[dict, Person]]]])
+slots.persons_as_list = Slot(
+    uri=PERSONINFO.persons_as_list,
+    name="persons_as_list",
+    curie=PERSONINFO.curie("persons_as_list"),
+    model_uri=PERSONINFO.persons_as_list,
+    domain=None,
+    range=Optional[Union[dict[Union[str, PersonId], Union[dict, Person]], list[Union[dict, Person]]]],
+)
 
-slots.single_person_inlined = Slot(uri=PERSONINFO.single_person_inlined, name="single_person_inlined", curie=PERSONINFO.curie('single_person_inlined'),
-                   model_uri=PERSONINFO.single_person_inlined, domain=None, range=Optional[Union[dict, Person]])
+slots.persons_as_dict = Slot(
+    uri=PERSONINFO.persons_as_dict,
+    name="persons_as_dict",
+    curie=PERSONINFO.curie("persons_as_dict"),
+    model_uri=PERSONINFO.persons_as_dict,
+    domain=None,
+    range=Optional[Union[dict[Union[str, PersonId], Union[dict, Person]], list[Union[dict, Person]]]],
+)
 
-slots.noidobj_as_list = Slot(uri=PERSONINFO.noidobj_as_list, name="noidobj_as_list", curie=PERSONINFO.curie('noidobj_as_list'),
-                   model_uri=PERSONINFO.noidobj_as_list, domain=None, range=Optional[Union[Union[dict, PersonNoId], List[Union[dict, PersonNoId]]]])
+slots.single_person_inlined = Slot(
+    uri=PERSONINFO.single_person_inlined,
+    name="single_person_inlined",
+    curie=PERSONINFO.curie("single_person_inlined"),
+    model_uri=PERSONINFO.single_person_inlined,
+    domain=None,
+    range=Optional[Union[dict, Person]],
+)
 
-slots.single_noidobj_inlined = Slot(uri=PERSONINFO.single_noidobj_inlined, name="single_noidobj_inlined", curie=PERSONINFO.curie('single_noidobj_inlined'),
-                   model_uri=PERSONINFO.single_noidobj_inlined, domain=None, range=Optional[Union[dict, PersonNoId]])
+slots.noidobj_as_list = Slot(
+    uri=PERSONINFO.noidobj_as_list,
+    name="noidobj_as_list",
+    curie=PERSONINFO.curie("noidobj_as_list"),
+    model_uri=PERSONINFO.noidobj_as_list,
+    domain=None,
+    range=Optional[Union[Union[dict, PersonNoId], list[Union[dict, PersonNoId]]]],
+)
 
-slots.vital_status = Slot(uri=PERSONINFO.vital_status, name="vital_status", curie=PERSONINFO.curie('vital_status'),
-                   model_uri=PERSONINFO.vital_status, domain=None, range=Optional[Union[str, "VitalStatusEnum"]])
+slots.single_noidobj_inlined = Slot(
+    uri=PERSONINFO.single_noidobj_inlined,
+    name="single_noidobj_inlined",
+    curie=PERSONINFO.curie("single_noidobj_inlined"),
+    model_uri=PERSONINFO.single_noidobj_inlined,
+    domain=None,
+    range=Optional[Union[dict, PersonNoId]],
+)
+
+slots.vital_status = Slot(
+    uri=PERSONINFO.vital_status,
+    name="vital_status",
+    curie=PERSONINFO.curie("vital_status"),
+    model_uri=PERSONINFO.vital_status,
+    domain=None,
+    range=Optional[Union[str, "VitalStatusEnum"]],
+)

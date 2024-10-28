@@ -20,13 +20,14 @@ slots:
 
 class IsolatedNameTestCase(unittest.TestCase):
     def test_it(self):
-        """ Dangling name should not throw a type error """
+        """Dangling name should not throw a type error"""
         error_thrown = False
         try:
             from_yaml(model_txt, SchemaDefinition)
-        except TypeError as e:
+        except TypeError:
             error_thrown = True
         self.assertFalse(error_thrown, msg="Type error should not be thrown")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

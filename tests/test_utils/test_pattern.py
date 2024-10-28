@@ -1,10 +1,8 @@
 import unittest
 
-from tests.test_utils.environment import env
-
-from linkml_runtime.utils.schemaview import SchemaView
-
 from linkml_runtime.utils.pattern import PatternResolver, generate_patterns
+from linkml_runtime.utils.schemaview import SchemaView
+from tests.test_utils.environment import env
 
 
 class PatternTestCase(unittest.TestCase):
@@ -21,7 +19,6 @@ class PatternTestCase(unittest.TestCase):
         }
 
         self.assertDictEqual(actual_dict, expected_dict)
-
 
     def test_pattern_resolver(self):
         sv = SchemaView(env.input_path("pattern-example.yaml"))
