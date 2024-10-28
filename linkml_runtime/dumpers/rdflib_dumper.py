@@ -9,8 +9,8 @@ from rdflib.namespace import RDF
 from rdflib.term import BNode, Literal, Node
 
 from linkml_runtime.dumpers.dumper_root import Dumper
-from linkml_runtime.linkml_model import SlotDefinition
-from linkml_runtime.utils.schemaview import ElementName, PermissibleValue, PermissibleValueText, SchemaView
+from linkml_runtime.linkml_model import ElementName, PermissibleValue, PermissibleValueText, SlotDefinition
+from linkml_runtime.utils.schemaview import SchemaView
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
 logger = logging.getLogger(__name__)
