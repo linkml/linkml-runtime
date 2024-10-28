@@ -17,7 +17,7 @@ from linkml_runtime.linkml_model.meta import EnumDefinition, PermissibleValue
 from linkml_runtime.linkml_model.types import Decimal, Uri, Uriorcurie
 from linkml_runtime.utils.curienamespace import CurieNamespace
 from linkml_runtime.utils.enumerations import EnumDefinitionImpl
-from linkml_runtime.utils.metamodelcore import Bool, Decimal, XSDDate, empty_dict, empty_list
+from linkml_runtime.utils.metamodelcore import Bool, XSDDate, empty_dict, empty_list
 from linkml_runtime.utils.slot import Slot
 from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
 

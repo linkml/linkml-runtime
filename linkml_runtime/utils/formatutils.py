@@ -100,7 +100,7 @@ def wrapped_annotation(txt: str) -> str:
 def shex_results_as_string(rslts) -> str:
     """Pretty print ShEx Evaluation result"""
     # TODO: Add this method to ShEx itself
-    rval = [f"Evalutating: {str(rslts.focus)} against {str(rslts.start)}"]
+    rval = [f"Evaluating: {str(rslts.focus)} against {str(rslts.start)}"]
     if rslts.result:
         rval.append("Result: CONFORMS")
     else:
@@ -158,7 +158,7 @@ def remove_empty_items(obj: Any, hide_protected_keys: bool = False, inside: bool
         obj_list = [
             e
             for e in [
-                remove_empty_items(l, hide_protected_keys=hide_protected_keys, inside=True) for l in obj if l != "_root"
+                remove_empty_items(i, hide_protected_keys=hide_protected_keys, inside=True) for i in obj if i != "_root"
             ]
             if not is_empty(e)
         ]

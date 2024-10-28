@@ -667,7 +667,7 @@ class ReferenceValidator:
     ) -> Any:
         simple_dict_value_slot = self._slot_as_simple_dict_value_slot(parent_slot)
         if not simple_dict_value_slot:
-            raise AssertionError(f"Should have simple dict slot valie: {parent_slot.name}")
+            raise AssertionError(f"Should have simple dict slot value: {parent_slot.name}")
         normalized_object = input_object
         if isinstance(input_object, list):
             normalized_object = {v[pk_slot_name]: v for v in input_object}

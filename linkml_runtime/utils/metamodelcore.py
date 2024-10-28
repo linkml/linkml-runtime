@@ -13,6 +13,7 @@ from rdflib.term import Identifier as rdflib_Identifier
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.strictness import is_strict
 from linkml_runtime.utils.uri_validator import validate_curie, validate_uri, validate_uri_reference
+from linkml_runtime.utils.yamlutils import TypedNode
 
 # Reference Decimal to make sure it stays in the imports
 _z = Decimal(1)
@@ -20,7 +21,6 @@ _z = Decimal(1)
 # ===========================
 # Fields for use in dataclass
 # ===========================
-from linkml_runtime.utils.yamlutils import TypedNode
 
 
 def empty_list():
@@ -233,13 +233,11 @@ class XSDTime(str, TypedNode):
             if not isinstance(value, datetime.time):
                 value = datetime.time.fromisoformat(value)
             return datetime.time.fromisoformat(str(value)).isoformat()
-        except TypeError:
-            pass
-        except ValueError:
-            pass
-        if not is_strict():
+        except (TypeError, ValueError):
+            if is_strict():
+                raise
+        finally:
             return str(value)
-        raise e
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.time, datetime.datetime, Literal]) -> bool:
@@ -266,13 +264,11 @@ class XSDDate(str, TypedNode):
             if not isinstance(value, datetime.date):
                 value = datetime.date.fromisoformat(str(value))
             return value.isoformat()
-        except TypeError:
-            pass
-        except ValueError:
-            pass
-        if not is_strict():
+        except (TypeError, ValueError):
+            if is_strict():
+                raise
+        finally:
             return str(value)
-        raise e
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.date, Literal]) -> bool:
@@ -301,13 +297,11 @@ class XSDDateTime(str, TypedNode):
             if not isinstance(value, datetime.datetime):
                 value = datetime.datetime.fromisoformat(value)  # Note that this handles non 'T' format as well
             return value.isoformat()
-        except TypeError:
-            pass
-        except ValueError:
-            pass
-        if not is_strict():
+        except (TypeError, ValueError):
+            if is_strict():
+                raise
+        finally:
             return str(value)
-        raise e
 
     @classmethod
     def is_valid(cls, value: Union[str, datetime.datetime, Literal]) -> bool:
