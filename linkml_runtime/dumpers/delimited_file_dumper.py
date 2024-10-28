@@ -3,13 +3,13 @@ import json
 from abc import ABC, abstractmethod
 from typing import Union
 
-from json_flattener import flatten_to_csv
+from json_flattener import GlobalConfig, flatten_to_csv
 from pydantic import BaseModel
 
 from linkml_runtime.dumpers.dumper_root import Dumper
 from linkml_runtime.dumpers.json_dumper import JSONDumper
 from linkml_runtime.linkml_model.meta import SchemaDefinition, SlotDefinitionName
-from linkml_runtime.utils.csvutils import GlobalConfig, get_configmap
+from linkml_runtime.utils.csvutils import get_configmap
 from linkml_runtime.utils.schemaview import SchemaView
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
