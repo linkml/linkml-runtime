@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Type, List, Optional, Any
+from typing import Type, List, Optional, Any, Pattern
 
 from rdflib import URIRef
 
@@ -15,4 +15,4 @@ class Slot:
     domain: Optional[Type]
     range: Any
     mappings: Optional[List[URIRef]] = None
-    pattern: Optional[re] = None
+    pattern: Optional[Pattern] = None
