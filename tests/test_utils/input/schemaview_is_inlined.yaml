@@ -45,6 +45,10 @@ slots:
 
   an_integer:
     range: integer
+
+  inlined_simple_dict:
+    range: ThingWithId
+    inlined_as_list: false
   
   # Pathological cases
   inlined_integer:

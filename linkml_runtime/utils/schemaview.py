@@ -1021,6 +1021,47 @@ class SchemaView(object):
         return True if induced_slot.multivalued else False
 
     @lru_cache(None)
+    def is_simple_dict(self, slot_name: SlotDefinition) -> bool:
+        """
+        returns True if slot is a simple dictionary, else returns False
+        :param slot_name: slot to test for simple dictionary
+        :return boolean:
+        """
+        islot = self.induced_slot(slot_name)
+        if not islot.multivalued or not islot.inlined or islot.inlined_as_list:
+            return False
+        range_class = islot.range
+        if range_class is None:
+            return False
+        range_class_id_slot = self.get_identifier_slot(range_class.name, use_key=True)
+        if range_class_id_slot is None:
+            return False
+
+        non_id_slots = [s for s in self.class_induced_slots(range_class.name) if s.name != range_class_id_slot.name]
+        if len(non_id_slots) == 1:
+            return True
+        elif len(non_id_slots) > 1:
+            candidate_non_id_slots = []
+            for non_id_slot in non_id_slots:
+                if isinstance(non_id_slot.annotations, dict):
+                    is_simple_dict_value = non_id_slot.annotations.get("simple_dict_value", False)
+                else:
+                    is_simple_dict_value = getattr(non_id_slot.annotations, "simple_dict_value", False)
+                if is_simple_dict_value:
+                    candidate_non_id_slots.append(non_id_slot)
+            if len(candidate_non_id_slots) == 1:
+                return True
+            else:
+                candidate_non_id_slots = []
+                for non_id_slot in non_id_slots:
+                    if non_id_slot.required:
+                        candidate_non_id_slots.append(non_id_slot)
+                if len(candidate_non_id_slots) == 1:
+                    return True
+
+        return False
+
+    @lru_cache(None)
     def slot_is_true_for_metadata_property(self, slot_name: SlotDefinition, metadata_property: str) -> bool:
         """
         Returns true if the value of the provided "metadata_property" is True.  For example,
