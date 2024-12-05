@@ -15,7 +15,7 @@ from linkml_runtime.utils.context_utils import parse_import_map, map_import
 from linkml_runtime.utils.formatutils import is_empty
 from linkml_runtime.utils.pattern import PatternResolver
 from linkml_runtime.linkml_model.meta import *
-from linkml_runtime.exceptions import OrderingError
+from linkml_runtime.exceptions import OrderingError, AmbiguousNameError, MissingElementError
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -147,7 +147,6 @@ class SchemaView(object):
     ## private vars --------
     # cached hash
     _hash: Optional[int] = None
-
 
     def __init__(self, schema: Union[str, Path, SchemaDefinition],
                  importmap: Optional[Dict[str, str]] = None, merge_imports: bool = False, base_dir: str = None):
@@ -631,13 +630,16 @@ class SchemaView(object):
             for c in self.all_classes(imports=imports).values():
                 if slot_name in c.attributes:
                     if slot is not None:
-                        # slot name is ambiguous: return a stub slot
-                        return SlotDefinition(slot_name)
+                        raise AmbiguousNameError(
+                            f'Attribute "{slot_name}" is already defined in another class, these attributes will be '
+                            f'ambiguous in RDF generators and you may need to rename them or restructure your schema. '
+                            f'Furthermore, you can use the induced_slot method with the slot name and its containing '
+                            f'class as arguments.')
                     slot = copy(c.attributes[slot_name])
                     slot.from_schema = c.from_schema
                     slot.owner = c.name
         if strict and slot is None:
-            raise ValueError(f'No such slot as "{slot_name}"')
+            raise MissingElementError(f'No such slot as "{slot_name}"')
         return slot
 
     @lru_cache(None)
