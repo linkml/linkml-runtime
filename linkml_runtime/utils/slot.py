@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Type, List, Optional, Any, re
+import re
+from typing import Type, List, Optional, Any
 
 from rdflib import URIRef
 
