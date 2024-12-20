@@ -1,9 +1,12 @@
 from dataclasses import dataclass
-import re
-from typing import Type, List, Optional, Any
-
 from rdflib import URIRef
-
+from typing import Type, List, Optional, Any
+try:
+    # Python 3.8, 3.9, 3.10
+    from typing import re
+except:
+    # Python 3.11+
+    import re
 
 @dataclass
 class Slot:
