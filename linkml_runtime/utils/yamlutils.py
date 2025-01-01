@@ -9,7 +9,7 @@ import yaml
 from deprecated.classic import deprecated
 from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
 import jsonasobj2
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, Literal
 from yaml.constructor import ConstructorError
 
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE, merge_contexts
@@ -89,6 +89,16 @@ class YAMLRoot(JsonObj):
                     # elif isinstance(v, EnumDefinition):
                     elif isinstance(v, EnumDefinitionImpl):
                         rval[k] = v.code
+                    elif isinstance(v, Literal):
+                        if v.datatype:
+                            # checking against v.ill_typed to not serialize the python object
+                            rval[k] = {
+                                '@value': str(v.value) if v.ill_typed else str(v), '@type': v.datatype}
+                        elif v.language:
+                            rval[k] = {
+                                '@value': v.value, '@language': v.language.lower()}
+                        else:
+                            rval[k] = v
                     else:
                         rval[k] = v
             return rval
