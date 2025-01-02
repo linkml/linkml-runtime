@@ -91,9 +91,9 @@ class YAMLRoot(JsonObj):
                         rval[k] = v.code
                     elif isinstance(v, Literal):
                         if v.datatype:
-                            # checking against v.ill_typed to not serialize the python object
+                            # use v and not not v.value to not serialize the python object (datetime, xml, html, ...)
                             rval[k] = {
-                                '@value': str(v.value) if v.ill_typed else str(v), '@type': v.datatype}
+                                '@value': str(v), '@type': v.datatype}
                         elif v.language:
                             rval[k] = {
                                 '@value': v.value, '@language': v.language.lower()}
