@@ -95,8 +95,9 @@ class YAMLRoot(JsonObj):
                             rval[k] = {
                                 '@value': str(v), '@type': v.datatype}
                         elif v.language:
+                            # language tag format https://www.rfc-editor.org/rfc/rfc5646#section-2.1.1
                             rval[k] = {
-                                '@value': v.value, '@language': v.language.lower()}
+                                '@value': v.value, '@language': v.language}
                         else:
                             rval[k] = v
                     else:
