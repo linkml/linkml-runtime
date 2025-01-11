@@ -5,7 +5,7 @@ import collections
 from functools import lru_cache
 from copy import copy, deepcopy
 from collections import defaultdict, deque
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Mapping, Optional, Tuple, TypeVar
 import warnings
 
@@ -304,7 +304,8 @@ class SchemaView(object):
                     # we should treat the two `types.yaml` as separate schemas from the POV of the
                     # origin schema.
                     if sn.startswith('.') and ':' not in i:
-                        i = os.path.normpath(str(Path(sn).parent / i))
+                        # This cannot be simplified. os.path.normpath() must be called before .as_posix()
+                        i = PurePath(os.path.normpath(PurePath(sn).parent / i)).as_posix()
                     todo.append(i)
 
             # add item to closure

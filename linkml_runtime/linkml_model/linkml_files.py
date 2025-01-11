@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePath
 from enum import Enum, auto
 from typing import Dict, Optional, Union, Tuple, NamedTuple
 from urllib.parse import urljoin
@@ -152,7 +152,7 @@ def LOCAL_PATH_FOR(source: Source, fmt: Format) -> str:
 
 
 def GITHUB_IO_PATH_FOR(source: Source, fmt: Format, version="latest") -> str:
-    path = '/'.join([version, 'linkml_model', *_build_path(source, fmt)])
+    path = PurePath(version, 'linkml_model', *_build_path(source, fmt)).as_posix()
     return urljoin(GITHUB_IO_BASE, path)
 
 
@@ -178,7 +178,7 @@ def GITHUB_PATH_FOR(source: Source,
 
     # Return the absolute latest entry for branch
     if release is ReleaseTag.LATEST or (release is ReleaseTag.CURRENT and branch != "main"):
-        path = '/'.join([branch, 'linkml_model', *_build_path(source, fmt)])
+        path = PurePath(branch, 'linkml_model', *_build_path(source, fmt)).as_posix()
         return urljoin(GITHUB_BASE, path)
 
     # Return the latest published version
