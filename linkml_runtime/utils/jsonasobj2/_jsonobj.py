@@ -1,6 +1,7 @@
 import json
 from typing import Union, List, Dict, Tuple, Optional, Callable, Any, Iterator
 from hbreader import hbread
+from typing_extensions import deprecated
 
 from .extendednamespace import ExtendedNamespace
 
@@ -200,6 +201,7 @@ class JsonObj(ExtendedNamespace):
         return as_dict(self)
 
 
+@deprecated('jsonasobj2.loads will be replaced by an equivalent using native Python dataclasses.')
 def loads(s: str, **kwargs) -> JsonObj:
     """ Convert a json_str into a JsonObj
 
@@ -213,6 +215,7 @@ def loads(s: str, **kwargs) -> JsonObj:
     return JsonObj(json.loads(s, object_hook=lambda pairs: JsonObj(pairs), **kwargs))
 
 
+@deprecated('jsonasobj2.load will be replaced by an equivalent using native Python dataclasses.')
 def load(source, **kwargs) -> JsonObj:
     """ Deserialize a JSON source.
 
@@ -223,6 +226,7 @@ def load(source, **kwargs) -> JsonObj:
     return loads(hbread(source, accept_header="application/json, text/json;q=0.9"), **kwargs)
 
 
+@deprecated('jsonasobj2.is_dict will be replaced by an equivalent using native Python dataclasses.')
 def is_dict(obj: Union[JsonObj, Any]) -> bool:
     """
     Determine whether obj is a dictionary or a JsonObj containing a dictionary
@@ -230,6 +234,7 @@ def is_dict(obj: Union[JsonObj, Any]) -> bool:
     return isinstance(obj, dict) or (isinstance(obj, JsonObj) and not isinstance(obj._hide_list(), list))
 
 
+@deprecated('jsonasobj2.is_list will be replaced by an equivalent using native Python dataclasses.')
 def is_list(obj: Union[JsonObj, Any]) -> bool:
     """
     Determine whether obj is a dictionary or a JsonObj containing a dictionary
@@ -237,6 +242,7 @@ def is_list(obj: Union[JsonObj, Any]) -> bool:
     return isinstance(obj, list) or (isinstance(obj, JsonObj) and isinstance(obj._hide_list(), list))
 
 
+@deprecated('jsonasobj2.as_dict will be replaced by an equivalent using native Python dataclasses.')
 def as_dict(obj: Union[JsonObj, List]) -> Union[List, Dict[str, JsonTypes]]:
     """ Convert a JsonObj into a straight dictionary or list
 
@@ -252,6 +258,7 @@ def as_dict(obj: Union[JsonObj, List]) -> Union[List, Dict[str, JsonTypes]]:
     else:
         return obj
 
+@deprecated('jsonasobj2.as_json will be replaced by an equivalent using native Python dataclasses.')
 def as_json(obj: Union[Dict, JsonObj, List], indent: Optional[str] = '   ',
             filtr: Callable[[Dict], Dict] = None, **kwargs) -> str:
     """ Convert obj to json string representation.
@@ -275,6 +282,7 @@ def as_json(obj: Union[Dict, JsonObj, List], indent: Optional[str] = '   ',
                    *kwargs)
 
 
+@deprecated('jsonasobj2.as_json_obj will be replaced by an equivalent using native Python dataclasses.')
 def as_json_obj(obj: Union[Dict, JsonObj, List]) -> JsonTypes:
     """ Return obj as pure python json (vs. JsonObj)
         :param obj: pseudo 'self'
@@ -286,21 +294,25 @@ def as_json_obj(obj: Union[Dict, JsonObj, List]) -> JsonTypes:
         obj._as_json_obj() if isinstance(obj, JsonObj) else obj
 
 
+@deprecated('jsonasobj2.get will be replaced by an equivalent using native Python dataclasses.')
 def get(obj: Union[Dict, JsonObj], item: str, default: JsonObjTypes = None) -> JsonObjTypes:
     """ Dictionary get routine """
     return obj._get(item, default) if isinstance(obj, JsonObj) else obj.get(item, default)
 
 
+@deprecated('jsonasobj2.setdefault will be replaced by an equivalent using native Python dataclasses.')
 def setdefault(obj: Union[Dict, JsonObj], k: str, value: Union[Dict, JsonTypes]) -> JsonObjTypes:
     """ Dictionary setdefault routine """
     return obj._setdefault(k, value) if isinstance(obj, JsonObj) else obj.setdefault(k, value)
 
 
+@deprecated('jsonasobj2.keys will be replaced by an equivalent using native Python dataclasses.')
 def keys(obj: Union[Dict, JsonObj]) -> Iterator[str]:
     """ same as dict keys() without polluting the namespace """
     return obj._keys() if isinstance(obj, JsonObj) else obj.keys()
 
 
+@deprecated('jsonasobj2.items will be replaced by an equivalent using native Python dataclasses.')
 def items(obj: Union[Dict, JsonObj]) -> Iterator[Tuple[str, JsonObjTypes]]:
     """ Same as dict items() except that the values are JsonObjs instead of vanilla dictionaries
     :return:
@@ -308,6 +320,7 @@ def items(obj: Union[Dict, JsonObj]) -> Iterator[Tuple[str, JsonObjTypes]]:
     return obj._items() if isinstance(obj, JsonObj) else obj.items()
 
 
+@deprecated('jsonasobj2.values will be replaced by an equivalent using native Python dataclasses.')
 def values(obj: Union[Dict, JsonObj]) -> Iterator[JsonObjTypes]:
     """ Same as dict values() except that the values are JsonObjs """
     return obj._values() if isinstance(obj, JsonObj) else obj.values()
