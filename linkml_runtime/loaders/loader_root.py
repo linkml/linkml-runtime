@@ -4,7 +4,7 @@ from logging import getLogger
 
 from pydantic import BaseModel
 from hbreader import FileInfo, hbread
-from jsonasobj2 import as_dict, JsonObj
+from linkml_runtime.utils.jsonasobj2 import as_dict, JsonObj
 
 from linkml_runtime.utils.yamlutils import YAMLRoot
 from linkml_runtime import URI_TO_LOCAL

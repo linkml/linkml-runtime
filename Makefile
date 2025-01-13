@@ -8,6 +8,7 @@ MODEL_DIR = ../linkml-model/linkml_model/
 
 update_model:
 	cp -pr $(MODEL_DIR)/* linkml_runtime/linkml_model
+	sed -i 's/from jsonasobj2/from linkml_runtime.utils.jsonasobj2/g' linkml_runtime/linkml_model/*.py
 
 test:
 	poetry run pytest
@@ -16,3 +17,4 @@ test:
 # temporary measure until linkml-model is synced
 linkml_runtime/processing/validation_datamodel.py: linkml_runtime/processing/validation_datamodel.yaml
 	gen-python $< > $@.tmp && mv $@.tmp $@
+	sed -i 's/from jsonasobj2/from linkml_runtime.utils.jsonasobj2/g' linkml_runtime/processing/validation_datamodel.py

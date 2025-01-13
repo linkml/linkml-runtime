@@ -29,3 +29,13 @@ It also includes the [SchemaView](https://linkml.io/linkml/developers/manipulati
 ## Notebooks
 
 See the [notebooks](https://github.com/linkml/linkml-runtime/tree/main/notebooks) folder for examples
+
+## Development
+
+### Measure tests code coverage
+
+```shell
+poetry add pytest-coverage
+poetry run coverage run -m pytest # run the existing tests, measuring coverage
+poetry run coverage html # to generate an HTML, browsable report
+```

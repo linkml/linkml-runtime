@@ -3,7 +3,7 @@ import unittest
 import json
 import logging
 
-from jsonasobj2 import as_json_obj, JsonObj
+from linkml_runtime.utils.jsonasobj2 import as_json_obj, JsonObj
 
 from linkml_runtime.dumpers import json_dumper, yaml_dumper
 from linkml_runtime.loaders import yaml_loader

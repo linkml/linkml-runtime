@@ -4,7 +4,7 @@ from io import TextIOWrapper
 from typing import Optional, Union, List, Any, Dict, Callable
 
 import yaml
-from jsonasobj2 import JsonObj, loads
+from linkml_runtime.utils.jsonasobj2 import JsonObj, loads
 
 CONTEXT_TYPE = Union[str, dict, JsonObj]
 CONTEXTS_PARAM_TYPE = Optional[Union[CONTEXT_TYPE, List[CONTEXT_TYPE]]]

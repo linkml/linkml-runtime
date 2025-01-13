@@ -7,8 +7,8 @@ import re
 
 import yaml
 from deprecated.classic import deprecated
-from jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
-import jsonasobj2
+from .jsonasobj2 import JsonObj, as_json, as_dict, JsonObjTypes, items
+from . import jsonasobj2
 from rdflib import Graph, URIRef
 from yaml.constructor import ConstructorError
 

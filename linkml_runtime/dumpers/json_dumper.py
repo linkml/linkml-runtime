@@ -10,7 +10,7 @@ from linkml_runtime.utils import formatutils
 from linkml_runtime.utils.context_utils import CONTEXTS_PARAM_TYPE
 from linkml_runtime.utils.formatutils import remove_empty_items
 from linkml_runtime.utils.yamlutils import YAMLRoot, as_json_object
-from jsonasobj2 import JsonObj
+from linkml_runtime.utils.jsonasobj2 import JsonObj
 
 
 class JSONDumper(Dumper):
