@@ -25,7 +25,7 @@ jobs:
       #          install poetry
       #----------------------------------------------
       - name: Install Poetry
-        run: pipx install poetry==1.4.0
+        run: pipx install poetry
         
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -43,7 +43,7 @@ jobs:
       #    install your root project, if required 
       #----------------------------------------------      
       - name: Install library
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --with dev
 
       #----------------------------------------------
       #              coverage report   

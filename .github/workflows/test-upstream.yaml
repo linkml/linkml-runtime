@@ -53,7 +53,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install poetry
-        run: pipx install poetry
+        # Pin to 1.8.5. because Poetry 2.0.0 installs plugins in a different way
+        # (dynamic versioning in next step)
+        run: pipx install poetry==1.8.5
 
       - name: Install dynamic versioning plugin
         run: poetry self add "poetry-dynamic-versioning[plugin]"

@@ -47,7 +47,7 @@ comparefiles = "linkml_runtime.utils.comparefiles:cli"
 linkml-normalize = "linkml_runtime.processing.referencevalidator:cli"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.13"  # poetry 2.x needs an upper bound for locking
 click = "*"
 deprecated = "*"
 hbreader = "*"
@@ -62,7 +62,7 @@ prefixmaps = ">=0.1.4"
 curies = ">=0.5.4"
 pydantic = ">=1.10.2, <3.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 coverage = "^6.2"
 requests-cache = "^1.2.0"
 

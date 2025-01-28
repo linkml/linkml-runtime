@@ -26,8 +26,7 @@ jobs:
       #          install poetry
       #----------------------------------------------
       - name: Install Poetry
-        # Pin to 1.3.2 to workaround https://github.com/python-poetry/poetry/issues/7611
-        run: pipx install poetry==1.3.2
+        run: pipx install poetry
 
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -45,7 +44,7 @@ jobs:
       #    install your root project, if required
       #----------------------------------------------
       - name: Install library
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --all-groups
 
       # this step we remove and rebuild the poetry.lock file to ensure that the tests that follow can be run
       # with the latest dependencies
