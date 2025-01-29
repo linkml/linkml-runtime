@@ -25,7 +25,7 @@ jobs:
     steps:
 
       - name: checkout upstream
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: linkml/linkml
           path: linkml
@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: checkout linkml-runtime
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           # don't specify repository like this or else we won't get pull request branches correctly
           # repository: linkml/linkml-runtime
@@ -48,19 +48,16 @@ jobs:
           git fetch upstream --tags
 
       - name: set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install poetry
         run: pipx install poetry
 
-      - name: Install dynamic versioning plugin
-        run: poetry self add "poetry-dynamic-versioning[plugin]"
-
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
         with:
           path: linkml/.venv
           key: venv-${{ matrix.python-version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -89,6 +86,7 @@ jobs:
         run: poetry run python -c 'import linkml_runtime; from importlib.metadata import version; print(linkml_runtime.__file__); print(version("linkml_runtime"))'
 
       - name: run tests
+        shell: bash
         working-directory: linkml
         run: poetry run python -m pytest --with-slow
 

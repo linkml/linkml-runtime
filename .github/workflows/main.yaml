@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         exclude:
         - os: windows-latest
           python-version: "3.8"
@@ -25,16 +25,16 @@ jobs:
       #          install poetry
       #----------------------------------------------
       - name: Install Poetry
-        run: pipx install poetry==1.4.0
+        run: pipx install poetry
         
       #----------------------------------------------
       #       check-out repo and set-up python
       #----------------------------------------------
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -49,6 +49,7 @@ jobs:
       #              coverage report   
       #----------------------------------------------
       - name: Generate coverage results
+        shell: bash
         run: |
           poetry run coverage run -m pytest
           poetry run coverage xml
@@ -58,7 +59,7 @@ jobs:
       #           upload coverage results
       #----------------------------------------------
       - name: Upload coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3
         with:
           name: codecov-results-${{ matrix.os }}-${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
