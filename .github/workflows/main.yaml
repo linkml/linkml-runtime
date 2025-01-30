@@ -16,7 +16,6 @@ jobs:
         exclude:
         - os: windows-latest
           python-version: "3.8"
-
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -32,6 +31,8 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
@@ -43,7 +44,9 @@ jobs:
       #    install your root project, if required 
       #----------------------------------------------      
       - name: Install library
-        run: poetry install --no-interaction
+        run: |
+          git tag --list "v1.8*"
+          poetry install --no-interaction
 
       #----------------------------------------------
       #              coverage report   

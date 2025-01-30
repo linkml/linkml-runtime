@@ -12,7 +12,7 @@ authors = [
   {name = "Bill Duncan", email = "wdduncan@gmail.com"},
   {name = "Harshad Hegde", email = "hhegde@lbl.gov"},
 ]
-license = {text = "LICENSE"}
+license = "CC0-1.0"
 homepage = "https://github.com/linkml/linkml-runtime"
 repository = "https://github.com/linkml/linkml-runtime"
 documentation = "https://github.com/linkml/linkml-runtime"
@@ -34,7 +34,7 @@ classifiers = [
 ]
 include = ["linkml_runtime"]
 requires-python = ">=3.8"
-dynamic = ["version", "readme"]
+dynamic = ["version"]
 dependencies = [
     "click",
     "deprecated",
