@@ -55,6 +55,13 @@ jobs:
       - name: Install poetry
         run: pipx install poetry
 
+      # We install poetry-dynamic-versioning into pipx because the automatic installallation
+      # by poetry 2.x triggers a Windows issue https://github.com/pypa/installer/issues/260
+      - name: Install poetry-dynamic-versioning
+        if: runner.os == 'Windows'
+        run:
+          pipx inject poetry poetry-dynamic-versioning
+
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
