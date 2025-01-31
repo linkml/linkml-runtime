@@ -60,7 +60,7 @@ requires-poetry = ">=2.0"
 version = "0.0.0"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 
 [tool.poetry.requires-plugins]
 poetry-dynamic-versioning = ">=1.5.2"
