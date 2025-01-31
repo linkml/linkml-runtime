@@ -29,8 +29,8 @@ jobs:
 
       # We install poetry-dynamic-versioning into pipx because the automatic installallation
       # by poetry 2.x triggers a Windows issue https://github.com/pypa/installer/issues/260
+      # and also does not work on Ubuntu in gh-actions.
       - name: Install poetry-dynamic-versioning
-        if: runner.os == 'Windows'
         run:
           pipx inject poetry poetry-dynamic-versioning
        
