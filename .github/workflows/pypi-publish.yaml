@@ -1,21 +1,21 @@
 name: Publish Python Package
+# Publishes to PyPI triggered by creating a releases in GitHub UI
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
-  build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
+  build:
+    name: Build Python 🐍 distributions 📦 for publishing to PyPI
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
     - name: Set up Python
-      uses: actions/setup-python@v2.2.2
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
       with:
-        python-version: 3.8
+        python-version: 3.12
 
     - name: Install Poetry
       run: pipx install poetry
@@ -28,8 +28,40 @@ jobs:
         poetry version $(git describe --tags --abbrev=0)
         poetry build
 
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.2.2
+    - name: Store built distribution
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
       with:
-        user: __token__
-        password: ${{ secrets.pypi_password }}
+        name: distribution-files
+        path: dist/
+
+  pypi-publish:
+    name: Build and publish Python 🐍 package 📦 to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    # Next 5 lines prepare for trusted publishing: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+    # environment:
+    #   name: pypi-release
+    #   url: https://pypi.org/p/linkml-runtime
+    # permissions:
+    #   id-token: write  # this permission is mandatory for trusted publishing
+    steps:
+      - name: Download built distribution
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: distribution-files
+          path: dist
+
+      - name: Publish package 📦 to PyPI
+        if: github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+          # verbose: true
+        
+# Used actions: (updates managed by dependabot)
+# - https://github.com/actions/checkout
+# - https://github.com/actions/setup-python
+# - https://github.com/actions/upload-artifact
+# - https://github.com/actions/download-artifact
+# - https://github.com/pypa/gh-action-pypi-publish/

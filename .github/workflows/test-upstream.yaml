@@ -1,4 +1,4 @@
-name: Test with upstream linkml
+name: Test linkml-runtime with upstream linkml and run linkml tests
 on:
   pull_request:
     branches:
@@ -8,6 +8,7 @@ on:
 jobs:
   test_upstream:
     strategy:
+      fail-fast: false
       matrix:
         os: [ ubuntu-latest, windows-latest ]
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
@@ -24,8 +25,8 @@ jobs:
 
     steps:
 
-      - name: checkout upstream
-        uses: actions/checkout@v4
+      - name: checkout upstream linkml
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: linkml/linkml
           path: linkml
@@ -33,64 +34,54 @@ jobs:
           fetch-depth: 0
 
       - name: checkout linkml-runtime
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          # don't specify repository like this or else we won't get pull request branches correctly
-          # repository: linkml/linkml-runtime
           path: linkml-runtime
           fetch-depth: 0
 
-      - name: Ensure tags if not run from main repo
+      - name: Ensure linkml-runtime tags if not run from main repo
         if: github.repository != 'linkml/linkml-runtime'
         working-directory: linkml-runtime
         run: |
           git remote add upstream https://github.com/linkml/linkml-runtime
           git fetch upstream --tags
-
+          
       - name: set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install poetry
         run: pipx install poetry
 
-      - name: Install dynamic versioning plugin
-        run: poetry self add "poetry-dynamic-versioning[plugin]"
+      # We install poetry-dynamic-versioning into pipx because the automatic installallation
+      # by poetry 2.x triggers a Windows issue https://github.com/pypa/installer/issues/260
+      # and also does not work on Ubuntu in gh-actions.
+      - name: Install poetry-dynamic-versioning
+        run:
+          pipx inject poetry poetry-dynamic-versioning
 
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
         with:
           path: linkml/.venv
           key: venv-${{ matrix.python-version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      # make extra sure we're removing any old version of linkml-runtime that exists
-      - name: uninstall potentially cached linkml-runtime
+      # We are not using linkml-runtime's lockfile, but simulate what will happen
+      #   when we merge this and update linkml's lockfile.
+      # By using poetry sync we remove any old stuff that exists in the cache.
+      - name: Refresh or install linkml & add linkml-runtime to check dependencies
         working-directory: linkml
-        run: poetry run pip uninstall linkml-runtime
-
-      # we are not using linkml-runtime's lockfile, but simulating what will happen
-      # when we merge this and update linkml's lockfile
-      - name: add linkml-runtime to lockfile
-        working-directory: linkml
-        run: poetry add ../linkml-runtime
-
-      # note that we run the installation step always, even if we restore a venv,
-      # the cache will restore the old version of linkml-runtime, but the lockfile
-      # will only store the directory dependency (and thus will reinstall it)
-      # the cache will still speedup the rest of the installation
-      - name: install linkml
-        working-directory: linkml
-        run: poetry install --no-interaction -E tests
-
+        run: |
+          poetry sync --extras tests
+          poetry add ../linkml-runtime
+      
       - name: print linkml-runtime version
         working-directory: linkml
         run: poetry run python -c 'import linkml_runtime; from importlib.metadata import version; print(linkml_runtime.__file__); print(version("linkml_runtime"))'
 
-      - name: run tests
+      - name: run linkml tests
+        shell: bash
         working-directory: linkml
         run: poetry run python -m pytest --with-slow
-
-
-
