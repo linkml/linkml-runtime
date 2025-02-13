@@ -865,12 +865,33 @@ def test_is_inlined():
         ("inlined_thing_without_id", True),
         ("inlined_as_list_thing_without_id", True),
         ("an_integer", False),
+        ("inlined_simple_dict", True),
         ("inlined_integer", False),
         ("inlined_as_list_integer", False)
     ]
     for slot_name, expected_result in cases:
         slot = sv.get_slot(slot_name)
         assert sv.is_inlined(slot) == expected_result
+
+
+def test_is_simple_dict():
+    schema_path = os.path.join(INPUT_DIR, "schemaview_is_inlined.yaml")
+    sv = SchemaView(schema_path)
+    cases = [
+        ("a_thing_with_id", False),
+        ("inlined_thing_with_id", False),
+        ("inlined_as_list_thing_with_id", False),
+        ("a_thing_without_id", False),
+        ("inlined_thing_without_id", False),
+        ("inlined_as_list_thing_without_id", False),
+        ("an_integer", False),
+        ("inlined_simple_dict", True),
+        ("inlined_integer", False),
+        ("inlined_as_list_integer", False)
+    ]
+    for slot_name, expected_result in cases:
+        slot = sv.get_slot(slot_name)
+        assert sv.is_simple_dict(slot) == expected_result
 
 
 def test_materialize_nonscalar_slot_usage():
