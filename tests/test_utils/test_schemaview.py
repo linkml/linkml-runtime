@@ -539,6 +539,11 @@ def test_imports_relative():
         '../L1_0_1/dupe',
         './L2_0_0_0/child',
         './L2_0_0_1/child',
+        'L2_0_0_2/two',
+        'L2_0_0_2/one',
+        'L2_0_0_2/four',
+        'L2_0_0_2/three',
+        'L2_0_0_2/stepchild',
         'main'
     ]
 
