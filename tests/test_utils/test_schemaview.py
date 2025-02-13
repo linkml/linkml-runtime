@@ -6,6 +6,7 @@ import pytest
 from jsonasobj2 import JsonObj
 
 from linkml_runtime.dumpers import yaml_dumper
+from linkml_runtime.exceptions import AmbiguousNameError, MissingElementError
 from linkml_runtime.linkml_model.meta import Example, SchemaDefinition, ClassDefinition, SlotDefinitionName, SlotDefinition, \
     ClassDefinitionName, Prefix
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
@@ -701,7 +702,7 @@ def test_slot_inheritance():
 
     # Test dangling
     view.add_slot(SlotDefinition('s5', is_a='does-not-exist'))
-    with pytest.raises(ValueError):
+    with pytest.raises(MissingElementError):
         view.slot_ancestors('s5')
 
 def test_attribute_inheritance():
@@ -744,9 +745,6 @@ def test_ambiguous_attributes():
     a2x = SlotDefinition('a2', range='BarEnum')
     view.add_class(ClassDefinition('C2', attributes={a1x.name: a1x, a2x.name: a2x}))
 
-    assert view.get_slot(a1.name).range is None
-    assert view.get_slot(a2.name).range is None
-    assert view.get_slot(a3.name).range is not None
     assert len(view.all_slots(attributes=True)) == 3
     assert len(view.all_slots(attributes=False)) == 0
     assert len(view.all_slots()) == 3
@@ -756,6 +754,21 @@ def test_ambiguous_attributes():
     assert view.induced_slot(a1x.name, 'C2').range == a1x.range
     assert view.induced_slot(a2x.name, 'C2').range == a2x.range
 
+
+def test_ambiguous_attribute_through_get_slot():
+    schema_path = os.path.join(INPUT_DIR, "get_slot_with_ambiguous_attributes.yaml")
+    sv = SchemaView(schema_path)
+
+    assert sv.get_slot("uniqueSlot") is not None
+    assert sv.get_slot("randomAttribute", attributes=False) is None
+    assert sv.induced_slot("uniqueSlot", "ImportantSecondClass") is not None
+
+    with pytest.raises(AmbiguousNameError) as exception:
+        sv.get_slot("randomAttribute")
+    assert str(exception.value) == ('Attribute "randomAttribute" is already defined in another class, '
+                                    'these attributes will be ambiguous in RDF generators and you may need to rename '
+                                    'them or restructure your schema. Furthermore, you can use the induced_slot '
+                                    'method with the slot name and its containing class as arguments.')
 
 def test_metamodel_in_schemaview():
     view = package_schemaview('linkml_runtime.linkml_model.meta')

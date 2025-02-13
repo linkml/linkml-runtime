@@ -1,0 +1,36 @@
+id: https://examples.org/get-slot-with-attribute#
+name: get-slot-with-attribute
+
+prefixes:
+  test: https://examples.org/get-slot-with-attribute#
+
+default_prefix: test
+default_range: string
+
+slots:
+  uniqueSlot:
+    description: "A unique slot just to test that get_slot still works when attributes are ignored in this schema"
+    range: string
+
+classes:
+  ClassWithAttributes:
+    slots:
+      - uniquesSlot
+    attributes:
+      randomAttribute:
+        description: "A random attribute for testing purposes"
+        range: integer
+        minimum_value: 0
+        maximum_value: 999
+
+  ImportantSecondClass:
+    description: "Important class to reproduce the error I got as the class loop needs to have at least a 
+              second iteration"
+    slots:
+      - uniqueSlot
+    attributes:
+      randomAttribute:
+        description: "Now you see the ambiguity intensifying ?"
+        range: integer
+        minimum_value: 0
+        maximum_value: 111
