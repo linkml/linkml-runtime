@@ -13,6 +13,7 @@ from linkml_runtime.dumpers import csv_dumper, tsv_dumper
 from linkml_runtime.loaders import csv_loader, tsv_loader
 from linkml_runtime.utils.yamlutils import as_json_object
 from tests.test_loaders_dumpers.models.books_normalized import Author, Review, Shop, Book, GenreEnum, BookSeries
+from tests.test_loaders_dumpers.models.table import Table, Row
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,11 @@ DATA = os.path.join(INPUT_DIR, 'books_normalized_01.yaml')
 DATA2 = os.path.join(INPUT_DIR, 'books_normalized_02.yaml')
 OUTPUT = os.path.join(OUTPUT_DIR, 'books_flattened.tsv')
 OUTPUT2 = os.path.join(OUTPUT_DIR, 'books_flattened_02.tsv')
+
+TABLE_SCHEMA = os.path.join(MODEL_DIR, 'table.yaml')
+TABLE_DATA_JSON = os.path.join(INPUT_DIR, 'table-json.tsv')
+TABLE_DATA_INLINED = os.path.join(INPUT_DIR, 'table-inlined.tsv')
+
 
 def _json(obj) -> str:
     return json.dumps(obj, indent=' ', sort_keys=True)
@@ -109,6 +115,12 @@ class CsvAndTsvGenTestCase(unittest.TestCase):
         logger.debug(json_dumper.dumps(roundtrip))
         assert roundtrip == data
 
+    def test_table_model(self):
+        schemaview = SchemaView(SCHEMA)
+        table_json= csv_loader.load(TABLE_DATA_JSON, target_class=Table, index_slot='rows', schemaview=schemaview)
+        for row in table_json.rows:
+            assert len(row["columnB"]) == 2
+
     def test_tsvgen_unroundtrippable(self):
         schemaview = SchemaView(SCHEMA)
         data = yaml_loader.load(DATA2, target_class=Shop)
@@ -116,13 +128,6 @@ class CsvAndTsvGenTestCase(unittest.TestCase):
         tsv_dumper.dump(data, to_file=OUTPUT2, index_slot='all_book_series', schemaview=schemaview)
         roundtrip = tsv_loader.load(OUTPUT2, target_class=Shop, index_slot='all_book_series', schemaview=schemaview)
         assert roundtrip == data
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
