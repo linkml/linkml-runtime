@@ -298,14 +298,14 @@ class SchemaView(object):
                     # path, and the target import doesn't have : (as in a curie or a URI)
                     # we prepend the relative path. This WILL make the key in the `schema_map` not
                     # equal to the literal text specified in the importing schema, but this is
-                    # essential to sensible deduplication: eg. for
+                    # essential to sensible deduplication: e.g. for
                     # - main.yaml (imports ./types.yaml, ./subdir/subschema.yaml)
                     # - types.yaml
                     # - subdir/subschema.yaml (imports ./types.yaml)
                     # - subdir/types.yaml
                     # we should treat the two `types.yaml` as separate schemas from the POV of the
                     # origin schema.
-                    if sn.startswith('.') and ':' not in i:
+                    if '/' in sn and ':' not in i:
                         if WINDOWS:
                             # This cannot be simplified. os.path.normpath() must be called before .as_posix()
                             i = PurePath(os.path.normpath(PurePath(sn).parent / i)).as_posix()
