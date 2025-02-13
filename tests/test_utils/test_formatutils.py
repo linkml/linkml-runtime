@@ -2,7 +2,7 @@ import json
 import unittest
 from typing import List, Tuple, Any
 
-from jsonasobj2 import JsonObj, as_json
+from linkml_runtime.utils.jsonasobj2 import JsonObj, as_json
 
 from linkml_runtime.utils.formatutils import camelcase, underscore, lcamelcase, be, split_line, wrapped_annotation, \
     is_empty, remove_empty_items, uncamelcase
