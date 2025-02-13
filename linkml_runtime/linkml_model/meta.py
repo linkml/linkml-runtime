@@ -1,5 +1,5 @@
 # Auto generated from meta.yaml by pythongen.py version: 0.0.1
-# Generation date: 2024-06-27T23:15:25
+# Generation date: 2025-02-07T16:22:14
 # Schema: meta
 #
 # id: https://w3id.org/linkml/meta
@@ -148,7 +148,7 @@ class TypeMappingFramework(extended_str):
 
 Anything = Any
 
-@dataclass(repr=False)
+@dataclass
 class CommonMetadata(YAMLRoot):
     """
     Generic metadata shared across definitions
@@ -311,7 +311,7 @@ class CommonMetadata(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class Element(YAMLRoot):
     """
     A named element in the model
@@ -516,7 +516,7 @@ class Element(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class SchemaDefinition(Element):
     """
     A collection of definitions that make up a schema or a data model.
@@ -628,7 +628,7 @@ class SchemaDefinition(Element):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AnonymousTypeExpression(YAMLRoot):
     """
     A type expression that is not a top-level named type definition. Used for nesting.
@@ -696,7 +696,7 @@ class AnonymousTypeExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class TypeDefinition(Element):
     """
     an element that whose instances are atomic scalar values that can be mapped to primitive types
@@ -791,7 +791,7 @@ class TypeDefinition(Element):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class SubsetDefinition(Element):
     """
     an element that can be used to group other metamodel elements
@@ -814,7 +814,7 @@ class SubsetDefinition(Element):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class Definition(Element):
     """
     abstract base class for core metaclasses
@@ -863,7 +863,7 @@ class Definition(Element):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AnonymousEnumExpression(YAMLRoot):
     """
     An enum_expression that is not named
@@ -927,7 +927,7 @@ class AnonymousEnumExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class EnumDefinition(Definition):
     """
     an element whose instances must be drawn from a specified set of permissible values
@@ -1001,7 +1001,7 @@ class EnumDefinition(Definition):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class EnumBinding(YAMLRoot):
     """
     A binding of a slot or a class to a permissible value from an enumeration.
@@ -1186,7 +1186,7 @@ class EnumBinding(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class MatchQuery(YAMLRoot):
     """
     A query that is used on an enum expression to dynamically obtain a set of permissivle values via a query that
@@ -1212,7 +1212,7 @@ class MatchQuery(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class ReachabilityQuery(YAMLRoot):
     """
     A query that is used on an enum expression to dynamically obtain a set of permissible values via walking from a
@@ -1256,7 +1256,7 @@ class ReachabilityQuery(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class StructuredAlias(YAMLRoot):
     """
     object that contains meta data about a synonym or alias including where it came from (source) and its scope
@@ -1453,7 +1453,7 @@ class Expression(YAMLRoot):
     class_model_uri: ClassVar[URIRef] = LINKML.Expression
 
 
-@dataclass(repr=False)
+@dataclass
 class TypeExpression(Expression):
     """
     An abstract class grouping named types and anonymous type expressions
@@ -1474,10 +1474,10 @@ class TypeExpression(Expression):
     equals_number: Optional[int] = None
     minimum_value: Optional[Union[dict, Anything]] = None
     maximum_value: Optional[Union[dict, Anything]] = None
-    none_of: Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]] = empty_list()
-    exactly_one_of: Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]] = empty_list()
-    any_of: Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]] = empty_list()
-    all_of: Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]] = empty_list()
+    none_of: Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]] = empty_list()
+    exactly_one_of: Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]] = empty_list()
+    any_of: Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]] = empty_list()
+    all_of: Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]] = empty_list()
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
         if self.pattern is not None and not isinstance(self.pattern, str):
@@ -1521,7 +1521,7 @@ class TypeExpression(Expression):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class EnumExpression(Expression):
     """
     An expression that constrains the range of a slot
@@ -1538,11 +1538,11 @@ class EnumExpression(Expression):
     code_set_version: Optional[str] = None
     pv_formula: Optional[Union[str, "PvFormulaOptions"]] = None
     permissible_values: Optional[Union[Dict[Union[str, PermissibleValueText], Union[dict, "PermissibleValue"]], List[Union[dict, "PermissibleValue"]]]] = empty_dict()
-    include: Optional[Union[Union[dict, "AnonymousEnumExpression"], List[Union[dict, "AnonymousEnumExpression"]]]] = empty_list()
-    minus: Optional[Union[Union[dict, "AnonymousEnumExpression"], List[Union[dict, "AnonymousEnumExpression"]]]] = empty_list()
+    include: Optional[Union[Union[dict, AnonymousEnumExpression], List[Union[dict, AnonymousEnumExpression]]]] = empty_list()
+    minus: Optional[Union[Union[dict, AnonymousEnumExpression], List[Union[dict, AnonymousEnumExpression]]]] = empty_list()
     inherits: Optional[Union[Union[str, EnumDefinitionName], List[Union[str, EnumDefinitionName]]]] = empty_list()
-    reachable_from: Optional[Union[dict, "ReachabilityQuery"]] = None
-    matches: Optional[Union[dict, "MatchQuery"]] = None
+    reachable_from: Optional[Union[dict, ReachabilityQuery]] = None
+    matches: Optional[Union[dict, MatchQuery]] = None
     concepts: Optional[Union[Union[str, URIorCURIE], List[Union[str, URIorCURIE]]]] = empty_list()
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
@@ -1585,7 +1585,7 @@ class EnumExpression(Expression):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AnonymousExpression(YAMLRoot):
     """
     An abstract parent class for any nested expression
@@ -1754,7 +1754,7 @@ class AnonymousExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class PathExpression(YAMLRoot):
     """
     An expression that describes an abstract path from an object to another through a sequence of slot lookups
@@ -1959,12 +1959,12 @@ class PathExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class SlotExpression(Expression):
     """
     an expression that constrains the range of values a slot can take
     """
-    _inherited_slots: ClassVar[List[str]] = ["range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality"]
+    _inherited_slots: ClassVar[List[str]] = ["range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality", "array"]
 
     class_class_uri: ClassVar[URIRef] = LINKML["SlotExpression"]
     class_class_curie: ClassVar[str] = "linkml:SlotExpression"
@@ -2000,6 +2000,7 @@ class SlotExpression(Expression):
     exactly_one_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
     any_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
     all_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
+    array: Optional[Union[dict, "ArrayExpression"]] = None
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
         if self.range is not None and not isinstance(self.range, ElementName):
@@ -2089,12 +2090,15 @@ class SlotExpression(Expression):
             self.all_of = [self.all_of] if self.all_of is not None else []
         self.all_of = [v if isinstance(v, AnonymousSlotExpression) else AnonymousSlotExpression(**as_dict(v)) for v in self.all_of]
 
+        if self.array is not None and not isinstance(self.array, ArrayExpression):
+            self.array = ArrayExpression(**as_dict(self.array))
+
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AnonymousSlotExpression(AnonymousExpression):
-    _inherited_slots: ClassVar[List[str]] = ["range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality"]
+    _inherited_slots: ClassVar[List[str]] = ["range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality", "array"]
 
     class_class_uri: ClassVar[URIRef] = LINKML["AnonymousSlotExpression"]
     class_class_curie: ClassVar[str] = "linkml:AnonymousSlotExpression"
@@ -2130,6 +2134,7 @@ class AnonymousSlotExpression(AnonymousExpression):
     exactly_one_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
     any_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
     all_of: Optional[Union[Union[dict, "AnonymousSlotExpression"], List[Union[dict, "AnonymousSlotExpression"]]]] = empty_list()
+    array: Optional[Union[dict, "ArrayExpression"]] = None
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
         if self.range is not None and not isinstance(self.range, ElementName):
@@ -2219,15 +2224,18 @@ class AnonymousSlotExpression(AnonymousExpression):
             self.all_of = [self.all_of] if self.all_of is not None else []
         self.all_of = [v if isinstance(v, AnonymousSlotExpression) else AnonymousSlotExpression(**as_dict(v)) for v in self.all_of]
 
+        if self.array is not None and not isinstance(self.array, ArrayExpression):
+            self.array = ArrayExpression(**as_dict(self.array))
+
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class SlotDefinition(Definition):
     """
     an element that describes how instances are related to other instances
     """
-    _inherited_slots: ClassVar[List[str]] = ["domain", "array", "inherited", "readonly", "ifabsent", "list_elements_unique", "list_elements_ordered", "shared", "key", "identifier", "designates_type", "role", "relational_role", "range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality"]
+    _inherited_slots: ClassVar[List[str]] = ["domain", "inherited", "readonly", "ifabsent", "list_elements_unique", "list_elements_ordered", "shared", "key", "identifier", "designates_type", "role", "relational_role", "range", "required", "recommended", "multivalued", "inlined", "inlined_as_list", "minimum_value", "maximum_value", "pattern", "structured_pattern", "value_presence", "equals_string", "equals_string_in", "equals_number", "equals_expression", "exact_cardinality", "minimum_cardinality", "maximum_cardinality", "array"]
 
     class_class_uri: ClassVar[URIRef] = LINKML["SlotDefinition"]
     class_class_curie: ClassVar[str] = "linkml:SlotDefinition"
@@ -2238,7 +2246,6 @@ class SlotDefinition(Definition):
     singular_name: Optional[str] = None
     domain: Optional[Union[str, ClassDefinitionName]] = None
     slot_uri: Optional[Union[str, URIorCURIE]] = None
-    array: Optional[Union[dict, "ArrayExpression"]] = None
     inherited: Optional[Union[bool, Bool]] = None
     readonly: Optional[str] = None
     ifabsent: Optional[str] = None
@@ -2305,6 +2312,7 @@ class SlotDefinition(Definition):
     exactly_one_of: Optional[Union[Union[dict, AnonymousSlotExpression], List[Union[dict, AnonymousSlotExpression]]]] = empty_list()
     any_of: Optional[Union[Union[dict, AnonymousSlotExpression], List[Union[dict, AnonymousSlotExpression]]]] = empty_list()
     all_of: Optional[Union[Union[dict, AnonymousSlotExpression], List[Union[dict, AnonymousSlotExpression]]]] = empty_list()
+    array: Optional[Union[dict, "ArrayExpression"]] = None
 
     def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
         if self._is_empty(self.name):
@@ -2320,9 +2328,6 @@ class SlotDefinition(Definition):
 
         if self.slot_uri is not None and not isinstance(self.slot_uri, URIorCURIE):
             self.slot_uri = URIorCURIE(self.slot_uri)
-
-        if self.array is not None and not isinstance(self.array, ArrayExpression):
-            self.array = ArrayExpression(**as_dict(self.array))
 
         if self.inherited is not None and not isinstance(self.inherited, Bool):
             self.inherited = Bool(self.inherited)
@@ -2528,10 +2533,13 @@ class SlotDefinition(Definition):
             self.all_of = [self.all_of] if self.all_of is not None else []
         self.all_of = [v if isinstance(v, AnonymousSlotExpression) else AnonymousSlotExpression(**as_dict(v)) for v in self.all_of]
 
+        if self.array is not None and not isinstance(self.array, ArrayExpression):
+            self.array = ArrayExpression(**as_dict(self.array))
+
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class ClassExpression(YAMLRoot):
     """
     A boolean expression that can be used to dynamically determine membership of a class
@@ -2571,7 +2579,7 @@ class ClassExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AnonymousClassExpression(AnonymousExpression):
     _inherited_slots: ClassVar[List[str]] = []
 
@@ -2612,7 +2620,7 @@ class AnonymousClassExpression(AnonymousExpression):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class ClassDefinition(Definition):
     """
     an element whose instances are complex objects that may have slot-value assignments
@@ -2640,6 +2648,8 @@ class ClassDefinition(Definition):
     represents_relationship: Optional[Union[bool, Bool]] = None
     disjoint_with: Optional[Union[Union[str, ClassDefinitionName], List[Union[str, ClassDefinitionName]]]] = empty_list()
     children_are_mutually_disjoint: Optional[Union[bool, Bool]] = None
+    extra_slots: Optional[Union[dict, "ExtraSlotsExpression"]] = None
+    alias: Optional[str] = None
     is_a: Optional[Union[str, ClassDefinitionName]] = None
     mixins: Optional[Union[Union[str, ClassDefinitionName], List[Union[str, ClassDefinitionName]]]] = empty_list()
     apply_to: Optional[Union[Union[str, ClassDefinitionName], List[Union[str, ClassDefinitionName]]]] = empty_list()
@@ -2703,6 +2713,12 @@ class ClassDefinition(Definition):
         if self.children_are_mutually_disjoint is not None and not isinstance(self.children_are_mutually_disjoint, Bool):
             self.children_are_mutually_disjoint = Bool(self.children_are_mutually_disjoint)
 
+        if self.extra_slots is not None and not isinstance(self.extra_slots, ExtraSlotsExpression):
+            self.extra_slots = ExtraSlotsExpression(**as_dict(self.extra_slots))
+
+        if self.alias is not None and not isinstance(self.alias, str):
+            self.alias = str(self.alias)
+
         if self.is_a is not None and not isinstance(self.is_a, ClassDefinitionName):
             self.is_a = ClassDefinitionName(self.is_a)
 
@@ -2747,7 +2763,7 @@ class ClassLevelRule(YAMLRoot):
     class_model_uri: ClassVar[URIRef] = LINKML.ClassLevelRule
 
 
-@dataclass(repr=False)
+@dataclass
 class ClassRule(ClassLevelRule):
     """
     A rule that applies to instances of a class
@@ -2940,7 +2956,7 @@ class ClassRule(ClassLevelRule):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class ArrayExpression(YAMLRoot):
     """
     defines the dimensions of an array
@@ -3123,7 +3139,7 @@ class ArrayExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class DimensionExpression(YAMLRoot):
     """
     defines one of the dimensions of an array
@@ -3308,7 +3324,7 @@ class DimensionExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class PatternExpression(YAMLRoot):
     """
     a regular expression pattern used to evaluate conformance of a string
@@ -3489,7 +3505,7 @@ class PatternExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class ImportExpression(YAMLRoot):
     """
     an expression describing an import
@@ -3671,7 +3687,7 @@ class ImportExpression(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class Setting(YAMLRoot):
     """
     assignment of a key to a value
@@ -3700,7 +3716,7 @@ class Setting(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class Prefix(YAMLRoot):
     """
     prefix URI tuple
@@ -3729,7 +3745,7 @@ class Prefix(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class LocalName(YAMLRoot):
     """
     an attributed label
@@ -3758,7 +3774,7 @@ class LocalName(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class Example(YAMLRoot):
     """
     usage example and description
@@ -3784,7 +3800,7 @@ class Example(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class AltDescription(YAMLRoot):
     """
     an attributed description
@@ -3813,7 +3829,7 @@ class AltDescription(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class PermissibleValue(YAMLRoot):
     """
     a permissible value, accompanied by intended text and an optional mapping to a concept URI
@@ -4015,7 +4031,7 @@ class PermissibleValue(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
-@dataclass(repr=False)
+@dataclass
 class UniqueKey(YAMLRoot):
     """
     a collection of slots whose values uniquely identify an instance of a class
@@ -4384,6 +4400,33 @@ class TypeMapping(YAMLRoot):
         super().__post_init__(**kwargs)
 
 
+@dataclass
+class ExtraSlotsExpression(YAMLRoot):
+    """
+    An expression that defines how to handle additional data in an instance of class
+    beyond the slots/attributes defined for that class.
+    See `extra_slots` for usage examples.
+    """
+    _inherited_slots: ClassVar[List[str]] = []
+
+    class_class_uri: ClassVar[URIRef] = LINKML["ExtraSlotsExpression"]
+    class_class_curie: ClassVar[str] = "linkml:ExtraSlotsExpression"
+    class_name: ClassVar[str] = "extra_slots_expression"
+    class_model_uri: ClassVar[URIRef] = LINKML.ExtraSlotsExpression
+
+    allowed: Optional[Union[bool, Bool]] = None
+    range_expression: Optional[Union[dict, AnonymousClassExpression]] = None
+
+    def __post_init__(self, *_: List[str], **kwargs: Dict[str, Any]):
+        if self.allowed is not None and not isinstance(self.allowed, Bool):
+            self.allowed = Bool(self.allowed)
+
+        if self.range_expression is not None and not isinstance(self.range_expression, AnonymousClassExpression):
+            self.range_expression = AnonymousClassExpression(**as_dict(self.range_expression))
+
+        super().__post_init__(**kwargs)
+
+
 # Enumerations
 class PvFormulaOptions(EnumDefinitionImpl):
     """
@@ -4641,16 +4684,16 @@ slots.enum_uri = Slot(uri=LINKML.enum_uri, name="enum_uri", curie=LINKML.curie('
                    model_uri=LINKML.enum_uri, domain=EnumDefinition, range=Optional[Union[str, URIorCURIE]])
 
 slots.include = Slot(uri=LINKML.include, name="include", curie=LINKML.curie('include'),
-                   model_uri=LINKML.include, domain=EnumExpression, range=Optional[Union[Union[dict, "AnonymousEnumExpression"], List[Union[dict, "AnonymousEnumExpression"]]]])
+                   model_uri=LINKML.include, domain=EnumExpression, range=Optional[Union[Union[dict, AnonymousEnumExpression], List[Union[dict, AnonymousEnumExpression]]]])
 
 slots.minus = Slot(uri=LINKML.minus, name="minus", curie=LINKML.curie('minus'),
-                   model_uri=LINKML.minus, domain=EnumExpression, range=Optional[Union[Union[dict, "AnonymousEnumExpression"], List[Union[dict, "AnonymousEnumExpression"]]]])
+                   model_uri=LINKML.minus, domain=EnumExpression, range=Optional[Union[Union[dict, AnonymousEnumExpression], List[Union[dict, AnonymousEnumExpression]]]])
 
 slots.inherits = Slot(uri=LINKML.inherits, name="inherits", curie=LINKML.curie('inherits'),
                    model_uri=LINKML.inherits, domain=EnumExpression, range=Optional[Union[Union[str, EnumDefinitionName], List[Union[str, EnumDefinitionName]]]])
 
 slots.matches = Slot(uri=LINKML.matches, name="matches", curie=LINKML.curie('matches'),
-                   model_uri=LINKML.matches, domain=EnumExpression, range=Optional[Union[dict, "MatchQuery"]])
+                   model_uri=LINKML.matches, domain=EnumExpression, range=Optional[Union[dict, MatchQuery]])
 
 slots.identifier_pattern = Slot(uri=LINKML.identifier_pattern, name="identifier_pattern", curie=LINKML.curie('identifier_pattern'),
                    model_uri=LINKML.identifier_pattern, domain=MatchQuery, range=Optional[str])
@@ -4659,7 +4702,7 @@ slots.concepts = Slot(uri=LINKML.concepts, name="concepts", curie=LINKML.curie('
                    model_uri=LINKML.concepts, domain=EnumExpression, range=Optional[Union[Union[str, URIorCURIE], List[Union[str, URIorCURIE]]]])
 
 slots.reachable_from = Slot(uri=LINKML.reachable_from, name="reachable_from", curie=LINKML.curie('reachable_from'),
-                   model_uri=LINKML.reachable_from, domain=EnumExpression, range=Optional[Union[dict, "ReachabilityQuery"]])
+                   model_uri=LINKML.reachable_from, domain=EnumExpression, range=Optional[Union[dict, ReachabilityQuery]])
 
 slots.source_ontology = Slot(uri=LINKML.source_ontology, name="source_ontology", curie=LINKML.curie('source_ontology'),
                    model_uri=LINKML.source_ontology, domain=None, range=Optional[Union[str, URIorCURIE]])
@@ -4831,6 +4874,12 @@ slots.unique_key_slots = Slot(uri=LINKML.unique_key_slots, name="unique_key_slot
 
 slots.slot_names_unique = Slot(uri=LINKML.slot_names_unique, name="slot_names_unique", curie=LINKML.curie('slot_names_unique'),
                    model_uri=LINKML.slot_names_unique, domain=Definition, range=Optional[Union[bool, Bool]])
+
+slots.extra_slots = Slot(uri=LINKML.extra_slots, name="extra_slots", curie=LINKML.curie('extra_slots'),
+                   model_uri=LINKML.extra_slots, domain=ClassDefinition, range=Optional[Union[dict, "ExtraSlotsExpression"]])
+
+slots.allowed = Slot(uri=LINKML.allowed, name="allowed", curie=LINKML.curie('allowed'),
+                   model_uri=LINKML.allowed, domain=None, range=Optional[Union[bool, Bool]])
 
 slots.domain = Slot(uri=LINKML.domain, name="domain", curie=LINKML.curie('domain'),
                    model_uri=LINKML.domain, domain=SlotDefinition, range=Optional[Union[str, ClassDefinitionName]])
@@ -5148,16 +5197,16 @@ slots.schema_definition_name = Slot(uri=RDFS.label, name="schema_definition_name
                    model_uri=LINKML.schema_definition_name, domain=SchemaDefinition, range=Union[str, SchemaDefinitionName])
 
 slots.type_expression_any_of = Slot(uri=LINKML.any_of, name="type_expression_any_of", curie=LINKML.curie('any_of'),
-                   model_uri=LINKML.type_expression_any_of, domain=None, range=Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]])
+                   model_uri=LINKML.type_expression_any_of, domain=None, range=Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]])
 
 slots.type_expression_all_of = Slot(uri=LINKML.all_of, name="type_expression_all_of", curie=LINKML.curie('all_of'),
-                   model_uri=LINKML.type_expression_all_of, domain=None, range=Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]])
+                   model_uri=LINKML.type_expression_all_of, domain=None, range=Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]])
 
 slots.type_expression_exactly_one_of = Slot(uri=LINKML.exactly_one_of, name="type_expression_exactly_one_of", curie=LINKML.curie('exactly_one_of'),
-                   model_uri=LINKML.type_expression_exactly_one_of, domain=None, range=Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]])
+                   model_uri=LINKML.type_expression_exactly_one_of, domain=None, range=Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]])
 
 slots.type_expression_none_of = Slot(uri=LINKML.none_of, name="type_expression_none_of", curie=LINKML.curie('none_of'),
-                   model_uri=LINKML.type_expression_none_of, domain=None, range=Optional[Union[Union[dict, "AnonymousTypeExpression"], List[Union[dict, "AnonymousTypeExpression"]]]])
+                   model_uri=LINKML.type_expression_none_of, domain=None, range=Optional[Union[Union[dict, AnonymousTypeExpression], List[Union[dict, AnonymousTypeExpression]]]])
 
 slots.type_definition_union_of = Slot(uri=LINKML.union_of, name="type_definition_union_of", curie=LINKML.curie('union_of'),
                    model_uri=LINKML.type_definition_union_of, domain=TypeDefinition, range=Optional[Union[Union[str, TypeDefinitionName], List[Union[str, TypeDefinitionName]]]])

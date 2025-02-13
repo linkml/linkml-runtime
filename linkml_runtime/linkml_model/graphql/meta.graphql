@@ -182,6 +182,7 @@ type AnonymousSlotExpression implements SlotExpression
     exactlyOneOf: [AnonymousSlotExpression]
     anyOf: [AnonymousSlotExpression]
     allOf: [AnonymousSlotExpression]
+    array: ArrayExpression
   }
 
 type AnonymousTypeExpression implements TypeExpression
@@ -316,6 +317,8 @@ type ClassDefinition implements ClassExpression
     representsRelationship: Boolean
     disjointWith: [ClassDefinition]
     childrenAreMutuallyDisjoint: Boolean
+    extraSlots: ExtraSlotsExpression
+    alias: String
     isA: ClassDefinition
     mixins: [ClassDefinition]
     applyTo: [ClassDefinition]
@@ -712,6 +715,12 @@ type Extension
     extensions: [Extension]
   }
 
+type ExtraSlotsExpression implements Expression
+  {
+    allowed: Boolean
+    rangeExpression: AnonymousClassExpression
+  }
+
 type ImportExpression implements Extensible, Annotatable, CommonMetadata
   {
     importFrom: Uriorcurie!
@@ -1044,7 +1053,6 @@ type SlotDefinition implements SlotExpression
     singularName: String
     domain: ClassDefinition
     slotUri: Uriorcurie
-    array: ArrayExpression
     inherited: Boolean
     readonly: String
     ifabsent: String
@@ -1111,6 +1119,7 @@ type SlotDefinition implements SlotExpression
     exactlyOneOf: [AnonymousSlotExpression]
     anyOf: [AnonymousSlotExpression]
     allOf: [AnonymousSlotExpression]
+    array: ArrayExpression
   }
 
 interface SlotExpression
@@ -1144,6 +1153,7 @@ interface SlotExpression
     exactlyOneOf: [AnonymousSlotExpression]
     anyOf: [AnonymousSlotExpression]
     allOf: [AnonymousSlotExpression]
+    array: ArrayExpression
   }
 
 type StructuredAlias implements Expression, Extensible, Annotatable, CommonMetadata

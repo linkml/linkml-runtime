@@ -562,6 +562,10 @@
                     },
                     "type": "array"
                 },
+                "array": {
+                    "$ref": "#/$defs/ArrayExpression",
+                    "description": "coerces the value of the slot into an array and defines the dimensions of that array"
+                },
                 "bindings": {
                     "description": "A collection of enum bindings that specify how a slot can be bound to a permissible value from an enumeration.\nLinkML provides enums to allow string values to be restricted to one of a set of permissible values (specified statically or dynamically).\nEnum bindings allow enums to be bound to any object, including complex nested objects. For example, given a (generic) class Concept with slots id and label, it may be desirable to restrict the values the id takes on in a given context. For example, a HumanSample class may have a slot for representing sample site, with a range of concept, but the values of that slot may be restricted to concepts from a particular branch of an anatomy ontology.",
                     "items": {
@@ -1239,6 +1243,10 @@
                     "description": "Indicates the class or slot cannot be directly instantiated and is intended for grouping purposes.",
                     "type": "boolean"
                 },
+                "alias": {
+                    "description": "the name used for a slot in the context of its owning class.  If present, this is used instead of the actual slot name.",
+                    "type": "string"
+                },
                 "aliases": {
                     "description": "Alternate names/labels for the element. These do not alter the semantics of the schema, but may be useful to support search and alignment.",
                     "items": {
@@ -1444,6 +1452,10 @@
                     "description": "a tag/text tuple attached to an arbitrary element",
                     "type": "object"
                 },
+                "extra_slots": {
+                    "$ref": "#/$defs/ExtraSlotsExpression",
+                    "description": "How a class instance handles extra data not specified in the class definition.\nNote that this does *not* define the constraints that are placed on additional slots defined by inheriting classes.\n\nPossible values:\n- `allowed: true` - allow all additional data\n- `allowed: false` (or `allowed:` or `allowed: null` while `range_expression` is `null`) - \n  forbid all additional data (default) \n- `range_expression: ...`  - allow additional data if it matches the slot expression (see examples)\n"
+                },
                 "from_schema": {
                     "description": "id of the schema that defined the element",
                     "type": "string"
@@ -1642,7 +1654,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -1718,6 +1730,10 @@
                     "description": "Indicates the class or slot cannot be directly instantiated and is intended for grouping purposes.",
                     "type": "boolean"
                 },
+                "alias": {
+                    "description": "the name used for a slot in the context of its owning class.  If present, this is used instead of the actual slot name.",
+                    "type": "string"
+                },
                 "aliases": {
                     "description": "Alternate names/labels for the element. These do not alter the semantics of the schema, but may be useful to support search and alignment.",
                     "items": {
@@ -1923,6 +1939,10 @@
                     "description": "a tag/text tuple attached to an arbitrary element",
                     "type": "object"
                 },
+                "extra_slots": {
+                    "$ref": "#/$defs/ExtraSlotsExpression",
+                    "description": "How a class instance handles extra data not specified in the class definition.\nNote that this does *not* define the constraints that are placed on additional slots defined by inheriting classes.\n\nPossible values:\n- `allowed: true` - allow all additional data\n- `allowed: false` (or `allowed:` or `allowed: null` while `range_expression` is `null`) - \n  forbid all additional data (default) \n- `range_expression: ...`  - allow additional data if it matches the slot expression (see examples)\n"
+                },
                 "from_schema": {
                     "description": "id of the schema that defined the element",
                     "type": "string"
@@ -2121,7 +2141,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -3305,7 +3325,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -3700,7 +3720,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -3894,6 +3914,22 @@
                 "value"
             ],
             "title": "Extension",
+            "type": "object"
+        },
+        "ExtraSlotsExpression": {
+            "additionalProperties": false,
+            "description": "An expression that defines how to handle additional data in an instance of class\nbeyond the slots/attributes defined for that class. \nSee `extra_slots` for usage examples.",
+            "properties": {
+                "allowed": {
+                    "description": "Whether or not something is allowed. Usage defined by context.",
+                    "type": "boolean"
+                },
+                "range_expression": {
+                    "$ref": "#/$defs/AnonymousClassExpression",
+                    "description": "A range that is described as a boolean expression combining existing ranges"
+                }
+            },
+            "title": "ExtraSlotsExpression",
             "type": "object"
         },
         "ImportExpression": {
@@ -6445,7 +6481,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -7075,7 +7111,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -8958,7 +8994,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {
@@ -9207,7 +9243,7 @@
                     "type": "string"
                 },
                 "string_serialization": {
-                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERARE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
+                    "description": "Used on a slot that stores the string serialization of the containing object. The syntax follows python formatted strings, with slot names enclosed in {}s. These are expanded using the values of those slots.\nWe call the slot with the serialization the s-slot, the slots used in the {}s are v-slots. If both s-slots and v-slots are populated on an object then the value of the s-slot should correspond to the expansion.\nImplementations of frameworks may choose to use this property to either (a) PARSE: implement automated normalizations by parsing denormalized strings into complex objects (b) GENERATE: implement automated to_string labeling of complex objects\nFor example, a Measurement class may have 3 fields: unit, value, and string_value. The string_value slot may have a string_serialization of {value}{unit} such that if unit=cm and value=2, the value of string_value shouldd be 2cm",
                     "type": "string"
                 },
                 "structured_aliases": {

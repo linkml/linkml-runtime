@@ -139,7 +139,8 @@ CREATE TABLE anonymous_slot_expression (
 	exactly_one_of TEXT, 
 	any_of TEXT, 
 	all_of TEXT, 
-	PRIMARY KEY (extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords, range, range_expression, enum_range, bindings, required, recommended, multivalued, inlined, inlined_as_list, minimum_value, maximum_value, pattern, structured_pattern, unit, implicit_prefix, value_presence, equals_string, equals_string_in, equals_number, equals_expression, exact_cardinality, minimum_cardinality, maximum_cardinality, has_member, all_members, none_of, exactly_one_of, any_of, all_of)
+	array TEXT, 
+	PRIMARY KEY (extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords, range, range_expression, enum_range, bindings, required, recommended, multivalued, inlined, inlined_as_list, minimum_value, maximum_value, pattern, structured_pattern, unit, implicit_prefix, value_presence, equals_string, equals_string_in, equals_number, equals_expression, exact_cardinality, minimum_cardinality, maximum_cardinality, has_member, all_members, none_of, exactly_one_of, any_of, all_of, array)
 );
 
 CREATE TABLE anonymous_type_expression (
@@ -245,6 +246,8 @@ CREATE TABLE class_definition (
 	represents_relationship BOOLEAN, 
 	disjoint_with TEXT, 
 	children_are_mutually_disjoint BOOLEAN, 
+	extra_slots TEXT, 
+	alias TEXT, 
 	is_a TEXT, 
 	mixins TEXT, 
 	apply_to TEXT, 
@@ -372,6 +375,12 @@ CREATE TABLE extension (
 	value TEXT NOT NULL, 
 	extensions TEXT, 
 	PRIMARY KEY (tag, value, extensions)
+);
+
+CREATE TABLE extra_slots_expression (
+	allowed BOOLEAN, 
+	range_expression TEXT, 
+	PRIMARY KEY (allowed, range_expression)
 );
 
 CREATE TABLE import_expression (
@@ -822,7 +831,6 @@ CREATE TABLE slot_definition (
 	singular_name TEXT, 
 	domain TEXT, 
 	slot_uri TEXT, 
-	array TEXT, 
 	inherited BOOLEAN, 
 	readonly TEXT, 
 	ifabsent TEXT, 
@@ -887,6 +895,7 @@ CREATE TABLE slot_definition (
 	exactly_one_of TEXT, 
 	any_of TEXT, 
 	all_of TEXT, 
+	array TEXT, 
 	PRIMARY KEY (name), 
 	FOREIGN KEY(domain) REFERENCES class_definition (name), 
 	FOREIGN KEY(subproperty_of) REFERENCES slot_definition (name), 
