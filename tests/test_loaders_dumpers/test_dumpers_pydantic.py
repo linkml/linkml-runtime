@@ -2,7 +2,7 @@ import json
 
 import yaml
 
-from linkml_runtime.dumpers import yaml_dumper, json_dumper, csv_dumper
+from linkml_runtime.dumpers import yaml_dumper, json_dumper
 from tests.test_loaders_dumpers.loaderdumpertestcase import LoaderDumperTestCase
 from tests.test_loaders_dumpers.models.books_normalized_pydantic import Book, BookSeries, Author
 from linkml_runtime.utils.formatutils import remove_empty_items
@@ -27,14 +27,14 @@ class PydanticDumpersTestCase(LoaderDumperTestCase):
         self.dumps_test('book_series_lotr.yaml', lambda: yaml_dumper.dumps(self.bookseries))
 
         # test contents of yaml file with cleaned dict made from bookseries instance in setup
-        with open(self.env.input_path('book_series_lotr.yaml'), 'r') as f:
+        with open(self.env.input_path('book_series_lotr.yaml')) as f:
             data = yaml.safe_load(f)
             # explicitly confirm that unset fields aren't written to the file
             for i in range(3):
                 'genres' not in data['books'][i].keys()
                 'inStock' not in data['books'][i].keys()
                 'creator' not in data['books'][i].keys()
-            self.assertEqual(data, remove_empty_items(self.bookseries.dict()))
+            self.assertEqual(data, remove_empty_items(self.bookseries.model_dump()))
 
 
     def test_json_dumper(self):
@@ -43,11 +43,11 @@ class PydanticDumpersTestCase(LoaderDumperTestCase):
         self.dumps_test('book_series_lotr.json', lambda: json_dumper.dumps(self.bookseries))
 
         # test contents of json file with cleaned dict made from bookseries instance in setup
-        with open(self.env.input_path('book_series_lotr.json'), 'r') as f:
+        with open(self.env.input_path('book_series_lotr.json')) as f:
             data = json.load(f)
             # explicitly confirm that unset fields aren't written to the file
             for i in range(3):
                 'genres' not in data['books'][i].keys()
                 'inStock' not in data['books'][i].keys()
                 'creator' not in data['books'][i].keys()
-            self.assertEqual(data, remove_empty_items(self.bookseries.dict()))
+            self.assertEqual(data, remove_empty_items(self.bookseries.model_dump()))
