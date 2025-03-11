@@ -1065,7 +1065,7 @@ class SchemaView(object):
             e = self.get_subset(element, imports=imports)
         return e
 
-    def get_uri(self, element: Union[ElementName, Element], imports=True, expand=False, native=False) -> str:
+    def get_uri(self, element: Union[ElementName, Element], imports=True, expand=False, native=False, use_element_type=False) -> str:
         """
         Return the CURIE or URI for a schema element. If the schema defines a specific URI, this is
         used, otherwise this is constructed from the default prefix combined with the element name
@@ -1092,12 +1092,17 @@ class SchemaView(object):
         if uri is None or native:
             if e.from_schema is not None:
                 schema = next(sc for sc in self.schema_map.values() if sc.id == e.from_schema)
-                if schema == None:
+                if schema is None:
                     raise ValueError(f'Cannot find {e.from_schema} in schema_map')
             else:
                 schema = self.schema_map[self.in_schema(e.name)]
             pfx = schema.default_prefix
-            uri = f'{pfx}:{e_name}'
+            if use_element_type:
+                e_type = e.class_name.split("_",1)[0]  # for example "class_definition"
+                e_type_path = f"{e_type}/" 
+            else:
+                e_type_path = ""
+            uri = f'{pfx}:{e_type_path}{e_name}'
         if expand:
             return self.expand_curie(uri)
         else:
