@@ -3,7 +3,7 @@ from decimal import Decimal
 from numbers import Number
 from typing import List, Any, Union
 
-from jsonasobj2 import JsonObj, as_dict, is_list, is_dict, items, as_json_obj
+from linkml_runtime.utils.jsonasobj2 import JsonObj, as_dict, is_list, is_dict, items, as_json_obj
 
 ws_pattern = re.compile(r'\s+')
 us_pattern = re.compile(r'_+')

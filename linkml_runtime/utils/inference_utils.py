@@ -2,7 +2,7 @@ import logging
 from dataclasses import field, dataclass
 from enum import Enum
 from typing import Union, Optional, Any, Dict, Callable
-from jsonasobj2 import JsonObj, items
+from linkml_runtime.utils.jsonasobj2 import JsonObj, items
 
 from linkml_runtime import SchemaView
 from linkml_runtime.linkml_model import SlotDefinitionName, PermissibleValue, ClassDefinitionName
