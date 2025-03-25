@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 SCHEMA_NO_IMPORTS = Path(INPUT_DIR) / 'kitchen_sink_noimports.yaml'
 SCHEMA_WITH_IMPORTS = Path(INPUT_DIR) / 'kitchen_sink.yaml'
+SCHEMA_NO_DEFAULT_PREFIX = Path(INPUT_DIR) / 'kitchen_sink_nodefaultprefix.yaml'
 SCHEMA_WITH_STRUCTURED_PATTERNS = Path(INPUT_DIR) / "pattern-example.yaml"
 SCHEMA_IMPORT_TREE = Path(INPUT_DIR) / 'imports' / 'main.yaml'
 SCHEMA_RELATIVE_IMPORT_TREE = Path(INPUT_DIR) / 'imports_relative' / 'L0_0' / 'L1_0_0' / 'main.yaml'
@@ -41,6 +42,11 @@ def schema_view_no_imports():
 def view():
     """Fixture for SchemaView with imports."""
     return SchemaView(SCHEMA_WITH_IMPORTS)
+
+
+@pytest.fixture
+def schema_view_no_default_prefix():
+    return SchemaView(SCHEMA_NO_DEFAULT_PREFIX)
 
 
 def test_children_method(schema_view_no_imports):
@@ -916,3 +922,10 @@ def test_type_and_slot_with_same_name():
     view.add_type(TypeDefinition(name="test", from_schema="https://example.org/imported#"))
 
     assert view.get_uri("test", imports=True) == "ex:test"
+
+
+def test_no_default_prefix(schema_view_no_default_prefix):
+    view = schema_view_no_default_prefix
+    assert view.get_uri(COMPANY) == "https://w3id.org/linkml/tests/kitchen_sink/Company"
+    assert view.get_uri(EMPLOYED_AT) == 'https://w3id.org/linkml/tests/kitchen_sink/employed_at'
+    assert view.get_uri(AGENT) == 'prov:Agent'
