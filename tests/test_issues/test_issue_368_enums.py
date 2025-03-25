@@ -27,9 +27,6 @@ class Issue368TestCase(LoaderDumperTestCase):
         def dump_and_load(dumper: Callable, sfx: str) -> None:
             fname = env.actual_path(f'issue_368_1.{sfx}')
             dumper(example, fname)
-            with open(fname) as f:
-                print(f'\n----- {sfx} -----')
-                print(f.read())
 
         dump_and_load(json_dumper.dump, 'json')
         dump_and_load(yaml_dumper.dump, 'yaml')
