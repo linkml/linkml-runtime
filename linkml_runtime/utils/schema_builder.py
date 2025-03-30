@@ -179,6 +179,12 @@ class SchemaBuilder:
         if permissible_values is None:
             permissible_values = []
 
+        # Validate kwargs - all keys must be valid EnumDefinition fields
+        valid_fields = {f.name for f in fields(EnumDefinition)}
+        invalid_kwargs = set(kwargs.keys()) - valid_fields
+        if invalid_kwargs:
+            raise ValueError(f"Invalid kwargs for EnumDefinition: {', '.join(invalid_kwargs)}")
+        
         if isinstance(enum_def, str):
             enum_def = EnumDefinition(enum_def, **kwargs)
         elif isinstance(enum_def, dict):
@@ -191,6 +197,8 @@ class SchemaBuilder:
                     f"not {type(enum_def)!r}"
                 )
                 raise TypeError(msg)
+            
+            # No need to apply kwargs to existing EnumDefinition object
 
         if enum_def.name in self.schema.enums and not replace_if_present:
             raise ValueError(f"Enum {enum_def.name} already exists")
