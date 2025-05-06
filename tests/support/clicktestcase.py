@@ -80,10 +80,13 @@ class ClickTestCase(TestEnvironmentTestCase):
                 nt = nt[window:]
                 ot = ot[window:]
             offset = max(offset-view, 0)
-            print("   - - EXPECTED - -")
-            print(ow[offset:offset+view+view])
-            print("\n   - - ACTUAL - -")
-            print(nw[offset:offset+view+view])
+            msg = '\n'.join([
+                "   - - EXPECTED - -",
+                str(ow[offset:offset+view+view]),
+                "   - - ACTUAL - -",
+                str(nw[offset:offset+view+view])
+            ])
+            raise ValueError(msg)
 
     def do_test(self,
                 args: Union[str, list[str]],

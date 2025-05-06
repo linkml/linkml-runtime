@@ -153,17 +153,13 @@ class RdfLibDumperTestCase(unittest.TestCase):
         assert not org1type1.meaning
         assert org1type2.meaning
         org1 = Organization('ROR:1', categories=[org1type1, org1type2])
-        print(org1.categories)
         g = rdflib_dumper.as_rdf_graph(org1, schemaview=view, prefix_map=self.prefix_map)
-        print(g)
         cats = list(g.objects(ROR['1'], INFO['categories']))
-        print(cats)
         self.assertCountEqual([Literal('non profit'), URIRef('https://example.org/bizcodes/001')], cats)
         orgs = rdflib_loader.from_rdf_graph(g, target_class=Organization, schemaview=view)
         assert len(orgs) == 1
         [org1x] = orgs
         catsx = org1x.categories
-        print(catsx)
         self.assertCountEqual([org1type1, org1type2], catsx)
 
     def test_undeclared_prefix_raises_error(self):
@@ -255,7 +251,6 @@ class RdfLibDumperTestCase(unittest.TestCase):
                                              ignore_unmapped_predicates=True)
         self.assertEqual(address.city, 'foo city')
         ttl = rdflib_dumper.dumps(address, schemaview=view)
-        print(ttl)
         g = Graph()
         g.parse(data=ttl, format='ttl')
         INFO = Namespace('https://w3id.org/linkml/examples/personinfo/')

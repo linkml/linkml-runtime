@@ -17,12 +17,6 @@ class EnumTestCase(unittest.TestCase):
         * https://github.com/linkml/linkml/issues/119
         """
         i = Organism(state='LIVING')
-        print(i)
-        print(i.state)
-        print(i.state.code)
-        print(i.state.code.text)
-        print(type(i.state))
-        print(StateEnum.LIVING)
         assert str(i.state) == 'LIVING'
         assert i.state.code == StateEnum.LIVING
         obj = json.loads(json_dumper.dumps(i))
@@ -30,7 +24,6 @@ class EnumTestCase(unittest.TestCase):
         obj = yaml.safe_load(yaml_dumper.dumps(i))
         assert obj['state'] == 'LIVING'
         reconstituted = json_loader.loads(json_dumper.dumps(i), target_class=Organism)
-        print(f'RECONSTITUTED = {reconstituted}')
         assert reconstituted.state.code == StateEnum.LIVING
 
 
