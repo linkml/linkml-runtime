@@ -1,5 +1,5 @@
 from dataclasses import dataclass, fields
-from typing import Union, Optional
+from typing import Optional, Union
 
 from linkml_runtime.linkml_model import (
     ClassDefinition,
@@ -92,10 +92,7 @@ class SchemaBuilder:
         else:
             # Ensure that `cls` is a `ClassDefinition` object
             if not isinstance(cls, ClassDefinition):
-                msg = (
-                    f"cls must be a string, dict, or ClassDefinition, "
-                    f"not {type(cls)!r}"
-                )
+                msg = f"cls must be a string, dict, or ClassDefinition, " f"not {type(cls)!r}"
                 raise TypeError(msg)
 
             cls_as_dict = {f.name: getattr(cls, f.name) for f in fields(cls)}
@@ -110,7 +107,7 @@ class SchemaBuilder:
                 if isinstance(s, SlotDefinition):
                     cls.attributes[s.name] = s
                 else:
-                    raise ValueError(f"If use_attributes=True then slots must be SlotDefinitions")
+                    raise ValueError("If use_attributes=True then slots must be SlotDefinitions")
         else:
             for s in slots:
                 cls.slots.append(s.name if isinstance(s, SlotDefinition) else s)
@@ -189,10 +186,7 @@ class SchemaBuilder:
         else:
             # Ensure that `enum_def` is a `EnumDefinition` object
             if not isinstance(enum_def, EnumDefinition):
-                msg = (
-                    f"enum_def must be a `str`, `dict`, or `EnumDefinition`, "
-                    f"not {type(enum_def)!r}"
-                )
+                msg = f"enum_def must be a `str`, `dict`, or `EnumDefinition`, " f"not {type(enum_def)!r}"
                 raise TypeError(msg)
 
         if enum_def.name in self.schema.enums and not replace_if_present:
@@ -205,10 +199,7 @@ class SchemaBuilder:
             if isinstance(pv, str):
                 pv = PermissibleValue(text=pv)
             elif not isinstance(pv, PermissibleValue):
-                msg = (
-                    f"A permissible value must be a `str` or "
-                    f"a `PermissibleValue` object, not {type(pv)}"
-                )
+                msg = f"A permissible value must be a `str` or " f"a `PermissibleValue` object, not {type(pv)}"
                 raise TypeError(msg)
 
             enum_def.permissible_values[pv.text] = pv

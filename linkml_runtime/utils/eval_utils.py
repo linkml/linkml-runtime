@@ -102,10 +102,9 @@ def eval_expr(expr: str, _distribute=True, **kwargs) -> Any:
         return None
     else:
         try:
-            return eval_(ast.parse(expr, mode='eval').body, kwargs, distribute=_distribute)
+            return eval_(ast.parse(expr, mode="eval").body, kwargs, distribute=_distribute)
         except UnsetValueException:
             return None
-
 
 
 def eval_(node, bindings=None, distribute=True):

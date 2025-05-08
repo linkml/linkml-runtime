@@ -130,7 +130,7 @@ pyupgrade.keep-runtime-typing = true # until we drop 3.9
 
 
 [tool.codespell]
-skip = '.git,*.pdf,*.svg,./tests,pyproject.toml,*.dill,poetry.lock,*.ipynb'
+skip = '.git,*.pdf,*.svg,./tests,pyproject.toml,*.dill,poetry.lock,*.ipynb,./linkml_runtime/linkml_model/*'
 # Ignore table where words could be split across rows
 # Ignore shortcut specifications like [Ff]alse
 ignore-regex = '(\|.*\|.*\|.*\||\[[A-Z][a-z]\][a-z][a-z])'

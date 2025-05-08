@@ -1,12 +1,13 @@
 import os
 import unittest
-from typing import Union, TextIO, Optional
 from pathlib import Path
+from typing import Optional, TextIO, Union
+
 from hbreader import FileInfo
 
-from linkml_runtime.loaders import yaml_loader, json_loader, rdf_loader, RDFLoader
+from linkml_runtime.loaders import RDFLoader, json_loader, rdf_loader, yaml_loader
 from linkml_runtime.utils.yamlutils import YAMLRoot
-from tests.test_loaders_dumpers import LD_11_SVR, LD_11_SSL_SVR, LD_11_DIR
+from tests.test_loaders_dumpers import LD_11_DIR, LD_11_SSL_SVR, LD_11_SVR
 from tests.test_loaders_dumpers.environment import env
 from tests.test_loaders_dumpers.loaderdumpertestcase import LoaderDumperTestCase
 from tests.test_loaders_dumpers.models.termci_schema import Package
@@ -26,9 +27,9 @@ class LoadersUnitTest(LoaderDumperTestCase):
         self.loader_test("obo_sample.yaml", Package, yaml_loader)
 
     def test_json_loader_path(self):
-        """ Load obo_sample.json, emit obo_sample_json.yaml and check the results """
+        """Load obo_sample.json, emit obo_sample_json.yaml and check the results"""
         REPO_ROOT = Path(__file__).parent.parent.parent
-        path = REPO_ROOT / "tests" /  "test_loaders_dumpers" / "input" / "obo_sample.json"
+        path = REPO_ROOT / "tests" / "test_loaders_dumpers" / "input" / "obo_sample.json"
         data = json_loader.load(Path(path), Package, base_dir=self.env.indir)
         assert isinstance(data, Package)
         assert "system" in data
