@@ -1,7 +1,7 @@
-import sys
-import pytest
-import importlib.util
 import dataclasses
+import importlib.util
+
+import pytest
 
 
 def import_patch_module():
@@ -10,6 +10,7 @@ def import_patch_module():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
 
 def test_patch_module_emits_deprecation_warning():
     """All Python versions: emits DeprecationWarning and defines compatibility symbols"""
@@ -23,5 +24,3 @@ def test_patch_module_emits_deprecation_warning():
     # Check consistency with actual dataclasses module
     init_fn = getattr(dataclasses, "_init_fn", None)
     assert mod.dataclasses_init_fn_with_kwargs == init_fn
-
-

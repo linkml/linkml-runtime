@@ -1,5 +1,6 @@
-from functools import lru_cache
 import re
+from functools import lru_cache
+
 
 # We might want to deprecate this method in favor of PatternResolver in the future
 def generate_patterns(schema_view) -> dict[str, str]:
@@ -7,8 +8,8 @@ def generate_patterns(schema_view) -> dict[str, str]:
     the structured patterns in the settings.
     :param schema_view: SchemaView object with LinkML YAML
         already loaded
-    :return generated_patterns: dictionary with the 
-        expanded structured patterns 
+    :return generated_patterns: dictionary with the
+        expanded structured patterns
     """
 
     resolver = PatternResolver(schema_view)
@@ -77,11 +78,6 @@ class PatternResolver:
 
         converted = pattern
         for item in reversed:
-            converted = (
-                converted[: item["start"]]
-                + item["string"]
-                + converted[item["end"] :]
-            )
+            converted = converted[: item["start"]] + item["string"] + converted[item["end"] :]
 
         return converted
-

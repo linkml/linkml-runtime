@@ -8,10 +8,11 @@ This package provides:
 :ref:`ProxyObject`
    a proxy for a domain object that "knows" its place in the index
 """
-import logging
+
 import inspect
-from typing import Any, Union
-from collections.abc import Mapping, Iterator
+import logging
+from collections.abc import Iterator, MutableMapping
+from typing import Any
 
 from linkml_runtime import SchemaView
 from linkml_runtime.utils import eval_utils
@@ -50,13 +51,14 @@ class ObjectIndex:
     In the above, the same proxy object is reused for any
     object with an identifier.
     """
+
     def __init__(self, obj: YAMLRoot, schemaview: SchemaView):
         self._root_object = obj
         self._schemaview = schemaview
         self._class_map = schemaview.class_name_mappings()
-        self._source_object_cache: Mapping[str, Any] = {}
-        self._proxy_object_cache: Mapping[str, ProxyObject] = {}
-        self._child_to_parent: Mapping[str, list[tuple[str, str]]] = {}
+        self._source_object_cache: MutableMapping[str, Any] = {}
+        self._proxy_object_cache: MutableMapping[str, ProxyObject] = {}
+        self._child_to_parent: MutableMapping[str, list[tuple[str, str]]] = {}
         self._index(obj)
 
     def _index(self, obj: Any, parent_key=None, parent=None):
@@ -68,16 +70,11 @@ class ObjectIndex:
             return {k: self._index(v, parent_key, parent) for k, v in obj.items()}
         cls_name = type(obj).__name__
         if cls_name in self._class_map:
-            cls = self._class_map[cls_name]
             pk_val = self._key(obj)
             self._source_object_cache[pk_val] = obj
             if pk_val not in self._child_to_parent:
                 self._child_to_parent[pk_val] = []
             self._child_to_parent[pk_val].append((parent_key, parent))
-            #id_slot = self._schemaview.get_identifier_slot(cls.name)
-            #if id_slot:
-            #    id_val = getattr(obj, id_slot.name)
-            #    self._source_object_cache[(cls.name, id_val)] = obj
             for k, v in vars(obj).items():
                 self._index(v, k, obj)
         else:
@@ -113,7 +110,7 @@ class ObjectIndex:
         else:
             return ProxyObject(obj, _db=self)
 
-    def _key(self, obj: Any) -> tuple[Union[str, YAMLRoot], str]:
+    def _key(self, obj: Any) -> tuple[str, str]:
         """
         Returns primary key value for this object.
 
@@ -162,12 +159,12 @@ class ObjectIndex:
     def clear_proxy_object_cache(self):
         """
         Clears all items in the proxy cache.
-        
+
         :return:
         """
         self._proxy_object_cache = {}
 
-    def eval_expr(self, expr: str, obj: Any=None, **kwargs) -> Any:
+    def eval_expr(self, expr: str, obj: Any = None, **kwargs) -> Any:
         """
         Evaluates an expression against the object store.
 
@@ -212,7 +209,7 @@ class ProxyObject:
         return self._map(v, slot.range)
 
     def __getattribute__(self, attribute):
-        if attribute == '__dict__':
+        if attribute == "__dict__":
             return {k: getattr(self, k, None) for k in vars(self._shadowed).keys()}
         else:
             return object.__getattribute__(self, attribute)
@@ -268,4 +265,3 @@ class ProxyObject:
 
     def _attributes(self) -> list[str]:
         return list(vars(self._shadowed).keys())
-
