@@ -63,6 +63,12 @@ def schema_view_attributes() -> SchemaView:
     return SchemaView(os.path.join(INPUT_DIR, "attribute_edge_cases.yaml"))
 
 
+@pytest.fixture(scope="session")
+def schema_view_inlined() -> SchemaView:
+    """Fixture for a SchemaView for testing attribute edge cases."""
+    return SchemaView(os.path.join(INPUT_DIR, "schemaview_is_inlined.yaml"))
+
+
 def test_children_method(schema_view_no_imports: SchemaView) -> None:
     """Test retrieval of the children of a class."""
     view = schema_view_no_imports
@@ -929,12 +935,10 @@ def test_mergeimports() -> None:
         ("inlined_as_list_integer", False),
     ],
 )
-def test_is_inlined(slot_name: str, expected_result: bool) -> None:
+def test_is_inlined(schema_view_inlined: SchemaView, slot_name: str, expected_result: bool) -> None:
     """Tests for slots being inlined or not."""
-    schema_path = os.path.join(INPUT_DIR, "schemaview_is_inlined.yaml")
-    sv = SchemaView(schema_path)
-    slot = sv.get_slot(slot_name)
-    assert sv.is_inlined(slot) == expected_result
+    slot = schema_view_inlined.get_slot(slot_name)
+    assert schema_view_inlined.is_inlined(slot) == expected_result
 
 
 def test_materialize_nonscalar_slot_usage() -> None:
