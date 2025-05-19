@@ -39,34 +39,26 @@ class DictUtilTestCase(TestEnvironmentTestCase):
         assert d['name'] == 'test class'
         assert d['id_prefixes'] == []
         assert d['description'] is None
-        for x in _signature(d):
-            if not _is_python_type(x):
-                print(f'   ****={x} {type(x)}')
         assert all(_is_basic_type(x) for x in _signature(d))
 
         d2 = yutils.as_dict(obj2)
-        print(d2)
         assert d2['slot_usage']['foo']['range'] == 'bar'
         assert all(_is_basic_type(x) for x in _signature(d2))
 
         # as_simple_dict removes nones and empty lists
         d = as_simple_dict(obj)
-        print(d)
         assert isinstance(d, dict)
         assert all(_is_python_type(x) for x in _signature(d))
         assert d == {'name': 'test class'}
 
         d2 = as_simple_dict(obj2)
-        print(d2)
         assert isinstance(d2, dict)
         assert d2 == {'name': 'test class', 'slot_usage': {'foo': {'name': 'foo', 'range': 'bar'}}}
 
         s = yutils.as_yaml(obj)
-        print(s)
         assert(s.strip() == 'name: test class')
 
         s2 = yutils.as_yaml(obj2)
-        print(s2)
         assert(s2.strip().startswith('name: test class'))
 
 

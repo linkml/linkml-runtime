@@ -22,8 +22,6 @@ class Issue576TestCase(TestCase):
         s = rdflib_dumper.dumps(inst, view, 'turtle', prefix_map={"@base": "http://example.org/default/"})
         self.assertIn("@base <http://example.org/default/> .", s)
         g = rdflib.Graph().parse(data=s, format='turtle')
-        for t in g.triples((None, None, None)):
-            print(t)
         cases = [
             (None,
              rdflib.term.URIRef('https://w3id.org/linkml/personinfo/source'),

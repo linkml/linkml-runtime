@@ -67,7 +67,7 @@ class TestEnvironment:
     @staticmethod
     def _check_changed(test_file: str, runtime_file: str) -> None:
         if not filecmp.cmp(test_file, runtime_file):
-            print(
+            raise Exception(
                 f"WARNING: Test file {test_file} does not match {runtime_file}.  "
                 f"You may want to update the test version and rerun")
         from tests import USE_LOCAL_IMPORT_MAP
@@ -114,7 +114,7 @@ class TestEnvironment:
 
     @property
     def report_errors(self) -> bool:
-        return self.mismatch_action != MismatchAction.Ignore
+        return self.mismatch_action == MismatchAction.Report
 
     def __str__(self):
         """ Return the current state of the log file """
@@ -177,10 +177,12 @@ class TestEnvironment:
 
         diffs = are_dir_trees_equal(expected_output_directory, temp_output_directory)
         if diffs:
-            self.log(expected_output_directory, diffs)
             if not self.fail_on_error:
+                self.log(expected_output_directory, diffs)
                 shutil.rmtree(expected_output_directory)
                 os.rename(temp_output_directory, expected_output_directory)
+            else:
+                raise Exception(f'Diffs found in {expected_output_directory}:\n{diffs}')
         else:
             shutil.rmtree(temp_output_directory)
 
@@ -239,12 +241,13 @@ class TestEnvironment:
             cmsg = comparator(actual_text, actual_text)
             if cmsg:
                 msg = msg + '\n' + cmsg
-        if msg:
-            self.log(expected_file_path, msg)
+
         if msg and not self.fail_on_error:
             self.make_temp_dir(os.path.dirname(expected_file_path), clear=False)
             with open(expected_file_path, 'w', encoding='UTF-8') as outf:
                 outf.write(actual_text)
+        elif msg is not None:
+            raise Exception(msg)
         return not msg
 
 
