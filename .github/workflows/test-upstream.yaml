@@ -140,7 +140,7 @@ jobs:
       # the cache will still speedup the rest of the installation
       - name: install linkml
         working-directory: linkml
-        run: poetry sync --no-interaction --all-extras
+        run: poetry install --no-interaction --all-extras
 
       - name: print linkml-runtime version
         working-directory: linkml
