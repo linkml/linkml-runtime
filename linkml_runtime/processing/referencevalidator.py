@@ -42,7 +42,7 @@ from linkml_runtime.processing.validation_datamodel import (
 )
 from linkml_runtime.utils import yamlutils
 from linkml_runtime.utils.eval_utils import eval_expr
-from linkml_runtime.utils.metamodelcore import (
+from linkml_runtime.types.metamodelcore import (
     XSDTime,
     Bool,
     XSDDate,

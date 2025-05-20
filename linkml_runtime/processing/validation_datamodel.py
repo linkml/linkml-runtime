@@ -14,15 +14,15 @@ from linkml_runtime.linkml_model.meta import (
     PermissibleValue,
 )
 
-from linkml_runtime.utils.slot import Slot
-from linkml_runtime.utils.metamodelcore import empty_list, empty_dict
+from linkml_runtime.types.slot import Slot
+from linkml_runtime.types.metamodelcore import empty_list, empty_dict
 from linkml_runtime.utils.yamlutils import (
     YAMLRoot,
 )
-from linkml_runtime.utils.enumerations import EnumDefinitionImpl
+from linkml_runtime.types.enum import EnumDefinitionImpl
 from rdflib import URIRef
-from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.utils.metamodelcore import Bool, URIorCURIE
+from linkml_runtime.types.curienamespace import CurieNamespace
+from linkml_runtime.types.metamodelcore import Bool, URIorCURIE
 
 metamodel_version = "1.7.0"
 version = None
