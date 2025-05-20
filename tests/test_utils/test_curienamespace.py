@@ -2,7 +2,7 @@ import unittest
 
 from rdflib import URIRef
 
-from linkml_runtime.utils.curienamespace import CurieNamespace
+from linkml_runtime.types.curienamespace import CurieNamespace
 
 
 class CurieNamespaceTestCase(unittest.TestCase):

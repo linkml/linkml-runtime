@@ -7,8 +7,8 @@
 # license: https://creativecommons.org/publicdomain/zero/1.0/
 
 
-from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.utils.metamodelcore import Bool, Curie, Decimal, ElementIdentifier, NCName, NodeIdentifier, URI, URIorCURIE, XSDDate, XSDDateTime, XSDTime
+from linkml_runtime.types.curienamespace import CurieNamespace
+from linkml_runtime.types.metamodelcore import Bool, Curie, Decimal, ElementIdentifier, NCName, NodeIdentifier, URI, URIorCURIE, XSDDate, XSDDateTime, XSDTime
 
 metamodel_version = "1.7.0"
 version = None

@@ -3,10 +3,10 @@ from typing import Any, Optional, ClassVar, Union
 
 from rdflib import URIRef
 
-from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.utils.metamodelcore import URIorCURIE, empty_list, URI
+from linkml_runtime.types.curienamespace import CurieNamespace
+from linkml_runtime.types.metamodelcore import URIorCURIE, empty_list, URI
 from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
-from utils.enumerations import EnumDefinitionImpl
+from types.enum import EnumDefinitionImpl
 
 LINKML = CurieNamespace('linkml', 'https://w3id.org/linkml/')
 

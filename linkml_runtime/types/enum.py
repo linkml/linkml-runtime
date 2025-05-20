@@ -1,7 +1,7 @@
 from dataclasses import fields
 from typing import Union, Optional
 
-from linkml_runtime.utils.metamodelcore import Curie
+from linkml_runtime.types.metamodelcore import Curie
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
 
