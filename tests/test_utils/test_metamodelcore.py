@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from jsonasobj2 import as_json
 from rdflib import Literal, XSD, Graph, RDF, Namespace
 
-from linkml_runtime.utils.metamodelcore import NCName, Bool, URIorCURIE, URI, XSDDate, XSDDateTime, XSDTime, Curie, \
+from linkml_runtime.types.metamodelcore import NCName, Bool, URIorCURIE, URI, XSDDate, XSDDateTime, XSDTime, Curie, \
     NodeIdentifier
 from linkml_runtime.utils.namespaces import Namespaces
 from linkml_runtime.utils.strictness import lax, strict

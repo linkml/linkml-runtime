@@ -4,7 +4,7 @@ Created on 2023-03-24
 @author: wf
 '''
 from unittest import TestCase
-from linkml_runtime.utils.metamodelcore import URI
+from linkml_runtime.types.metamodelcore import URI
 
 class Issue1355TestCase(TestCase):
     """

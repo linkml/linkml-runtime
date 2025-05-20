@@ -8,9 +8,9 @@
 
 from typing import Optional, Union
 
-from linkml_runtime.utils.slot import Slot
-from linkml_runtime.utils.curienamespace import CurieNamespace
-from linkml_runtime.utils.metamodelcore import URIorCURIE
+from linkml_runtime.types.slot import Slot
+from linkml_runtime.types.curienamespace import CurieNamespace
+from linkml_runtime.types.metamodelcore import URIorCURIE
 
 metamodel_version = "1.7.0"
 version = "2.0.0"

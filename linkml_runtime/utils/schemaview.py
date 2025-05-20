@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from types import NotImplementedType
 
-    from linkml_runtime.utils.metamodelcore import URIorCURIE
+    from linkml_runtime.types.metamodelcore import URIorCURIE
 
 
 logger = logging.getLogger(__name__)
