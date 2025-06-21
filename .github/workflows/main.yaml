@@ -62,28 +62,38 @@ jobs:
         with:
           fetch-depth: 0
 
-
-      - name: Install Poetry
-        run: |
-          pipx install poetry
-          pipx inject poetry poetry-dynamic-versioning
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5.6.0
+      #----------------------------------------------
+      #          install uv
+      #----------------------------------------------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
+          version: "0.7.13"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
 
+      #----------------------------------------------
+      #    install your root project, if required 
+      #----------------------------------------------      
       - name: Install library
         run: |
-          poetry install --no-interaction
+          uv sync --all-extras --dev
+
+      #----------------------------------------------
+      #              coverage report   
+      #----------------------------------------------
       - name: Generate coverage results
         # Set bash shell to fail correctly on Windows https://github.com/actions/runner-images/issues/6668
         shell: bash
         run: |
-          poetry run coverage run -m pytest
-          poetry run coverage xml
-          poetry run coverage report -m
+          uv run coverage run -m pytest
+          uv run coverage xml
+          uv run coverage report -m
+
+      #----------------------------------------------
+      #           upload coverage results
+      #----------------------------------------------
       - name: Upload coverage report
         uses: codecov/codecov-action@v5
         with:

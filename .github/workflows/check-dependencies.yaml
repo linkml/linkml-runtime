@@ -47,10 +47,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Install Poetry
-        run: |
-          pipx install poetry
-          pipx inject poetry poetry-dynamic-versioning
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.13"
+          python-version: ${{ matrix.python-version }}
+
 
       - name: Check out repository
         uses: actions/checkout@v4.2.2
@@ -59,21 +61,15 @@ jobs:
           # The tags are required for dynamic versioning.
           fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-
       - name: Install library
-        run: poetry install --no-interaction
+        run: uv sync --all-extras --dev
 
-      - name: Regenerating poetry.lock file & install (sync) dependencies
+      - name: Regenerating uv.lock file & install (sync) dependencies
         run: |
-          poetry lock --regenerate
-          poetry sync
+          uv lock --upgrade
+          uv sync
 
       - name: Run tests
         # Set bash shell to fail correctly on Windows https://github.com/actions/runner-images/issues/6668
         shell: bash
-        run: poetry run python -m pytest --with-slow
+        run: uv run python -m pytest --with-slow
