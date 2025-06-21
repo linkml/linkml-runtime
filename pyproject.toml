@@ -1,6 +1,6 @@
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
 
 [project]
 name = "linkml-runtime"
@@ -56,25 +56,6 @@ dependencies = [
 comparefiles = "linkml_runtime.utils.comparefiles:cli"
 linkml-normalize = "linkml_runtime.processing.referencevalidator:cli"
 
-[tool.poetry]
-requires-poetry = ">=2.0"
-version = "0.0.0"
-
-[tool.poetry.dependencies]
-python = "^3.9"
-
-[tool.poetry.requires-plugins]
-poetry-dynamic-versioning = ">=1.8.2"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "pep440"
-
-[tool.poetry.group.dev.dependencies]
-coverage = "^6.2"
-requests-cache = "^1.2.0"
-
 [tool.ruff]
 line-length = 120
 target-version = "py39"
@@ -91,3 +72,11 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["F401"] # unused imports
+
+[tool.uv-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
