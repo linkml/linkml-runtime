@@ -4,7 +4,8 @@
 # https://github.com/codecov/codecov-action
 
 name: Build and test linkml-runtime
-
+env:
+  UV_VERSION: "0.7.13"
 on:
   push:
     branches:
@@ -66,9 +67,9 @@ jobs:
       #          install uv
       #----------------------------------------------
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
-          version: "0.7.13"
+          version: ${{ env.UV_VERSION }}
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           python-version: ${{ matrix.python-version }}
@@ -76,9 +77,12 @@ jobs:
       #----------------------------------------------
       #    install your root project, if required 
       #----------------------------------------------      
-      - name: Install library
+      - name: Install dependencies
         run: |
-          uv sync --all-extras --dev
+          uv sync 
+
+      - name: Verify uv.lock is up-to-date
+        run: uv lock --check
 
       #----------------------------------------------
       #              coverage report   

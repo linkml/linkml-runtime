@@ -1,5 +1,6 @@
 name: Build and test linkml-runtime with latest dependency versions
-
+env:
+  UV_VERSION: "0.7.13"
 on:
   schedule:
     - cron: '0 5 * * 1'  # once per week on Monday at 05:00 UTC
@@ -48,9 +49,10 @@ jobs:
 
     steps:
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
-          version: "0.7.13"
+          enable-cache: true
+          version: ${{ env.UV_VERSION }}
           python-version: ${{ matrix.python-version }}
 
 
@@ -61,15 +63,14 @@ jobs:
           # The tags are required for dynamic versioning.
           fetch-depth: 0
 
-      - name: Install library
-        run: uv sync --all-extras --dev
+      - name: Install dependencies
+        run: uv sync
 
-      - name: Regenerating uv.lock file & install (sync) dependencies
+      - name: Verify uv.lock is up-to-date
         run: |
-          uv lock --upgrade
-          uv sync
+          uv lock --check
 
       - name: Run tests
         # Set bash shell to fail correctly on Windows https://github.com/actions/runner-images/issues/6668
         shell: bash
-        run: uv run python -m pytest --with-slow
+        run: uv run -m pytest --with-slow
