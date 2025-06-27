@@ -63,12 +63,11 @@ jobs:
           # The tags are required for dynamic versioning.
           fetch-depth: 0
 
+      - name: Regenerate lock file with latest dependencies
+        run: uv lock --upgrade
+
       - name: Install dependencies
         run: uv sync
-
-      - name: Verify uv.lock is up-to-date
-        run: |
-          uv lock --check
 
       - name: Run tests
         # Set bash shell to fail correctly on Windows https://github.com/actions/runner-images/issues/6668
