@@ -67,7 +67,7 @@ jobs:
         run: uv lock --upgrade
 
       - name: Install dependencies
-        run: uv sync --extra dev
+        run: uv sync --group dev
 
       - name: Run tests
         # Set bash shell to fail correctly on Windows https://github.com/actions/runner-images/issues/6668

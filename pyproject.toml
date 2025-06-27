@@ -52,7 +52,7 @@ dependencies = [
     "isodate >=0.7.2, <1.0.0; python_version < '3.11'",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "coverage >=6.2",
     "requests-cache >=1.2.0",
