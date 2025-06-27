@@ -128,7 +128,7 @@ jobs:
       # the cache will still speedup the rest of the installation
       - name: install linkml
         working-directory: linkml
-        run: uv sync --no-interaction --all-extras
+        run: uv sync  --all-extras
 
       - name: print linkml-runtime version
         working-directory: linkml
