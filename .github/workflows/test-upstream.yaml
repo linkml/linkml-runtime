@@ -9,11 +9,11 @@ on:
       upstream_repo:
         description: "Upstream linkml repository to test against"
         required: true
-        default: "linkml/linkml"
+        default: "iQuxLE/linkml"
       upstream_branch:
         description: "Upstream linkml branch to test against"
         required: true
-        default: "main"
+        default: "migrate-to-uv"
 
 jobs:
   test_upstream:
@@ -52,8 +52,8 @@ jobs:
           echo $UPSTREAM_BRANCH
 
           if [[ -z "$UPSTREAM_BRANCH" ]]; then
-            echo "Using main as default"
-            UPSTREAM_BRANCH="main"
+            echo "Using migrate-to-uv as default"
+            UPSTREAM_BRANCH="migrate-to-uv"
           fi
 
           UPSTREAM_REPO=$( \
@@ -67,8 +67,8 @@ jobs:
           echo $UPSTREAM_REPO
 
           if [[ -z "$UPSTREAM_REPO" ]]; then
-            echo "Using linkml/linkml as default"
-            UPSTREAM_REPO="linkml/linkml"
+            echo "Using iQuxLE/linkml as default"
+            UPSTREAM_REPO="iQuxLE/linkml"
           fi
 
           echo "upstream_branch=$UPSTREAM_BRANCH" >> "$GITHUB_ENV"
@@ -128,7 +128,7 @@ jobs:
       # the cache will still speedup the rest of the installation
       - name: install linkml
         working-directory: linkml
-        run: uv sync --all-extras && uv add docker
+        run: uv sync --all-groups && uv add docker
 
       - name: print linkml-runtime version
         working-directory: linkml
