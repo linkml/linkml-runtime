@@ -10,10 +10,10 @@ import dataclasses
 from typing import Optional, Union, ClassVar, Any
 from dataclasses import dataclass
 
-from linkml_runtime.utils.metamodelcore import empty_dict
+from linkml_runtime.types.metamodelcore import empty_dict
 from linkml_runtime.utils.yamlutils import YAMLRoot, extended_str
 from rdflib import URIRef
-from linkml_runtime.utils.curienamespace import CurieNamespace
+from linkml_runtime.types.curienamespace import CurieNamespace
 
 
 metamodel_version = "1.7.0"

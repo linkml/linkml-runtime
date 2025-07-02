@@ -1,5 +1,5 @@
 from pathlib import Path
-from linkml_runtime.utils.curienamespace import CurieNamespace
+from linkml_runtime.types.curienamespace import CurieNamespace
 from linkml_runtime.utils.schemaview import SchemaView
 from rdflib import RDF, RDFS, SKOS, XSD, OWL
 

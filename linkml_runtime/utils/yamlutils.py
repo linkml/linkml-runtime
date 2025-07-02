@@ -65,7 +65,7 @@ class YAMLRoot(JsonObj):
                 if not is_classvar and not k.startswith('_') and v is not None and\
                         (not isinstance(v, (dict, list, bool)) or v):
 
-                    from linkml_runtime.utils.enumerations import EnumDefinitionImpl
+                    from linkml_runtime.types.enum import EnumDefinitionImpl
                     if isinstance(v, dict):
                         itemslist = []
                         for vk, vv in v.items():
@@ -322,7 +322,7 @@ def root_representer(dumper: yaml.Dumper, data: YAMLRoot):
     """
     # TODO: Figure out how to import EnumDefinition here
     # elif isinstance(v, EnumDefinition):
-    from linkml_runtime.utils.enumerations import EnumDefinitionImpl
+    from linkml_runtime.types.enum import EnumDefinitionImpl
     if isinstance(data, EnumDefinitionImpl):
         data = data.code
     rval = dict()
