@@ -2256,6 +2256,7 @@ class SlotDefinition(Definition):
     transitive_form_of: Optional[Union[str, SlotDefinitionName]] = None
     reflexive_transitive_form_of: Optional[Union[str, SlotDefinitionName]] = None
     role: Optional[str] = None
+    is_index: Optional[Union[bool,Bool]] = None
     is_usage_slot: Optional[Union[bool, Bool]] = None
     usage_slot_name: Optional[str] = None
     relational_role: Optional[Union[str, "RelationalRoleEnum"]] = None
@@ -2641,6 +2642,7 @@ class ClassDefinition(Definition):
     none_of: Optional[Union[Union[dict, AnonymousClassExpression], list[Union[dict, AnonymousClassExpression]]]] = empty_list()
     all_of: Optional[Union[Union[dict, AnonymousClassExpression], list[Union[dict, AnonymousClassExpression]]]] = empty_list()
     slot_conditions: Optional[Union[dict[Union[str, SlotDefinitionName], Union[dict, SlotDefinition]], list[Union[dict, SlotDefinition]]]] = empty_dict()
+    indices: Optional[Union[Union[str, SlotDefinition], [dict,str]]] = empty_dict()
 
     def __post_init__(self, *_: list[str], **kwargs: dict[str, Any]):
         if self._is_empty(self.name):
