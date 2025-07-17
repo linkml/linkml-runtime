@@ -39,6 +39,7 @@ from linkml_runtime.linkml_model.meta import (
     TypeDefinition,
     TypeDefinitionName,
 )
+from linkml_runtime.processing import inlining
 from linkml_runtime.utils.context_utils import map_import, parse_import_map
 from linkml_runtime.utils.formatutils import camelcase, is_empty, sfx, underscore
 from linkml_runtime.utils.namespaces import Namespaces
@@ -1474,6 +1475,7 @@ class SchemaView:
         :param imports: include imports closure
         :return: dynamic slot constructed by inference
         """
+        # print(f"inducing {slot_name}")
         if class_name:
             cls = self.get_class(class_name, imports, strict=True)
         else:
@@ -1549,8 +1551,7 @@ class SchemaView:
                     v = self.schema.default_range
             if v is not None:
                 setattr(induced_slot, metaslot_name, v)
-        if slot.inlined_as_list:
-            slot.inlined = True
+        slot.inlined, slot.inlined_as_list = inlining.process(induced_slot, self.schema_map, logger)
         if slot.identifier or slot.key:
             slot.required = True
         if mangle_name:
@@ -1679,15 +1680,26 @@ class SchemaView:
         range = slot.range
         if range in self.all_classes():
             if slot.inlined or slot.inlined_as_list:
+                # print(f"is_inlined({slot.name}) -> True")
                 return True
 
             id_slot = self.get_identifier_slot(range, imports=imports)
             if id_slot is None:
                 # must be inlined as has no identifier
+                # print(f"is_inlined({slot.name}) -> True")
                 return True
             # not explicitly declared inline and has an identifier: assume is ref, not inlined
+            # print(f"is_inlined({slot.name}) -> False")
             return False
+        # print(f"is_inlined({slot.name}) -> False")
         return False
+
+        result = inlining.is_inlined(slot, self.schema_map, logger)
+        print(f"is_inlined({slot.name}) -> {result}")
+        # if slot.name == "a_thing_without_id":
+        #     result = True
+        return result
+        return inlining.is_inlined(slot, self.schema_map, logger)
 
     def slot_applicable_range_elements(self, slot: SlotDefinition) -> list[ClassDefinitionName]:
         """Retrieve all applicable metamodel elements for a slot range.
@@ -2043,13 +2055,7 @@ class SchemaView:
                         if metaslot_val is not None:
                             setattr(slot, metaslot, metaslot_val)
                 slot_range_pk_slot_name = None
-                if isinstance(slot_range_element, ClassDefinition):
-                    slot_range_pk_slot_name = self.get_identifier_slot(slot_range_element.name, use_key=True)
-                if not slot_range_pk_slot_name:
-                    slot.inlined = True
-                    slot.inlined_as_list = True
-                if slot.inlined_as_list:
-                    slot.inlined = True
+                slot.inlined, slot.inlined_as_list = inlining.process(slot, self.schema_map, logger)
                 if slot.identifier or slot.key:
                     slot.required = True
                 cls.attributes[slot.name] = slot
