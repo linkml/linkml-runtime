@@ -93,7 +93,8 @@ ignore-words-list = [
 quiet-level = 3
 # https://docs.astral.sh/ruff/settings/
 [tool.ruff]
-extend-exclude = []
+extend-exclude = [
+]
 force-exclude = true
 line-length = 120
 # Assume Python 3.9
@@ -211,20 +212,17 @@ commands = [
 ]
 
 [tool.tox.env.format]
-description = "Run ruff code formatter."
+description = "Run code formatter and code-fixing linter."
 skip_install = true
-deps = ["ruff==0.11.13"]
+deps = ["pre-commit"]
 commands = [
-  ["ruff", "format", "{posargs:.}"],
+  ["pre-commit", "run", "--all-files", "--show-diff-on-failure", { replace = "posargs", extend = true }]
 ]
 
 [tool.tox.env.format_check]
 description = "Check that code is correctly formatted by ruff."
 skip_install = true
 deps = ["ruff==0.11.13"]
-commands = [
-  ["ruff", "format", "--check", "{posargs:.}"],
-]
 
 [tool.tox.env.lint]
 description = "Run code linter and formatter (no fixes)."
@@ -232,6 +230,7 @@ skip_install = true
 deps = ["ruff==0.11.13"]
 commands = [
   ["ruff", "check", "{posargs:.}"],
+  ["ruff", "format", "{posargs:.}"],
 ]
 
 [tool.uv-dynamic-versioning]
