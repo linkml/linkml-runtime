@@ -28,6 +28,10 @@ def test_loader_base_model(filename, model, format):
     exp_yaml_path = Path(expected_yaml)
     exp_path = Path(env.outdir) / "load" / f"{filename}_{format}.yaml"
     assert exp_path.as_posix() == exp_yaml_path.as_posix()
+
+    assert Path(env.indir).exists()
+    assert Path(env.outdir).exists()
+
     assert exp_path.exists()
     assert exp_yaml_path.exists()
 
