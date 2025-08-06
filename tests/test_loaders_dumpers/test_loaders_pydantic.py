@@ -11,6 +11,9 @@ from tests.test_loaders_dumpers.environment import env
 from tests.test_loaders_dumpers.models.books_normalized_pydantic import BookSeries
 from tests.test_loaders_dumpers.models.kitchen_sink_pydantic import Dataset
 
+LOADER = {"yaml": yaml_loader, "json": json_loader}
+
+
 @pytest.mark.parametrize("format", list(LOADER.keys()))
 @pytest.mark.parametrize(
     ("filename", "model"),
