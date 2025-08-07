@@ -398,10 +398,16 @@ dev = [
     { name = "requests-cache" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "requests-cache" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "click" },
-    { name = "coverage", marker = "extra == 'dev'", specifier = ">=6.2" },
+    { name = "coverage", marker = "extra == 'dev'" },
     { name = "curies", specifier = ">=0.5.4" },
     { name = "deprecated" },
     { name = "hbreader" },
@@ -415,9 +421,15 @@ requires-dist = [
     { name = "pyyaml" },
     { name = "rdflib", specifier = ">=6.0.0" },
     { name = "requests" },
-    { name = "requests-cache", marker = "extra == 'dev'", specifier = ">=1.2.0" },
+    { name = "requests-cache", marker = "extra == 'dev'" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "coverage", specifier = ">=6.2" },
+    { name = "requests-cache", specifier = ">=1.2.0" },
+]
 
 [[package]]
 name = "packaging"
