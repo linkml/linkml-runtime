@@ -156,12 +156,14 @@ type AnonymousSlotExpression implements SlotExpression
     range: Element
     rangeExpression: AnonymousClassExpression
     enumRange: EnumExpression
+    bindings: [EnumBinding]
     required: Boolean
     recommended: Boolean
+    multivalued: Boolean
     inlined: Boolean
     inlinedAsList: Boolean
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     pattern: String
     structuredPattern: PatternExpression
     unit: UnitOfMeasure
@@ -171,6 +173,7 @@ type AnonymousSlotExpression implements SlotExpression
     equalsStringIn: [String]
     equalsNumber: Integer
     equalsExpression: String
+    exactCardinality: Integer
     minimumCardinality: Integer
     maximumCardinality: Integer
     hasMember: AnonymousSlotExpression
@@ -190,8 +193,8 @@ type AnonymousTypeExpression implements TypeExpression
     equalsString: String
     equalsStringIn: [String]
     equalsNumber: Integer
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     noneOf: [AnonymousTypeExpression]
     exactlyOneOf: [AnonymousTypeExpression]
     anyOf: [AnonymousTypeExpression]
@@ -206,10 +209,54 @@ type AnyValue
   {
   }
 
+type ArrayExpression implements Extensible, Annotatable, CommonMetadata
+  {
+    exactNumberDimensions: Integer
+    minimumNumberDimensions: Integer
+    maximumNumberDimensions: Anything
+    dimensions: [DimensionExpression]
+    extensions: [Extension]
+    annotations: [Annotation]
+    description: String
+    altDescriptions: [AltDescription]
+    title: String
+    deprecated: String
+    todos: [String]
+    notes: [String]
+    comments: [String]
+    examples: [Example]
+    inSubset: [SubsetDefinition]
+    fromSchema: Uri
+    importedFrom: String
+    source: Uriorcurie
+    inLanguage: String
+    seeAlso: [Uriorcurie]
+    deprecatedElementHasExactReplacement: Uriorcurie
+    deprecatedElementHasPossibleReplacement: Uriorcurie
+    aliases: [String]
+    structuredAliases: [StructuredAlias]
+    mappings: [Uriorcurie]
+    exactMappings: [Uriorcurie]
+    closeMappings: [Uriorcurie]
+    relatedMappings: [Uriorcurie]
+    narrowMappings: [Uriorcurie]
+    broadMappings: [Uriorcurie]
+    createdBy: Uriorcurie
+    contributors: [Uriorcurie]
+    createdOn: Datetime
+    lastUpdatedOn: Datetime
+    modifiedBy: Uriorcurie
+    status: Uriorcurie
+    rank: Integer
+    categories: [Uriorcurie]
+    keywords: [String]
+  }
+
 type ClassDefinition implements ClassExpression
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -378,6 +425,7 @@ interface Definition
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -427,10 +475,54 @@ interface Definition
     stringSerialization: String
   }
 
+type DimensionExpression implements Extensible, Annotatable, CommonMetadata
+  {
+    alias: String
+    maximumCardinality: Integer
+    minimumCardinality: Integer
+    exactCardinality: Integer
+    extensions: [Extension]
+    annotations: [Annotation]
+    description: String
+    altDescriptions: [AltDescription]
+    title: String
+    deprecated: String
+    todos: [String]
+    notes: [String]
+    comments: [String]
+    examples: [Example]
+    inSubset: [SubsetDefinition]
+    fromSchema: Uri
+    importedFrom: String
+    source: Uriorcurie
+    inLanguage: String
+    seeAlso: [Uriorcurie]
+    deprecatedElementHasExactReplacement: Uriorcurie
+    deprecatedElementHasPossibleReplacement: Uriorcurie
+    aliases: [String]
+    structuredAliases: [StructuredAlias]
+    mappings: [Uriorcurie]
+    exactMappings: [Uriorcurie]
+    closeMappings: [Uriorcurie]
+    relatedMappings: [Uriorcurie]
+    narrowMappings: [Uriorcurie]
+    broadMappings: [Uriorcurie]
+    createdBy: Uriorcurie
+    contributors: [Uriorcurie]
+    createdOn: Datetime
+    lastUpdatedOn: Datetime
+    modifiedBy: Uriorcurie
+    status: Uriorcurie
+    rank: Integer
+    categories: [Uriorcurie]
+    keywords: [String]
+  }
+
 type Element implements Extensible, Annotatable, CommonMetadata
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -473,10 +565,54 @@ type Element implements Extensible, Annotatable, CommonMetadata
     keywords: [String]
   }
 
+type EnumBinding implements Extensible, Annotatable, CommonMetadata
+  {
+    range: EnumDefinition
+    obligationLevel: ObligationLevelEnum
+    bindsValueOf: String
+    pvFormula: PvFormulaOptions
+    extensions: [Extension]
+    annotations: [Annotation]
+    description: String
+    altDescriptions: [AltDescription]
+    title: String
+    deprecated: String
+    todos: [String]
+    notes: [String]
+    comments: [String]
+    examples: [Example]
+    inSubset: [SubsetDefinition]
+    fromSchema: Uri
+    importedFrom: String
+    source: Uriorcurie
+    inLanguage: String
+    seeAlso: [Uriorcurie]
+    deprecatedElementHasExactReplacement: Uriorcurie
+    deprecatedElementHasPossibleReplacement: Uriorcurie
+    aliases: [String]
+    structuredAliases: [StructuredAlias]
+    mappings: [Uriorcurie]
+    exactMappings: [Uriorcurie]
+    closeMappings: [Uriorcurie]
+    relatedMappings: [Uriorcurie]
+    narrowMappings: [Uriorcurie]
+    broadMappings: [Uriorcurie]
+    createdBy: Uriorcurie
+    contributors: [Uriorcurie]
+    createdOn: Datetime
+    lastUpdatedOn: Datetime
+    modifiedBy: Uriorcurie
+    status: Uriorcurie
+    rank: Integer
+    categories: [Uriorcurie]
+    keywords: [String]
+  }
+
 type EnumDefinition implements EnumExpression
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -725,6 +861,8 @@ type PermissibleValue implements Extensible, Annotatable, CommonMetadata
     description: String
     meaning: Uriorcurie
     unit: UnitOfMeasure
+    instantiates: [Uriorcurie]
+    implements: [Uriorcurie]
     isA: PermissibleValue
     mixins: [PermissibleValue]
     extensions: [Extension]
@@ -782,6 +920,7 @@ type ReachabilityQuery
 type SchemaDefinition
   {
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -843,6 +982,7 @@ type SchemaDefinition
     generationDate: Datetime
     slotNamesUnique: Boolean
     settings: [Setting]
+    bindings: [EnumBinding]
     name: Ncname!
   }
 
@@ -856,6 +996,7 @@ type SlotDefinition implements SlotExpression
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -903,7 +1044,7 @@ type SlotDefinition implements SlotExpression
     singularName: String
     domain: ClassDefinition
     slotUri: Uriorcurie
-    multivalued: Boolean
+    array: ArrayExpression
     inherited: Boolean
     readonly: String
     ifabsent: String
@@ -937,18 +1078,21 @@ type SlotDefinition implements SlotExpression
     disjointWith: [SlotDefinition]
     childrenAreMutuallyDisjoint: Boolean
     unionOf: [SlotDefinition]
+    typeMappings: [TypeMapping]
     isA: SlotDefinition
     mixins: [SlotDefinition]
     applyTo: [SlotDefinition]
     range: Element
     rangeExpression: AnonymousClassExpression
     enumRange: EnumExpression
+    bindings: [EnumBinding]
     required: Boolean
     recommended: Boolean
+    multivalued: Boolean
     inlined: Boolean
     inlinedAsList: Boolean
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     pattern: String
     structuredPattern: PatternExpression
     unit: UnitOfMeasure
@@ -958,6 +1102,7 @@ type SlotDefinition implements SlotExpression
     equalsStringIn: [String]
     equalsNumber: Integer
     equalsExpression: String
+    exactCardinality: Integer
     minimumCardinality: Integer
     maximumCardinality: Integer
     hasMember: AnonymousSlotExpression
@@ -973,12 +1118,14 @@ interface SlotExpression
     range: Element
     rangeExpression: AnonymousClassExpression
     enumRange: EnumExpression
+    bindings: [EnumBinding]
     required: Boolean
     recommended: Boolean
+    multivalued: Boolean
     inlined: Boolean
     inlinedAsList: Boolean
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     pattern: String
     structuredPattern: PatternExpression
     unit: UnitOfMeasure
@@ -988,6 +1135,7 @@ interface SlotExpression
     equalsStringIn: [String]
     equalsNumber: Integer
     equalsExpression: String
+    exactCardinality: Integer
     minimumCardinality: Integer
     maximumCardinality: Integer
     hasMember: AnonymousSlotExpression
@@ -1003,6 +1151,7 @@ type StructuredAlias implements Expression, Extensible, Annotatable, CommonMetad
     literalForm: String!
     predicate: AliasPredicateEnum
     categories: [Uriorcurie]
+    contexts: [Uri]
     extensions: [Extension]
     annotations: [Annotation]
     description: String
@@ -1043,6 +1192,7 @@ type SubsetDefinition
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -1089,6 +1239,7 @@ type TypeDefinition implements TypeExpression
   {
     name: String!
     idPrefixes: [Ncname]
+    idPrefixesAreClosed: Boolean
     definitionUri: Uriorcurie
     localNames: [LocalName]
     conformsTo: String
@@ -1141,8 +1292,8 @@ type TypeDefinition implements TypeExpression
     equalsString: String
     equalsStringIn: [String]
     equalsNumber: Integer
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     noneOf: [AnonymousTypeExpression]
     exactlyOneOf: [AnonymousTypeExpression]
     anyOf: [AnonymousTypeExpression]
@@ -1158,12 +1309,54 @@ interface TypeExpression
     equalsString: String
     equalsStringIn: [String]
     equalsNumber: Integer
-    minimumValue: Integer
-    maximumValue: Integer
+    minimumValue: Anything
+    maximumValue: Anything
     noneOf: [AnonymousTypeExpression]
     exactlyOneOf: [AnonymousTypeExpression]
     anyOf: [AnonymousTypeExpression]
     allOf: [AnonymousTypeExpression]
+  }
+
+type TypeMapping implements Extensible, Annotatable, CommonMetadata
+  {
+    framework: String!
+    type: TypeDefinition
+    stringSerialization: String
+    extensions: [Extension]
+    annotations: [Annotation]
+    description: String
+    altDescriptions: [AltDescription]
+    title: String
+    deprecated: String
+    todos: [String]
+    notes: [String]
+    comments: [String]
+    examples: [Example]
+    inSubset: [SubsetDefinition]
+    fromSchema: Uri
+    importedFrom: String
+    source: Uriorcurie
+    inLanguage: String
+    seeAlso: [Uriorcurie]
+    deprecatedElementHasExactReplacement: Uriorcurie
+    deprecatedElementHasPossibleReplacement: Uriorcurie
+    aliases: [String]
+    structuredAliases: [StructuredAlias]
+    mappings: [Uriorcurie]
+    exactMappings: [Uriorcurie]
+    closeMappings: [Uriorcurie]
+    relatedMappings: [Uriorcurie]
+    narrowMappings: [Uriorcurie]
+    broadMappings: [Uriorcurie]
+    createdBy: Uriorcurie
+    contributors: [Uriorcurie]
+    createdOn: Datetime
+    lastUpdatedOn: Datetime
+    modifiedBy: Uriorcurie
+    status: Uriorcurie
+    rank: Integer
+    categories: [Uriorcurie]
+    keywords: [String]
   }
 
 type UniqueKey implements Extensible, Annotatable, CommonMetadata

@@ -113,12 +113,14 @@ CREATE TABLE anonymous_slot_expression (
 	range TEXT, 
 	range_expression TEXT, 
 	enum_range TEXT, 
+	bindings TEXT, 
 	required BOOLEAN, 
 	recommended BOOLEAN, 
+	multivalued BOOLEAN, 
 	inlined BOOLEAN, 
 	inlined_as_list BOOLEAN, 
-	minimum_value INTEGER, 
-	maximum_value INTEGER, 
+	minimum_value TEXT, 
+	maximum_value TEXT, 
 	pattern TEXT, 
 	structured_pattern TEXT, 
 	unit TEXT, 
@@ -128,6 +130,7 @@ CREATE TABLE anonymous_slot_expression (
 	equals_string_in TEXT, 
 	equals_number INTEGER, 
 	equals_expression TEXT, 
+	exact_cardinality INTEGER, 
 	minimum_cardinality INTEGER, 
 	maximum_cardinality INTEGER, 
 	has_member TEXT, 
@@ -136,7 +139,7 @@ CREATE TABLE anonymous_slot_expression (
 	exactly_one_of TEXT, 
 	any_of TEXT, 
 	all_of TEXT, 
-	PRIMARY KEY (extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords, range, range_expression, enum_range, required, recommended, inlined, inlined_as_list, minimum_value, maximum_value, pattern, structured_pattern, unit, implicit_prefix, value_presence, equals_string, equals_string_in, equals_number, equals_expression, minimum_cardinality, maximum_cardinality, has_member, all_members, none_of, exactly_one_of, any_of, all_of)
+	PRIMARY KEY (extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords, range, range_expression, enum_range, bindings, required, recommended, multivalued, inlined, inlined_as_list, minimum_value, maximum_value, pattern, structured_pattern, unit, implicit_prefix, value_presence, equals_string, equals_string_in, equals_number, equals_expression, exact_cardinality, minimum_cardinality, maximum_cardinality, has_member, all_members, none_of, exactly_one_of, any_of, all_of)
 );
 
 CREATE TABLE anonymous_type_expression (
@@ -147,8 +150,8 @@ CREATE TABLE anonymous_type_expression (
 	equals_string TEXT, 
 	equals_string_in TEXT, 
 	equals_number INTEGER, 
-	minimum_value INTEGER, 
-	maximum_value INTEGER, 
+	minimum_value TEXT, 
+	maximum_value TEXT, 
 	none_of TEXT, 
 	exactly_one_of TEXT, 
 	any_of TEXT, 
@@ -156,8 +159,52 @@ CREATE TABLE anonymous_type_expression (
 	PRIMARY KEY (pattern, structured_pattern, unit, implicit_prefix, equals_string, equals_string_in, equals_number, minimum_value, maximum_value, none_of, exactly_one_of, any_of, all_of)
 );
 
+CREATE TABLE array_expression (
+	exact_number_dimensions INTEGER, 
+	minimum_number_dimensions INTEGER, 
+	maximum_number_dimensions TEXT, 
+	dimensions TEXT, 
+	extensions TEXT, 
+	annotations TEXT, 
+	description TEXT, 
+	alt_descriptions TEXT, 
+	title TEXT, 
+	deprecated TEXT, 
+	todos TEXT, 
+	notes TEXT, 
+	comments TEXT, 
+	examples TEXT, 
+	in_subset TEXT, 
+	from_schema TEXT, 
+	imported_from TEXT, 
+	source TEXT, 
+	in_language TEXT, 
+	see_also TEXT, 
+	deprecated_element_has_exact_replacement TEXT, 
+	deprecated_element_has_possible_replacement TEXT, 
+	aliases TEXT, 
+	structured_aliases TEXT, 
+	mappings TEXT, 
+	exact_mappings TEXT, 
+	close_mappings TEXT, 
+	related_mappings TEXT, 
+	narrow_mappings TEXT, 
+	broad_mappings TEXT, 
+	created_by TEXT, 
+	contributors TEXT, 
+	created_on DATETIME, 
+	last_updated_on DATETIME, 
+	modified_by TEXT, 
+	status TEXT, 
+	rank INTEGER, 
+	categories TEXT, 
+	keywords TEXT, 
+	PRIMARY KEY (exact_number_dimensions, minimum_number_dimensions, maximum_number_dimensions, dimensions, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords)
+);
+
 CREATE TABLE class_definition (
 	name TEXT NOT NULL, 
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -210,8 +257,52 @@ CREATE TABLE class_definition (
 	FOREIGN KEY(is_a) REFERENCES class_definition (name)
 );
 
+CREATE TABLE dimension_expression (
+	alias TEXT, 
+	maximum_cardinality INTEGER, 
+	minimum_cardinality INTEGER, 
+	exact_cardinality INTEGER, 
+	extensions TEXT, 
+	annotations TEXT, 
+	description TEXT, 
+	alt_descriptions TEXT, 
+	title TEXT, 
+	deprecated TEXT, 
+	todos TEXT, 
+	notes TEXT, 
+	comments TEXT, 
+	examples TEXT, 
+	in_subset TEXT, 
+	from_schema TEXT, 
+	imported_from TEXT, 
+	source TEXT, 
+	in_language TEXT, 
+	see_also TEXT, 
+	deprecated_element_has_exact_replacement TEXT, 
+	deprecated_element_has_possible_replacement TEXT, 
+	aliases TEXT, 
+	structured_aliases TEXT, 
+	mappings TEXT, 
+	exact_mappings TEXT, 
+	close_mappings TEXT, 
+	related_mappings TEXT, 
+	narrow_mappings TEXT, 
+	broad_mappings TEXT, 
+	created_by TEXT, 
+	contributors TEXT, 
+	created_on DATETIME, 
+	last_updated_on DATETIME, 
+	modified_by TEXT, 
+	status TEXT, 
+	rank INTEGER, 
+	categories TEXT, 
+	keywords TEXT, 
+	PRIMARY KEY (alias, maximum_cardinality, minimum_cardinality, exact_cardinality, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords)
+);
+
 CREATE TABLE enum_definition (
 	name TEXT NOT NULL, 
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -430,6 +521,7 @@ CREATE TABLE structured_alias (
 	literal_form TEXT NOT NULL, 
 	predicate VARCHAR(15), 
 	categories TEXT, 
+	contexts TEXT, 
 	extensions TEXT, 
 	annotations TEXT, 
 	description TEXT, 
@@ -464,11 +556,12 @@ CREATE TABLE structured_alias (
 	status TEXT, 
 	rank INTEGER, 
 	keywords TEXT, 
-	PRIMARY KEY (literal_form, predicate, categories, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, keywords)
+	PRIMARY KEY (literal_form, predicate, categories, contexts, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, keywords)
 );
 
 CREATE TABLE subset_definition (
 	name TEXT NOT NULL, 
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -498,6 +591,7 @@ CREATE TABLE subset_definition (
 
 CREATE TABLE type_definition (
 	name TEXT NOT NULL, 
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -533,8 +627,8 @@ CREATE TABLE type_definition (
 	implicit_prefix TEXT, 
 	equals_string TEXT, 
 	equals_number INTEGER, 
-	minimum_value INTEGER, 
-	maximum_value INTEGER, 
+	minimum_value TEXT, 
+	maximum_value TEXT, 
 	none_of TEXT, 
 	exactly_one_of TEXT, 
 	any_of TEXT, 
@@ -602,7 +696,52 @@ CREATE TABLE class_rule (
 	FOREIGN KEY(class_definition_name) REFERENCES class_definition (name)
 );
 
+CREATE TABLE enum_binding (
+	range TEXT, 
+	obligation_level VARCHAR(11), 
+	binds_value_of TEXT, 
+	pv_formula VARCHAR(11), 
+	extensions TEXT, 
+	annotations TEXT, 
+	description TEXT, 
+	alt_descriptions TEXT, 
+	title TEXT, 
+	deprecated TEXT, 
+	todos TEXT, 
+	notes TEXT, 
+	comments TEXT, 
+	examples TEXT, 
+	in_subset TEXT, 
+	from_schema TEXT, 
+	imported_from TEXT, 
+	source TEXT, 
+	in_language TEXT, 
+	see_also TEXT, 
+	deprecated_element_has_exact_replacement TEXT, 
+	deprecated_element_has_possible_replacement TEXT, 
+	aliases TEXT, 
+	structured_aliases TEXT, 
+	mappings TEXT, 
+	exact_mappings TEXT, 
+	close_mappings TEXT, 
+	related_mappings TEXT, 
+	narrow_mappings TEXT, 
+	broad_mappings TEXT, 
+	created_by TEXT, 
+	contributors TEXT, 
+	created_on DATETIME, 
+	last_updated_on DATETIME, 
+	modified_by TEXT, 
+	status TEXT, 
+	rank INTEGER, 
+	categories TEXT, 
+	keywords TEXT, 
+	PRIMARY KEY (range, obligation_level, binds_value_of, pv_formula, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords), 
+	FOREIGN KEY(range) REFERENCES enum_definition (name)
+);
+
 CREATE TABLE schema_definition (
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -644,6 +783,7 @@ CREATE TABLE schema_definition (
 	generation_date DATETIME, 
 	slot_names_unique BOOLEAN, 
 	settings TEXT, 
+	bindings TEXT, 
 	name TEXT NOT NULL, 
 	PRIMARY KEY (name), 
 	FOREIGN KEY(default_range) REFERENCES type_definition (name)
@@ -651,6 +791,7 @@ CREATE TABLE schema_definition (
 
 CREATE TABLE slot_definition (
 	name TEXT NOT NULL, 
+	id_prefixes_are_closed BOOLEAN, 
 	definition_uri TEXT, 
 	local_names TEXT, 
 	conforms_to TEXT, 
@@ -681,7 +822,7 @@ CREATE TABLE slot_definition (
 	singular_name TEXT, 
 	domain TEXT, 
 	slot_uri TEXT, 
-	multivalued BOOLEAN, 
+	array TEXT, 
 	inherited BOOLEAN, 
 	readonly TEXT, 
 	ifabsent TEXT, 
@@ -721,12 +862,14 @@ CREATE TABLE slot_definition (
 	range TEXT, 
 	range_expression TEXT, 
 	enum_range TEXT, 
+	bindings TEXT, 
 	required BOOLEAN, 
 	recommended BOOLEAN, 
+	multivalued BOOLEAN, 
 	inlined BOOLEAN, 
 	inlined_as_list BOOLEAN, 
-	minimum_value INTEGER, 
-	maximum_value INTEGER, 
+	minimum_value TEXT, 
+	maximum_value TEXT, 
 	pattern TEXT, 
 	structured_pattern TEXT, 
 	unit TEXT, 
@@ -735,6 +878,7 @@ CREATE TABLE slot_definition (
 	equals_string TEXT, 
 	equals_number INTEGER, 
 	equals_expression TEXT, 
+	exact_cardinality INTEGER, 
 	minimum_cardinality INTEGER, 
 	maximum_cardinality INTEGER, 
 	has_member TEXT, 
@@ -1068,6 +1212,20 @@ CREATE TABLE enum_definition_concepts (
 	concepts TEXT, 
 	PRIMARY KEY (backref_id, concepts), 
 	FOREIGN KEY(backref_id) REFERENCES enum_definition (name)
+);
+
+CREATE TABLE permissible_value_instantiates (
+	backref_id TEXT, 
+	instantiates TEXT, 
+	PRIMARY KEY (backref_id, instantiates), 
+	FOREIGN KEY(backref_id) REFERENCES permissible_value (text)
+);
+
+CREATE TABLE permissible_value_implements (
+	backref_id TEXT, 
+	implements TEXT, 
+	PRIMARY KEY (backref_id, implements), 
+	FOREIGN KEY(backref_id) REFERENCES permissible_value (text)
 );
 
 CREATE TABLE permissible_value_todos (
@@ -1467,6 +1625,51 @@ CREATE TABLE prefix (
 	schema_definition_name TEXT, 
 	PRIMARY KEY (prefix_prefix, prefix_reference, schema_definition_name), 
 	FOREIGN KEY(schema_definition_name) REFERENCES schema_definition (name)
+);
+
+CREATE TABLE type_mapping (
+	framework TEXT NOT NULL, 
+	type TEXT, 
+	string_serialization TEXT, 
+	extensions TEXT, 
+	annotations TEXT, 
+	description TEXT, 
+	alt_descriptions TEXT, 
+	title TEXT, 
+	deprecated TEXT, 
+	todos TEXT, 
+	notes TEXT, 
+	comments TEXT, 
+	examples TEXT, 
+	in_subset TEXT, 
+	from_schema TEXT, 
+	imported_from TEXT, 
+	source TEXT, 
+	in_language TEXT, 
+	see_also TEXT, 
+	deprecated_element_has_exact_replacement TEXT, 
+	deprecated_element_has_possible_replacement TEXT, 
+	aliases TEXT, 
+	structured_aliases TEXT, 
+	mappings TEXT, 
+	exact_mappings TEXT, 
+	close_mappings TEXT, 
+	related_mappings TEXT, 
+	narrow_mappings TEXT, 
+	broad_mappings TEXT, 
+	created_by TEXT, 
+	contributors TEXT, 
+	created_on DATETIME, 
+	last_updated_on DATETIME, 
+	modified_by TEXT, 
+	status TEXT, 
+	rank INTEGER, 
+	categories TEXT, 
+	keywords TEXT, 
+	slot_definition_name TEXT, 
+	PRIMARY KEY (framework, type, string_serialization, extensions, annotations, description, alt_descriptions, title, deprecated, todos, notes, comments, examples, in_subset, from_schema, imported_from, source, in_language, see_also, deprecated_element_has_exact_replacement, deprecated_element_has_possible_replacement, aliases, structured_aliases, mappings, exact_mappings, close_mappings, related_mappings, narrow_mappings, broad_mappings, created_by, contributors, created_on, last_updated_on, modified_by, status, rank, categories, keywords, slot_definition_name), 
+	FOREIGN KEY(type) REFERENCES type_definition (name), 
+	FOREIGN KEY(slot_definition_name) REFERENCES slot_definition (name)
 );
 
 CREATE TABLE schema_definition_id_prefixes (
