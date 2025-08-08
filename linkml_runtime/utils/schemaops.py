@@ -1,9 +1,9 @@
-from typing import List, Union
+from typing import Union
 
-from linkml_runtime.utils.schemaview import SchemaView, CLASS_NAME
-from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition
+from linkml_runtime.utils.schemaview import CLASS_NAME, SchemaView
 
-CLASS_NAME_OR_LIST = Union[CLASS_NAME, List[CLASS_NAME]]
+CLASS_NAME_OR_LIST = Union[CLASS_NAME, list[CLASS_NAME]]
+
 
 def roll_up(sv: SchemaView, classes: CLASS_NAME_OR_LIST = None, mixins=True, is_a=True, delete=True) -> None:
     """
@@ -22,7 +22,6 @@ def roll_up(sv: SchemaView, classes: CLASS_NAME_OR_LIST = None, mixins=True, is_
     dels = set()
     for cn in classes:
         c = sv.get_class(cn)
-        slots = []
         for d in sv.class_descendants(cn, reflexive=False, mixins=mixins, is_a=is_a):
             for sn in sv.class_slots(d):
                 s = sv.induced_slot(sn, class_name=d)
@@ -38,7 +37,8 @@ def roll_up(sv: SchemaView, classes: CLASS_NAME_OR_LIST = None, mixins=True, is_
         sv.delete_class(d)
     sv.set_modified()
 
-def roll_down(sv: SchemaView, classes: List[CLASS_NAME] = None, mixins=True, is_a=True, delete=True) -> None:
+
+def roll_down(sv: SchemaView, classes: list[CLASS_NAME] = None, mixins=True, is_a=True, delete=True) -> None:
     """
     rolls down to a set of descendant classes
 
@@ -53,7 +53,6 @@ def roll_down(sv: SchemaView, classes: List[CLASS_NAME] = None, mixins=True, is_
     dels = set()
     for cn in classes:
         c = sv.get_class(cn)
-        slots = []
         for d in sv.class_ancestors(cn, reflexive=False, mixins=mixins, is_a=is_a):
             for sn in sv.class_slots(d):
                 s = sv.induced_slot(sn, class_name=d)
@@ -73,9 +72,6 @@ def roll_down(sv: SchemaView, classes: List[CLASS_NAME] = None, mixins=True, is_
             if is_a and c.is_a is not None:
                 del c.is_a
     for d in dels:
-        d_cls = sv.get_class(d)
+        sv.get_class(d)
         sv.delete_class(d)
     sv.set_modified()
-
-
-
