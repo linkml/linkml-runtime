@@ -13,10 +13,11 @@ class Issue1041TestCase(TestCase):
     """
     https://github.com/linkml/linkml/issues/1041
     """
+
     env = env
 
     def test_issue_default_prefix(self):
-        view = SchemaView(env.input_path('linkml_issue_1041.yaml'))
+        view = SchemaView(env.input_path("linkml_issue_1041.yaml"))
         uri = view.get_uri(view.get_class("Person"), expand=True)
         person_uri = "https://w3id.org/linkml/examples/personinfo/Person"
         self.assertEqual(uri, person_uri)
