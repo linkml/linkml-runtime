@@ -1036,40 +1036,67 @@ def test_enums_and_enum_relationships(schema_view_no_imports: SchemaView) -> Non
     with pytest.raises(ValueError, match='No such enum: "not_an_enum"'):
         view.permissible_value_parent("not_a_pv", "not_an_enum")
 
-    for en, e in view.all_enums().items():
-        if e.name == "Animals":
-            for pv in e.permissible_values:
-                if pv == "CAT":
-                    assert view.permissible_value_parent(pv, e.name) is None
-                    assert view.permissible_value_ancestors(pv, e.name) == ["CAT"]
-                    assert "LION" in view.permissible_value_descendants(pv, e.name)
-                    assert "ANGRY_LION" in view.permissible_value_descendants(pv, e.name)
-                    assert "TABBY" in view.permissible_value_descendants(pv, e.name)
-                    assert "TABBY" in view.permissible_value_children(pv, e.name)
-                    assert "LION" in view.permissible_value_children(pv, e.name)
-                    assert "EAGLE" not in view.permissible_value_descendants(pv, e.name)
+    animals = "Animals"
+    animal_enum = view.get_enum(animals)
+    assert animal_enum.name == animals
 
-                if pv == "LION":
-                    assert "ANGRY_LION" in view.permissible_value_children(pv, e.name)
+    pv_cat = animal_enum.permissible_values["CAT"]
+    assert pv_cat.text == "CAT"
+    assert pv_cat.is_a is None
+    assert view.permissible_value_parent("CAT", animals) is None
+    assert view.permissible_value_ancestors("CAT", animals) == ["CAT"]
+    assert set(view.permissible_value_children("CAT", animals)) == {"LION", "TABBY"}
+    assert set(view.permissible_value_descendants("CAT", animals)) == {"CAT", "LION", "ANGRY_LION", "TABBY"}
 
-                if pv == "ANGRY_LION":
-                    assert view.permissible_value_parent(pv, e.name) == ["LION"]
-                    assert view.permissible_value_ancestors(pv, e.name) == ["ANGRY_LION", "LION", "CAT"]
-                    assert view.permissible_value_descendants(pv, e.name) == ["ANGRY_LION"]
+    pv_tabby = animal_enum.permissible_values["TABBY"]
+    assert pv_tabby.is_a == "CAT"
+    assert view.permissible_value_parent("TABBY", animals) == ["CAT"]
+    assert view.permissible_value_ancestors("TABBY", animals) == ["TABBY", "CAT"]
+    assert view.permissible_value_children("TABBY", animals) == []
+    assert view.permissible_value_descendants("TABBY", animals) == ["TABBY"]
 
-    for cn, c in view.all_classes().items():
-        if c.name == "Adult":
-            assert view.class_ancestors(c.name) == ["Adult", "Person", "HasAliases", "Thing"]
+    pv_lion = animal_enum.permissible_values["LION"]
+    assert pv_lion.is_a == "CAT"
+    assert view.permissible_value_parent("LION", animals) == ["CAT"]
+    assert view.permissible_value_ancestors("LION", animals) == ["LION", "CAT"]
+    assert view.permissible_value_children("LION", animals) == ["ANGRY_LION"]
+    assert view.permissible_value_descendants("LION", animals) == ["LION", "ANGRY_LION"]
+
+    pv_angry_lion = animal_enum.permissible_values["ANGRY_LION"]
+    assert pv_angry_lion.is_a == "LION"
+    assert view.permissible_value_parent("ANGRY_LION", animals) == ["LION"]
+    assert view.permissible_value_ancestors("ANGRY_LION", animals) == ["ANGRY_LION", "LION", "CAT"]
+    assert view.permissible_value_children("ANGRY_LION", animals) == []
+    assert view.permissible_value_descendants("ANGRY_LION", animals) == ["ANGRY_LION"]
 
 
-def test_schemaview(schema_view_no_imports: SchemaView) -> None:
-    """General SchemaView tests."""
+# FIXME: improve testing of dynamic enums
+def test_dynamic_enum(schema_view_with_imports: SchemaView) -> None:
+    """Rudimentary test of dynamic enum."""
+    view = schema_view_with_imports
+
+    # dynamic enums
+    e = view.get_enum("HCAExample")
+    assert set(e.include[0].reachable_from.source_nodes) == {"GO:0007049", "GO:0022403"}
+
+
+def test_get_elements_applicable_by_identifier(schema_view_no_imports: SchemaView) -> None:
+    """Test get_elements_applicable_by_identifier method."""
     view = schema_view_no_imports
-    logger.debug(view.imports_closure())
-    assert len(view.imports_closure()) == 1
+    elements = view.get_elements_applicable_by_identifier("ORCID:1234")
+    assert PERSON in elements
+    elements = view.get_elements_applicable_by_identifier("PMID:1234")
+    assert "Organization" in elements
+    elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
+    assert "Organization" in elements
+    elements = view.get_elements_applicable_by_identifier("TEST:1234")
+    assert "anatomical entity" not in elements
 
-    all_cls = view.all_classes()
-    logger.debug(f"n_cls = {len(all_cls)}")
+
+# FIXME: improve test to actually test the annotations
+def test_annotation_dict_annotations(schema_view_no_imports: SchemaView) -> None:
+    """Test annotation_dict method for both annotations and slot_definition_annotations."""
+    view = schema_view_no_imports
 
     assert list(view.annotation_dict(IS_CURRENT).values()) == ["bar"]
     logger.debug(view.annotation_dict(EMPLOYED_AT))
@@ -1078,15 +1105,6 @@ def test_schemaview(schema_view_no_imports: SchemaView) -> None:
     e = view.get_element("has employment history")
     logger.debug(e.annotations)
 
-    elements = view.get_elements_applicable_by_identifier("ORCID:1234")
-    assert "Person" in elements
-    elements = view.get_elements_applicable_by_identifier("PMID:1234")
-    assert "Organization" in elements
-    elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
-    assert "Organization" in elements
-    elements = view.get_elements_applicable_by_identifier("TEST:1234")
-    assert "anatomical entity" not in elements
-
     assert list(view.annotation_dict(SlotDefinitionName(IS_CURRENT)).values()) == ["bar"]
     logger.debug(view.annotation_dict(SlotDefinitionName(EMPLOYED_AT)))
     element = view.get_element(SlotDefinitionName(EMPLOYED_AT))
@@ -1094,37 +1112,61 @@ def test_schemaview(schema_view_no_imports: SchemaView) -> None:
     element = view.get_element(SlotDefinitionName("has employment history"))
     logger.debug(element.annotations)
 
+
+def test_is_mixin(schema_view_no_imports: SchemaView) -> None:
+    """Test is_mixin method."""
+    view = schema_view_no_imports
     assert view.is_mixin("WithLocation")
     assert not view.is_mixin("BirthEvent")
 
+
+def test_inverse(schema_view_no_imports: SchemaView) -> None:
+    """Test inverse method."""
+    view = schema_view_no_imports
     assert view.inverse("employment history of") == "has employment history"
     assert view.inverse("has employment history") == "employment history of"
 
+
+# FIXME: improve test - use simpler schema if needed
+def test_get_mapping_index(schema_view_no_imports: SchemaView) -> None:
+    """Test get_mapping_index method."""
+    view = schema_view_no_imports
     mapping = view.get_mapping_index()
     assert mapping is not None
 
+
+def test_get_element_by_mapping(schema_view_no_imports: SchemaView) -> None:
+    """Test get_element_by_mapping method."""
+    view = schema_view_no_imports
     category_mapping = view.get_element_by_mapping("GO:0005198")
     assert category_mapping == [ACTIVITY]
 
+
+def test_is_multivalued(schema_view_no_imports: SchemaView) -> None:
+    """Test is_multivalued method."""
+    view = schema_view_no_imports
     assert view.is_multivalued("aliases")
     assert not view.is_multivalued("id")
     assert view.is_multivalued("dog addresses")
 
+
+def test_slot_is_true_for_metadata_property(schema_view_no_imports: SchemaView) -> None:
+    """Test slot_is_true_for_metadata_property method."""
+    view = schema_view_no_imports
     assert view.slot_is_true_for_metadata_property("aliases", "multivalued")
     assert view.slot_is_true_for_metadata_property("id", "identifier")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='property to introspect must be of type "boolean"'):
         view.slot_is_true_for_metadata_property("aliases", "aliases")
 
-    for tn, t in view.all_types().items():
-        logger.info(f"TN = {tn}")
-        assert t.from_schema == "https://w3id.org/linkml/tests/kitchen_sink"
 
-    for sn, s in view.all_slots().items():
-        logger.info(f"SN = {sn} RANGE={s.range}")
-        assert s.from_schema == "https://w3id.org/linkml/tests/kitchen_sink"
-        rng = view.induced_slot(sn).range
-        assert rng is not None
+# FIXME: improve tests, remove debug logging
+def test_relativity(schema_view_no_imports: SchemaView) -> None:
+    """Log the output of various methods that depend on class hierarchy."""
+    view = schema_view_no_imports
+
+    all_cls = view.all_classes()
+    logger.debug(f"n_cls = {len(all_cls)}")
 
     for cn in all_cls.keys():
         c = view.get_class(cn)
@@ -1145,13 +1187,20 @@ def test_schemaview(schema_view_no_imports: SchemaView) -> None:
 
     logger.debug(f"ALL = {view.all_elements().keys()}")
 
-    # -- TEST ANCESTOR/DESCENDANTS FUNCTIONS --
 
-    assert set(view.class_ancestors(COMPANY)) == {"Company", "Organization", "HasAliases", "Thing"}
-    assert set(view.class_ancestors(COMPANY, reflexive=False)) == {"Organization", "HasAliases", "Thing"}
-    assert set(view.class_descendants("Thing")) == {"Thing", "Person", "Organization", COMPANY, "Adult"}
+def test_ancestors_descendants(schema_view_no_imports: SchemaView) -> None:
+    """Test class_ancestors and class_descendants methods."""
+    view = schema_view_no_imports
 
-    # -- TEST CLASS SLOTS --
+    assert set(view.class_ancestors(ADULT)) == {ADULT, PERSON, "HasAliases", THING}
+    assert set(view.class_ancestors(COMPANY)) == {COMPANY, "Organization", "HasAliases", THING}
+    assert set(view.class_ancestors(COMPANY, reflexive=False)) == {"Organization", "HasAliases", THING}
+    assert set(view.class_descendants(THING)) == {THING, PERSON, "Organization", COMPANY, ADULT}
+
+
+def test_class_slots(schema_view_no_imports: SchemaView) -> None:
+    """Test class_slots method."""
+    view = schema_view_no_imports
 
     assert set(view.class_slots(PERSON)) == {
         "id",
@@ -1168,58 +1217,39 @@ def test_schemaview(schema_view_no_imports: SchemaView) -> None:
     assert view.class_slots(PERSON) == view.class_slots(ADULT)
     assert set(view.class_slots(COMPANY)) == {"id", "name", "ceo", "aliases"}
 
-    assert view.get_class(AGENT).class_uri == "prov:Agent"
-    assert view.get_uri(AGENT) == "prov:Agent"
-    logger.debug(view.get_class(COMPANY).class_uri)
 
-    assert view.get_uri(COMPANY) == "ks:Company"
-
-    # test induced slots
-    for c in [COMPANY, "Person", "Organization"]:
-        islot = view.induced_slot("aliases", c)
-        assert islot.multivalued is True
-        assert islot.owner == c
-        assert view.get_uri(islot, expand=True) == "https://w3id.org/linkml/tests/kitchen_sink/aliases"
-
-    assert view.get_identifier_slot("Company").name == "id"
-    assert view.get_identifier_slot("Thing").name == "id"
-    assert view.get_identifier_slot("FamilialRelationship") is None
-
-    for c in [COMPANY, "Person", "Organization", "Thing"]:
-        assert view.induced_slot("id", c).identifier
-        assert not view.induced_slot("name", c).identifier
-        assert not view.induced_slot("name", c).required
-        assert view.induced_slot("name", c).range == "string"
-        assert view.induced_slot("id", c).owner == c
-        assert view.induced_slot("name", c).owner == c
-
-    for c in ["Event", "EmploymentEvent", "MedicalEvent"]:
-        s = view.induced_slot("started at time", c)
-        logger.debug(f"s={s.range} // c = {c}")
-        assert s.range == "date"
-        assert s.slot_uri == "prov:startedAtTime"
-        assert s.owner == c
-
-        c_induced = view.induced_class(c)
-        assert c_induced.slots == []
-        assert c_induced.attributes != []
-        s2 = c_induced.attributes["started at time"]
-        assert s2.range == "date"
-        assert s2.slot_uri == "prov:startedAtTime"
-
-    # test slot_usage
-    assert view.induced_slot(AGE_IN_YEARS, "Person").minimum_value == 0
-    assert view.induced_slot(AGE_IN_YEARS, "Adult").minimum_value == 16
-    assert view.induced_slot("name", "Person").pattern is not None
-    assert view.induced_slot("type", "FamilialRelationship").range == "FamilialRelationshipType"
-    assert view.induced_slot(RELATED_TO, "FamilialRelationship").range == "Person"
-    assert view.get_slot(RELATED_TO).range == "Thing"
-    assert view.induced_slot(RELATED_TO, "Relationship").range == "Thing"
-    assert set(view.induced_slot("name").domain_of) == {"Thing", "Place"}
+def test_get_mappings(schema_view_no_imports: SchemaView) -> None:
+    """Test get_mappings and *_mappings methods."""
+    view = schema_view_no_imports
 
     a = view.get_class(ACTIVITY)
-    assert set(a.exact_mappings) == {"prov:Activity"}
-    logger.debug(view.get_mappings(ACTIVITY, expand=True))
+    assert view.get_mappings(ACTIVITY) == {
+        "self": ["ks:Activity"],
+        "native": ["ks:Activity"],
+        "exact": ["prov:Activity"],
+        "narrow": ["GO:0005198"],
+        "broad": [],
+        "related": [],
+        "close": [],
+        "undefined": [],
+    }
+    assert view.get_mappings(ACTIVITY, expand=True) == {
+        "self": ["https://w3id.org/linkml/tests/kitchen_sink/Activity"],
+        "native": ["https://w3id.org/linkml/tests/kitchen_sink/Activity"],
+        "exact": ["http://www.w3.org/ns/prov#Activity"],
+        "narrow": ["http://purl.obolibrary.org/obo/GO_0005198"],
+        "broad": [],
+        "related": [],
+        "close": [],
+        "undefined": [],
+    }
+
+    assert a.exact_mappings == ["prov:Activity"]
+    assert a.narrow_mappings == ["GO:0005198"]
+    assert a.broad_mappings == []
+    assert a.related_mappings == []
+    assert a.close_mappings == []
+
     assert set(view.get_mappings(ACTIVITY)["exact"]) == {"prov:Activity"}
     assert set(view.get_mappings(ACTIVITY, expand=True)["exact"]) == {"http://www.w3.org/ns/prov#Activity"}
 
@@ -1309,10 +1339,12 @@ def test_get_classes_modifying_slot() -> None:
     assert slot_classes[1] == ClassDefinitionName("Administrator")
 
 
-def test_rollup_rolldown(schema_view_no_imports: SchemaView) -> None:
+# FIXME: this test modifies the schema - may be better to use simpler schema
+# FIXME: remove debug logging and replace with assertions
+def test_rollup_rolldown() -> None:
     """Test rolling up and rolling down."""
-    # no import schema
-    view = schema_view_no_imports
+    # create the schemaview within the test to avoid modifying the test fixture
+    view = SchemaView(SCHEMA_NO_IMPORTS)
     element_name = "Event"
     roll_up(view, element_name)
     for slot in view.class_induced_slots(element_name):
@@ -1477,6 +1509,77 @@ def test_induced_slot(sv_induced_slots: SchemaView) -> None:
     assert not s2_induced_c2_1b.required
     assert s2_induced_c2_1b.description == "mixin slot2"
     assert s2_induced_c2_1b.range == "mixin1b"
+
+
+def test_induced_slot_again(schema_view_no_imports: SchemaView) -> None:
+    """Test induced slots (again)."""
+    view = schema_view_no_imports
+
+    for sn, s in view.all_slots().items():
+        assert s.from_schema == "https://w3id.org/linkml/tests/kitchen_sink"
+        rng = view.induced_slot(sn).range
+        assert rng is not None
+
+    # test induced slots
+    for cn in [COMPANY, PERSON, "Organization"]:
+        islot = view.induced_slot("aliases", cn)
+        assert islot.multivalued is True
+        assert islot.owner == cn
+        assert view.get_uri(islot, expand=True) == "https://w3id.org/linkml/tests/kitchen_sink/aliases"
+
+    assert view.get_identifier_slot(COMPANY).name == "id"
+    assert view.get_identifier_slot(THING).name == "id"
+    assert view.get_identifier_slot("FamilialRelationship") is None
+
+    for cn in [COMPANY, PERSON, "Organization", THING]:
+        assert view.induced_slot("id", cn).identifier
+        assert not view.induced_slot("name", cn).identifier
+        assert not view.induced_slot("name", cn).required
+        assert view.induced_slot("name", cn).range == "string"
+        assert view.induced_slot("id", cn).owner == cn
+        assert view.induced_slot("name", cn).owner == cn
+
+    for cn in ["Event", "EmploymentEvent", "MedicalEvent"]:
+        s = view.induced_slot("started at time", cn)
+        assert s.range == "date"
+        assert s.slot_uri == "prov:startedAtTime"
+        assert s.owner == cn
+
+        c_induced = view.induced_class(cn)
+        assert c_induced.slots == []
+        assert c_induced.attributes != []
+        s2 = c_induced.attributes["started at time"]
+        assert s2.range == "date"
+        assert s2.slot_uri == "prov:startedAtTime"
+
+    # test slot_usage
+    assert view.induced_slot(AGE_IN_YEARS, PERSON).minimum_value == 0
+    assert view.induced_slot(AGE_IN_YEARS, ADULT).minimum_value == 16
+    assert view.induced_slot("name", PERSON).pattern is not None
+    assert view.induced_slot("type", "FamilialRelationship").range == "FamilialRelationshipType"
+    assert view.induced_slot(RELATED_TO, "FamilialRelationship").range == PERSON
+    assert view.get_slot(RELATED_TO).range == THING
+    assert view.induced_slot(RELATED_TO, "Relationship").range == THING
+    assert set(view.induced_slot("name").domain_of) == {THING, "Place"}
+
+
+def test_induced_slot_yet_again(schema_view_with_imports: SchemaView) -> None:
+    """Test induced slots yet again - no such thing as too many induced_slot tests, right?"""
+    view = schema_view_with_imports
+
+    for cn in [COMPANY, PERSON, "Organization", THING]:
+        assert view.induced_slot("id", cn).identifier
+        assert not view.induced_slot("name", cn).identifier
+        assert not view.induced_slot("name", cn).required
+        assert view.induced_slot("name", cn).range == "string"
+
+    for cn in ["Event", "EmploymentEvent", "MedicalEvent"]:
+        s = view.induced_slot("started at time", cn)
+        assert s.range == "date"
+        assert s.slot_uri == "prov:startedAtTime"
+
+    assert view.induced_slot(AGE_IN_YEARS, PERSON).minimum_value == 0
+    assert view.induced_slot(AGE_IN_YEARS, ADULT).minimum_value == 16
 
 
 @pytest.mark.parametrize(
