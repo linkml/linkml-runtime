@@ -25,6 +25,7 @@ from linkml_runtime.linkml_model import (
 )
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
 from linkml_runtime.utils.introspection import package_schemaview
+from linkml_runtime.utils.schema_builder import SchemaBuilder
 from linkml_runtime.utils.schemaops import roll_down, roll_up
 from linkml_runtime.utils.schemaview import (
     CLASSES,
@@ -61,16 +62,18 @@ CREATURE_SCHEMA_RAW_URL = (
 CREATURE_SCHEMA_BASE_PATH = INPUT_DIR_PATH / "mcc"
 
 yaml_loader = YAMLLoader()
-IS_CURRENT = "is current"
-EMPLOYED_AT = "employed at"
-COMPANY = "Company"
-PERSON = "Person"
-ADULT = "Adult"
-THING = "Thing"
-AGENT = "agent"
 ACTIVITY = "activity"
-RELATED_TO = "related to"
+ADULT = "Adult"
 AGE_IN_YEARS = "age in years"
+AGENT = "agent"
+COMPANY = "Company"
+EMPLOYED_AT = "employed at"
+IS_CURRENT = "is current"
+ORGANIZATION = "Organization"
+PERSON = "Person"
+RELATED_TO = "related to"
+THING = "Thing"
+
 EMPTY = ""
 ID = "identifier"
 KEY = "key"
@@ -725,6 +728,56 @@ def test_metamodel_in_schemaview() -> None:
             assert exp_slot_uri is not None
 
 
+def test_eq_true_false() -> None:
+    """Test that __eq__ returns True or False appropriately."""
+    schema = SchemaDefinition(id="test-schema", name="TestSchema")
+    view = SchemaView(schema)
+
+    # Create a new SchemaView with the same schema
+    view_copy = SchemaView(schema)
+    assert view.schema.id == view_copy.schema.id
+    assert view.modifications == view_copy.modifications
+    # the new schema will have a unique UUID
+    assert view.uuid != view_copy.uuid
+    # the two schemas will therefore not be equal
+    assert view != view_copy
+
+    # copy over the uuid and modifications from the original schema
+    view_copy.uuid = view.uuid
+    view_copy.modifications = view.modifications
+
+    # the schemas are now equal. Hurrah!
+    assert view == view_copy
+
+    # alter the modification count
+    view_copy.modifications += 1
+    assert view != view_copy
+
+    # Create a new SchemaView with a different schema
+    diff_schema = SchemaDefinition(id="different-schema", name="DifferentSchema")
+    diff_view = SchemaView(diff_schema)
+    assert view != diff_view
+
+    # copy over the UUID and modifications from the original schema
+    diff_view.uuid = view.uuid
+    diff_view.modifications = view.modifications
+
+    # schemas have different IDs so will still be different
+    assert diff_view != view
+
+
+def test_eq_not_implemented() -> None:
+    """Test that __eq__ returns NotImplemented for non-SchemaView objects."""
+    schema = SchemaDefinition(id="test-schema", name="TestSchema")
+    view = SchemaView(schema)
+
+    # Compare with a string
+    assert view.__eq__("not-a-schemaview") is NotImplemented
+
+    # Compare with a different object
+    assert view.__eq__(object()) is NotImplemented
+
+
 def test_in_schema(schema_view_with_imports: SchemaView) -> None:
     """Test the in_schema function for determining the source schema of a class or slot."""
     view = schema_view_with_imports
@@ -734,6 +787,152 @@ def test_in_schema(schema_view_with_imports: SchemaView) -> None:
     assert view.in_schema(SlotDefinitionName("name")) == "core"
     assert view.in_schema(SlotDefinitionName(ACTIVITY)) == "core"
     assert view.in_schema(SlotDefinitionName("string")) == "types"
+    with pytest.raises(ValueError, match="Element fake_element not in any schema"):
+        view.in_schema("fake_element")
+
+
+# Prefixes, curi_maps, and imports to add to a schema
+# The lines to add are under the "text" key
+# The prefix-URL pairs are under the "exp" key
+prefixes_to_add = {
+    None: {"exp": {}},
+    "short": {
+        "text": """
+prefixes:
+  personinfo: https://w3id.org/linkml/examples/personinfo/
+""",
+        "exp": {"personinfo": "https://w3id.org/linkml/examples/personinfo/"},
+    },
+    "med": {
+        "text": """
+prefixes:
+  personinfo: https://w3id.org/linkml/examples/personinfo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  rdfs: https://www.w3.org/2000/01/rdf-schema#
+""",
+        "exp": {
+            "personinfo": "https://w3id.org/linkml/examples/personinfo/",
+            "linkml": "https://w3id.org/linkml/",
+            "schema": "http://schema.org/",
+            "rdfs": "https://www.w3.org/2000/01/rdf-schema#",
+        },
+    },
+    "long": {
+        "text": """
+prefixes:
+  personinfo: https://w3id.org/linkml/examples/personinfo/
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  rdfs: https://www.w3.org/2000/01/rdf-schema#
+  prov: http://www.w3.org/ns/prov#
+  GSSO: http://purl.obolibrary.org/obo/GSSO_
+  famrel: https://example.org/FamilialRelations#
+  bizcodes: https://example.org/bizcodes/
+  skos: http://www.w3.org/2004/02/skos/core#
+  P: http://example.org/P/
+  ROR: http://example.org/ror/
+  CODE: http://example.org/code/
+  GEO: http://example.org/geoloc/
+""",
+        "exp": {
+            "personinfo": "https://w3id.org/linkml/examples/personinfo/",
+            "linkml": "https://w3id.org/linkml/",
+            "schema": "http://schema.org/",
+            "rdfs": "https://www.w3.org/2000/01/rdf-schema#",
+            "prov": "http://www.w3.org/ns/prov#",
+            "GSSO": "http://purl.obolibrary.org/obo/GSSO_",
+            "famrel": "https://example.org/FamilialRelations#",
+            "bizcodes": "https://example.org/bizcodes/",
+            "skos": "http://www.w3.org/2004/02/skos/core#",
+            "P": "http://example.org/P/",
+            "ROR": "http://example.org/ror/",
+            "CODE": "http://example.org/code/",
+            "GEO": "http://example.org/geoloc/",
+        },
+    },
+}
+curi_maps_to_add = {
+    None: {
+        "exp": {},
+    },
+    "semweb_context": {
+        "text": "\ndefault_curi_maps:\n  - semweb_context\n",
+        "exp": {
+            "dc": "http://purl.org/dc/terms/",
+            "dcat": "http://www.w3.org/ns/dcat#",
+            "dcterms": "http://purl.org/dc/terms/",
+            "faldo": "http://biohackathon.org/resource/faldo#",
+            "foaf": "http://xmlns.com/foaf/0.1/",
+            "idot": "http://identifiers.org/",
+            "oa": "http://www.w3.org/ns/oa#",
+            "owl": "http://www.w3.org/2002/07/owl#",
+            "prov": "http://www.w3.org/ns/prov#",
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "void": "http://rdfs.org/ns/void#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "oboInOwl": "http://www.geneontology.org/formats/oboInOwl#",
+        },
+    },
+}
+# Prefixes from imports only show up if a function that generates the imports closure is run.
+imports_to_add = {
+    None: {"exp": {}, "imported": {}},
+    "linkml_types": {
+        "text": "\nimports:\n  - linkml:types\n",
+        "exp": {},
+        "imported": {
+            "linkml": "https://w3id.org/linkml/",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "shex": "http://www.w3.org/ns/shex#",
+            "schema": "http://schema.org/",
+        },
+    },
+}
+
+
+@pytest.mark.parametrize("prefix", prefixes_to_add.keys())
+@pytest.mark.parametrize("curi_map", curi_maps_to_add.keys())
+@pytest.mark.parametrize("imports", imports_to_add.keys())
+@pytest.mark.parametrize("run_imports", [True, False])
+def test_namespaces(prefix: str | None, curi_map: str | None, imports: str | None, run_imports: bool) -> None:
+    """Check that the `namespaces` function correctly loads the prefix <==> URL mapping.
+
+    Note: the `namespaces` function does not check whether a prefix already exists in the mapping and whether
+    the existing value is the same as the incoming value; the incoming value always overwrites any existing value.
+    To test this, the RDFS URL is "http://" in the "semweb_context" mapping and "https://" in the "prefixes" section.
+    Whenever the prefixes section is present, it will override the value from semweb_context.
+
+    The `run_imports` parameter indicates whether or not schemas referenced under 'imports' should be imported; if not, none of the prefixes from imported schemas will be registered as `namespaces`.
+    """
+    schema = """
+id: https://w3id.org/linkml/examples/personinfo
+name: personinfo
+"""
+    if curi_map:
+        schema += curi_maps_to_add[curi_map]["text"]
+    if prefix:
+        schema += prefixes_to_add[prefix]["text"]
+    if imports:
+        schema += imports_to_add[imports]["text"]
+
+    sv = SchemaView(schema)
+    if run_imports:
+        # execute a function that will import linked schemas
+        sv.all_schema()
+
+        assert sv.namespaces() == {
+            **curi_maps_to_add[curi_map]["exp"],
+            **prefixes_to_add[prefix]["exp"],
+            **imports_to_add[imports]["imported"],
+        }
+    else:
+        assert sv.namespaces() == {
+            **curi_maps_to_add[curi_map]["exp"],
+            **prefixes_to_add[prefix]["exp"],
+            **imports_to_add[imports]["exp"],
+        }
 
 
 CREATURE_EXPECTED = {
@@ -1106,6 +1305,12 @@ ORDERING_TESTS = {
 def test_all_classes_ordered_by(sv_ordering_tests: SchemaView, ordered_by: str) -> None:
     """Test the ordered_by method."""
     assert list(sv_ordering_tests.all_classes(ordered_by=ordered_by).keys()) == ORDERING_TESTS[ordered_by]
+
+
+def test_all_classes_ordered_by_error(sv_ordering_tests: SchemaView) -> None:
+    """Test the ordered_by method throws an error when appropriate."""
+    with pytest.raises(ValueError, match="ordered_by must be in OrderedBy or None, got whatever"):
+        sv_ordering_tests.all_classes(ordered_by="whatever")
 
 
 def test_all_classes_class_induced_slots(schema_view_with_imports: SchemaView) -> None:
@@ -1844,17 +2049,71 @@ def test_dynamic_enum(schema_view_with_imports: SchemaView) -> None:
     assert set(e.include[0].reachable_from.source_nodes) == {"GO:0007049", "GO:0022403"}
 
 
-def test_get_elements_applicable_by_identifier(schema_view_no_imports: SchemaView) -> None:
+# dictionary mapping class name to id_prefixes
+KS_PREFIXES_BY_CLASS = {PERSON: {"orcid", "doi", "zfin", "wb"}, ORGANIZATION: {"pmid", "zfin", "wb"}}
+
+
+def test_get_elements_applicable_by_prefix(schema_view_no_imports: SchemaView) -> None:
+    """Test get_elements_applicable_by_prefix method."""
+    view = schema_view_no_imports
+    # create a dictionary mapping class name to id_prefixes
+    prefixes = {el: set(view.get_element(el).id_prefixes) for el in [PERSON, ORGANIZATION]}
+
+    for el in [PERSON, ORGANIZATION]:
+        assert prefixes[el] == {prfx.upper() for prfx in KS_PREFIXES_BY_CLASS[el]}
+
+    for prefix in ["ORCID", "DOI", "ZFIN", "PMID", "WB"]:
+        els_applicable_by_prefix = view.get_elements_applicable_by_prefix(prefix)
+        for el in [PERSON, ORGANIZATION]:
+            if prefix.lower() in KS_PREFIXES_BY_CLASS[el]:
+                assert el in els_applicable_by_prefix
+            else:
+                assert el not in els_applicable_by_prefix
+
+
+@pytest.mark.parametrize("prefix", ["ORCID", "DOI", "ZFIN", "PMID", "WB", "Pmid", "TEST", "rdfs", "some_crap"])
+def test_get_elements_applicable_by_identifier(schema_view_no_imports: SchemaView, prefix: str) -> None:
     """Test get_elements_applicable_by_identifier method."""
     view = schema_view_no_imports
-    elements = view.get_elements_applicable_by_identifier("ORCID:1234")
-    assert PERSON in elements
-    elements = view.get_elements_applicable_by_identifier("PMID:1234")
-    assert "Organization" in elements
-    elements = view.get_elements_applicable_by_identifier("http://www.ncbi.nlm.nih.gov/pubmed/1234")
-    assert "Organization" in elements
-    elements = view.get_elements_applicable_by_identifier("TEST:1234")
-    assert "anatomical entity" not in elements
+    # make sure imports are loaded
+    view.all_schema()
+
+    elements = view.get_elements_applicable_by_identifier(f"{prefix}:1234-5678-90")
+    # check in KS_PREFIXES_BY_CLASS to see whether we expect PERSON or ORGANIZATION to have this prefix
+    for el in [PERSON, ORGANIZATION]:
+        if prefix.lower() in KS_PREFIXES_BY_CLASS[el]:
+            assert el in elements
+        else:
+            assert el not in elements
+
+    no_els = False
+    if prefix.lower() not in {*KS_PREFIXES_BY_CLASS[PERSON], *KS_PREFIXES_BY_CLASS[ORGANIZATION]}:
+        assert elements == []
+        no_els = True
+
+    # Prefix => URL mapping; some URLs are valid, others are made up.
+    prefix_to_url = {
+        "DOI": "http://dx.doi.org/",  # valid
+        "PMID": "http://www.ncbi.nlm.nih.gov/pubmed/",  # valid
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",  # valid
+        "ZFIN": "http://zfin.org/",  # valid
+        # made up URLs
+        "WB": "https://www.wormbase.org/get?name=",
+        "TEST": "https://www.test.com/id=",
+        "Pmid": "http://www.ncbi.nlm.nih.gov/pubmed/",
+        "ORCID": "http://orcids-r-us.com/orcid/",
+        "some_crap": "https://whatev.er/",
+    }
+    # These URLs are defined in the schema prefixes section
+    valid_urls = {"doi", "pmid", "rdfs", "zfin"}
+
+    # Get element by URL
+    # This will only successfully retrieve the element if the URL is in `valid_urls`
+    url_els = view.get_elements_applicable_by_identifier(f"{prefix_to_url[prefix]}1234-5678-90")
+    if no_els or prefix.lower() not in valid_urls:
+        assert url_els == []
+    else:
+        assert url_els == elements
 
 
 # FIXME: improve test to actually test the annotations
@@ -1957,9 +2216,9 @@ def test_ancestors_descendants(schema_view_no_imports: SchemaView) -> None:
     view = schema_view_no_imports
 
     assert set(view.class_ancestors(ADULT)) == {ADULT, PERSON, "HasAliases", THING}
-    assert set(view.class_ancestors(COMPANY)) == {COMPANY, "Organization", "HasAliases", THING}
-    assert set(view.class_ancestors(COMPANY, reflexive=False)) == {"Organization", "HasAliases", THING}
-    assert set(view.class_descendants(THING)) == {THING, PERSON, "Organization", COMPANY, ADULT}
+    assert set(view.class_ancestors(COMPANY)) == {COMPANY, ORGANIZATION, "HasAliases", THING}
+    assert set(view.class_ancestors(COMPANY, reflexive=False)) == {ORGANIZATION, "HasAliases", THING}
+    assert set(view.class_descendants(THING)) == {THING, PERSON, ORGANIZATION, COMPANY, ADULT}
 
 
 def test_get_mappings(schema_view_no_imports: SchemaView) -> None:
@@ -2265,7 +2524,7 @@ def test_induced_slot_again(schema_view_no_imports: SchemaView) -> None:
         assert rng is not None
 
     # test induced slots
-    for cn in [COMPANY, PERSON, "Organization"]:
+    for cn in [COMPANY, PERSON, ORGANIZATION]:
         islot = view.induced_slot("aliases", cn)
         assert islot.multivalued is True
         assert islot.owner == cn
@@ -2275,7 +2534,7 @@ def test_induced_slot_again(schema_view_no_imports: SchemaView) -> None:
     assert view.get_identifier_slot(THING).name == "id"
     assert view.get_identifier_slot("FamilialRelationship") is None
 
-    for cn in [COMPANY, PERSON, "Organization", THING]:
+    for cn in [COMPANY, PERSON, ORGANIZATION, THING]:
         assert view.induced_slot("id", cn).identifier
         assert not view.induced_slot("name", cn).identifier
         assert not view.induced_slot("name", cn).required
@@ -2783,7 +3042,7 @@ CYCLES = {
 }
 
 
-@pytest.mark.parametrize(("target", "cycle_start_node"), [(k, v) for k, v in CYCLES[TYPES][0].items()])
+@pytest.mark.parametrize(("target", "cycle_start_node"), list(CYCLES[TYPES][0].items()))
 @pytest.mark.parametrize("fn", ["detect_cycles", "graph_closure", "type_ancestors"])
 def test_detect_type_cycles_error(sv_cycles_schema: SchemaView, target: str, cycle_start_node: str, fn: str) -> None:
     """Test detection of cycles in the types segment of the cycles schema."""
@@ -2798,7 +3057,7 @@ def test_detect_type_cycles_error(sv_cycles_schema: SchemaView, target: str, cyc
             sv_cycles_schema.type_ancestors(type_name=target, detect_cycles=True)
 
 
-@pytest.mark.parametrize(("target", "expected"), [(k, v) for k, v in CYCLES[TYPES][1].items()])
+@pytest.mark.parametrize(("target", "expected"), list(CYCLES[TYPES][1].items()))
 @pytest.mark.parametrize("fn", ["detect_cycles", "graph_closure", "type_ancestors"])
 def test_detect_type_cycles_no_cycles(sv_cycles_schema: SchemaView, target: str, expected: set[str], fn: str) -> None:
     """Ensure that types without cycles in their ancestry do not throw an error."""
@@ -2812,7 +3071,7 @@ def test_detect_type_cycles_no_cycles(sv_cycles_schema: SchemaView, target: str,
         assert set(got) == expected
 
 
-@pytest.mark.parametrize(("target", "cycle_start_node"), [(k, v) for k, v in CYCLES[CLASSES][0].items()])
+@pytest.mark.parametrize(("target", "cycle_start_node"), list(CYCLES[CLASSES][0].items()))
 @pytest.mark.parametrize("fn", ["detect_cycles", "graph_closure", "class_ancestors"])
 def test_detect_class_cycles_error(sv_cycles_schema: SchemaView, target: str, cycle_start_node: str, fn: str) -> None:
     """Test detection of class cycles in the cycles schema."""
@@ -2828,7 +3087,7 @@ def test_detect_class_cycles_error(sv_cycles_schema: SchemaView, target: str, cy
             sv_cycles_schema.class_ancestors(target, detect_cycles=True)
 
 
-@pytest.mark.parametrize(("target", "expected"), [(k, v) for k, v in CYCLES[CLASSES][1].items()])
+@pytest.mark.parametrize(("target", "expected"), list(CYCLES[CLASSES][1].items()))
 @pytest.mark.parametrize("fn", ["detect_cycles", "graph_closure", "class_ancestors"])
 def test_detect_class_cycles_no_cycles(sv_cycles_schema: SchemaView, target: str, expected: set[str], fn: str) -> None:
     """Ensure that classes without cycles in their ancestry do not throw an error."""
@@ -2861,3 +3120,59 @@ def test_detect_class_as_range_cycles(sv_cycles_schema: SchemaView, target: str)
 
     else:
         detect_cycles(lambda x: check_recursive_id_slots(x), target)
+
+
+@pytest.mark.parametrize(
+    ("entity_type", "entity_name", "type_for_methods", "get_all_method"),
+    [
+        (ClassDefinition, "ToDeleteClass", "class", "all_classes"),
+        (SlotDefinition, "ToDeleteSlot", "slot", "all_slots"),
+        (EnumDefinition, "ToDeleteEnum", "enum", "all_enums"),
+        (TypeDefinition, "ToDeleteType", "type", "all_types"),
+        (SubsetDefinition, "ToDeleteSubset", "subset", "all_subsets"),
+    ],
+)
+def test_add_delete_get_entity(
+    entity_type: ClassDefinition | SlotDefinition | EnumDefinition | TypeDefinition | SubsetDefinition,
+    entity_name: str,
+    type_for_methods: str,
+    get_all_method: str,
+) -> None:
+    """Test that entities can be added and deleted from a schema."""
+    # method for adding an entity, e.g. view.add_class(...)
+    add_method = f"add_{type_for_methods}"
+    # method for deleting an entity, e.g. view.delete_subset(...)
+    delete_method = f"delete_{type_for_methods}"
+    # method for getting a specific entity, e.g. view.get_enum(...)
+    get_method = f"get_{type_for_methods}"
+
+    # Build the schema
+    builder = SchemaBuilder(name="test_schema", id="test_schema")
+    schema = builder.schema
+    view = SchemaView(schema)
+
+    assert view.modifications == 0
+    # create the entity definition object, e.g. ClassDefinition
+    entity = entity_type(name=entity_name)
+    # add the entity to the schemaview, e.g. view.add_class(...)
+    getattr(view, add_method)(entity)
+
+    # check that the entity is returned when running the get all command, e.g. view.all_classes(...)
+    assert {entity_name} == set(getattr(view, get_all_method)())
+    assert view.modifications == 1
+
+    # retrieve the individual class, e.g. view.get_class(...)
+    just_added_entity = getattr(view, get_method)(entity_name)
+    assert isinstance(just_added_entity, entity_type)
+
+    # delete the entity from the schema , e.g. view.delete_class(...)
+    getattr(view, delete_method)(entity_name)
+    assert getattr(view, get_all_method)() == {}
+    assert view.modifications == 2
+
+    # try to retrieve the entity again using get_{type_for_methods}, e.g. view.get_class(...)
+    assert getattr(view, get_method)(entity_name, strict=False) is None
+
+    # expect that retrieving the entity will return an error if strict mode is on
+    with pytest.raises(ValueError, match=f"No such {type_for_methods}"):
+        getattr(view, get_method)(entity_name, strict=True)
