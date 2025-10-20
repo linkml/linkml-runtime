@@ -87,9 +87,15 @@ classes:
       - age in years
       - addresses
       - has birth event
+      - reason_for_happiness
     slot_usage:
       name:
         pattern: "^\\S+ \\S+"  ## do not do this in a real schema, people have all kinds of names
+      reason_for_happiness:
+        any_of:
+          - range: BirthEvent
+          - range: EmploymentEvent
+          - range: MarriageEvent
 
   Adult:
     is_a: Person
@@ -122,6 +128,7 @@ classes:
     slots:
       - street
       - city
+      - postal code
 
   Event:
     slots:
@@ -347,6 +354,14 @@ slots:
     range: agent
     multivalued: true
     inlined_as_list: true
+
+  postal code:
+    alias: zip
+    range: string
+
+  reason_for_happiness:
+    range: string
+    required: false
 
 
 enums:
