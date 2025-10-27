@@ -177,8 +177,8 @@ class YAMLRoot(JsonObj):
                         for lek, lev in items(list_entry):
                             if lek == key_name and not isinstance(lev, (list, dict, JsonObj)):
                                 # key_name:value
-                                order_up(list_entry[lek], slot_type(list_entry))
-                                break  # Not strictly necessary, but
+                                order_up(list_entry[lek], slot_type(**list_entry))
+                                break   # Not strictly necessary, but
                             elif not isinstance(lev, (list, dict, JsonObj)):
                                 # key: value --> slot_type(key, value)
                                 order_up(lek, slot_type(lek, lev))
