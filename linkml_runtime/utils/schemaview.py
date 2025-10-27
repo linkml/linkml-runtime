@@ -2015,6 +2015,7 @@ class SchemaView:
                 induced_slot_names = [ind_slot.name for ind_slot in self.class_induced_slots(c_name)]
                 if slot.name in induced_slot_names:
                     classes_set.add(c_name)
+                    break
 
         return list(classes_set)
 
