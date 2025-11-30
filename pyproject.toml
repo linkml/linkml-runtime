@@ -57,7 +57,7 @@ dev = [
     "coverage >=6.2",
     "requests-cache >=1.2.0",
     "tox>=4",
-    "ruff==0.11.13",
+    "ruff==0.14.7",
 ]
 
 [project.scripts]
@@ -213,7 +213,7 @@ commands = [
 [tool.tox.env.format]
 description = "Run ruff code formatter."
 skip_install = true
-deps = ["ruff==0.11.13"]
+deps = ["ruff==0.14.7"]
 commands = [
   ["ruff", "format", "{posargs:.}"],
 ]
@@ -221,7 +221,7 @@ commands = [
 [tool.tox.env.format_check]
 description = "Check that code is correctly formatted by ruff."
 skip_install = true
-deps = ["ruff==0.11.13"]
+deps = ["ruff==0.14.7"]
 commands = [
   ["ruff", "format", "--check", "{posargs:.}"],
 ]
@@ -229,7 +229,7 @@ commands = [
 [tool.tox.env.lint]
 description = "Run code linter and formatter (no fixes)."
 skip_install = true
-deps = ["ruff==0.11.13"]
+deps = ["ruff==0.14.7"]
 commands = [
   ["ruff", "check", "{posargs:.}"],
 ]
