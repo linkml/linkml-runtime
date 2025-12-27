@@ -259,9 +259,6 @@ class SchemaView:
 
     This class utilizes caching for efficient lookup operations.
 
-    TODO: decide how to use this in conjunction with the existing schemaloader, which injects
-    into the schema rather than providing dynamic methods.
-
     See:
      - https://github.com/linkml/linkml/issues/59
      - https://github.com/linkml/linkml/discussions/144

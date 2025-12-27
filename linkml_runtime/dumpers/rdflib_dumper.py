@@ -2,6 +2,7 @@ import logging
 import urllib
 from typing import Any, Optional, Union
 
+import rdflib
 from curies import Converter
 from pydantic import BaseModel
 from rdflib import XSD, Graph, URIRef
