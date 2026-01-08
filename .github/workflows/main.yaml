@@ -28,10 +28,10 @@ jobs:
           python-version: 3.13
       - name: Install tox
         run: python -m pip install tox
-      - name: Run codespell
-        run: tox -e codespell
-      - name: Run code format checks
-        run: tox -e format_check
+      - name: Run pre-commit checks
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
 
   test:
     needs:
